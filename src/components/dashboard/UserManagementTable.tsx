@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
+import { MoreVertical, Check } from "lucide-react";
 import UserAvatar from "@/components/layout/UserAvatar";
 import RoleBadge from "@/components/layout/RoleBadge";
 import ThemedSelect from "@/components/common/ThemedSelect";
@@ -48,8 +50,29 @@ export default function UserManagementTable({
   onEdit,
   onDelete,
 }: UserManagementTableProps) {
+  const [openMenuUserId, setOpenMenuUserId] = useState<string | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!openMenuUserId) return;
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setOpenMenuUserId(null);
+      }
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpenMenuUserId(null);
+    };
+    document.addEventListener("mousedown", handleOutsideClick);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [openMenuUserId]);
+
   return (
-    <div className="hidden md:block overflow-x-auto rounded-2xl border border-slate-200/80 bg-white">
+    <div className="hidden md:block overflow-x-auto rounded-2xl border border-slate-200/80 bg-white min-h-[300px]">
       <table className="w-full text-left border-collapse">
         <thead>
           <tr className="border-b border-slate-100 bg-slate-50/80 text-[11px] font-extrabold uppercase tracking-wider text-slate-500">
@@ -62,7 +85,7 @@ export default function UserManagementTable({
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100 text-sm">
-          {users.map((u) => {
+          {users.map((u, idx) => {
             const statusMeta = STATUS_BADGE_MAP[u.status] ?? STATUS_BADGE_MAP.ACTIVE;
             const membershipMeta = u.membershipType
               ? MEMBERSHIP_BADGE_MAP[u.membershipType]
@@ -70,6 +93,8 @@ export default function UserManagementTable({
             const isBlocked = u.status === "SUSPENDED";
             const isSelf = Boolean(currentUserId && currentUserId === u.id);
             const isBusy = busyUserId === u.id;
+            const isMenuOpen = openMenuUserId === u.id;
+            const isLastRows = idx >= users.length - 2 && users.length >= 3;
 
             return (
               <tr key={u.id} className="hover:bg-[#f7f4ea]/45 transition-colors">
@@ -152,59 +177,131 @@ export default function UserManagementTable({
                 </td>
 
                 <td className="py-3.5 px-4 text-right">
-                  <div className="inline-flex items-center justify-end gap-1.5">
+                  <div className="inline-flex items-center justify-end gap-2">
                     {isPendingView && onApprove && (
                       <button
                         type="button"
                         disabled={isBusy}
                         onClick={() => onApprove(u)}
-                        className="px-2.5 py-1.5 rounded-xl bg-[#006a4e] hover:bg-[#004d38] text-white text-xs font-bold transition-colors disabled:opacity-45 cursor-pointer"
+                        className="px-2.5 py-1.5 rounded-xl bg-[#006a4e] hover:bg-[#004d38] text-white text-xs font-bold transition-colors disabled:opacity-45 cursor-pointer shadow-2xs"
                       >
                         {isBn ? "✓ অনুমোদন" : "✓ Approve"}
                       </button>
                     )}
-                    <button
-                      type="button"
-                      onClick={() => onView(u)}
-                      className="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+
+                    <div
+                      className="relative inline-block text-left"
+                      ref={isMenuOpen ? menuRef : null}
                     >
-                      <ViewActionIcon />
-                      <span>{isBn ? "দেখুন" : "View"}</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => onEdit(u)}
-                      className="px-2.5 py-1.5 rounded-xl bg-[#006a4e]/10 hover:bg-[#006a4e] text-[var(--primary)] hover:text-white text-xs font-bold inline-flex items-center gap-1.5 transition-colors cursor-pointer"
-                    >
-                      <EditActionIcon />
-                      <span>{isBn ? "এডিট" : "Edit"}</span>
-                    </button>
-                    <button
-                      type="button"
-                      disabled={isSelf || isBusy}
-                      onClick={() => onToggleBlock(u)}
-                      className={`px-2.5 py-1.5 rounded-xl text-xs font-bold inline-flex items-center gap-1.5 transition-colors disabled:opacity-45 disabled:cursor-not-allowed cursor-pointer ${
-                        isBlocked
-                          ? "bg-[#006a4e] hover:bg-[#004d38] text-white"
-                          : "bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200"
-                      }`}
-                    >
-                      <SuspendActionIcon suspended={isBlocked} />
-                      <span>
-                        {isBlocked
-                          ? isBn ? "সক্রিয়" : "Unsuspend"
-                          : isBn ? "স্থগিত" : "Suspend"}
-                      </span>
-                    </button>
-                    <button
-                      type="button"
-                      disabled={isSelf || isBusy}
-                      onClick={() => onDelete(u)}
-                      className="px-2.5 py-1.5 rounded-xl bg-[#f42a41]/10 hover:bg-[#f42a41] text-[var(--accent)] hover:text-white text-xs font-bold inline-flex items-center gap-1.5 transition-colors disabled:opacity-45 disabled:cursor-not-allowed cursor-pointer"
-                    >
-                      <DeleteActionIcon />
-                      <span>{isBn ? "মুছুন" : "Delete"}</span>
-                    </button>
+                      <button
+                        type="button"
+                        aria-label={isBn ? "ইউজার অ্যাকশন মেনু" : "User actions menu"}
+                        aria-haspopup="menu"
+                        aria-expanded={isMenuOpen}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setOpenMenuUserId((prev) => (prev === u.id ? null : u.id));
+                        }}
+                        className={`inline-flex items-center justify-center w-8 h-8 rounded-full transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#006a4e] ${
+                          isMenuOpen
+                            ? "bg-[#006a4e]/10 text-[#006a4e]"
+                            : "text-slate-500 hover:text-slate-900 hover:bg-slate-100"
+                        }`}
+                      >
+                        <MoreVertical className="w-4 h-4 stroke-[2.2]" />
+                      </button>
+
+                      {isMenuOpen && (
+                        <div
+                          role="menu"
+                          className={`absolute right-0 z-50 w-44 rounded-2xl bg-white border border-slate-200/90 shadow-xl p-1.5 text-xs animate-in fade-in zoom-in-95 duration-150 ${
+                            isLastRows
+                              ? "bottom-full mb-1.5 origin-bottom-right"
+                              : "top-full mt-1.5 origin-top-right"
+                          }`}
+                        >
+                          {isPendingView && onApprove && (
+                            <button
+                              type="button"
+                              role="menuitem"
+                              disabled={isBusy}
+                              onClick={() => {
+                                setOpenMenuUserId(null);
+                                onApprove(u);
+                              }}
+                              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-bold text-[#006a4e] hover:bg-emerald-50 transition-colors cursor-pointer disabled:opacity-45"
+                            >
+                              <Check className="w-4 h-4 text-[#006a4e] stroke-[2.4]" />
+                              <span>{isBn ? "অনুমোদন করুন" : "Approve"}</span>
+                            </button>
+                          )}
+
+                          <button
+                            type="button"
+                            role="menuitem"
+                            onClick={() => {
+                              setOpenMenuUserId(null);
+                              onView(u);
+                            }}
+                            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-bold text-slate-700 hover:bg-slate-100 hover:text-[#006a4e] transition-colors cursor-pointer"
+                          >
+                            <ViewActionIcon className="w-4 h-4 text-slate-500" />
+                            <span>{isBn ? "বিস্তারিত দেখুন" : "View Details"}</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            role="menuitem"
+                            onClick={() => {
+                              setOpenMenuUserId(null);
+                              onEdit(u);
+                            }}
+                            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-bold text-[#006a4e] hover:bg-[#006a4e]/10 transition-colors cursor-pointer"
+                          >
+                            <EditActionIcon className="w-4 h-4 text-[#006a4e]" />
+                            <span>{isBn ? "এডিট করুন" : "Edit User"}</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            role="menuitem"
+                            disabled={isSelf || isBusy}
+                            onClick={() => {
+                              setOpenMenuUserId(null);
+                              onToggleBlock(u);
+                            }}
+                            className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-bold transition-colors cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed ${
+                              isBlocked
+                                ? "text-emerald-700 hover:bg-emerald-50"
+                                : "text-amber-800 hover:bg-amber-50"
+                            }`}
+                          >
+                            <SuspendActionIcon suspended={isBlocked} className="w-4 h-4" />
+                            <span>
+                              {isBlocked
+                                ? isBn ? "সক্রিয় করুন" : "Unsuspend"
+                                : isBn ? "স্থগিত করুন" : "Suspend"}
+                            </span>
+                          </button>
+
+                          <div className="my-1 border-t border-slate-100" />
+
+                          <button
+                            type="button"
+                            role="menuitem"
+                            disabled={isSelf || isBusy}
+                            onClick={() => {
+                              setOpenMenuUserId(null);
+                              onDelete(u);
+                            }}
+                            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-bold text-[#f42a41] hover:bg-rose-50 transition-colors cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed"
+                          >
+                            <DeleteActionIcon className="w-4 h-4 text-[#f42a41]" />
+                            <span>{isBn ? "ডিলিট করুন" : "Delete"}</span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </td>
               </tr>
