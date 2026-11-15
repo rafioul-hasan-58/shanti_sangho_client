@@ -528,7 +528,7 @@ export const allPeople: PersonDetail[] = [
     type: "committee",
     badgeEn: "💻 Lead Engineer • Joint Secretary",
     badgeBn: "💻 টেক লিড ও প্রকৌশলী • যুগ্ম সাধারণ সম্পাদক",
-    image: "/images/committee/sourav.png",
+    image: "/images/admin/sourav.jpg",
     bloodGroup: "O+",
     joiningYear: "2017",
     villageEn: "Shavarchala",

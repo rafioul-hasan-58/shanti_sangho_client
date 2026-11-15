@@ -73,7 +73,7 @@ export const committeeMembers: CommitteeMember[] = [
     nameBn: "সৌরভ প্রধান",
     roleEn: "Joint Secretary",
     roleBn: "যুগ্ম সাধারণ সম্পাদক",
-    image: "/images/committee/sourav.png",
+    image: "/images/admin/sourav.jpg",
     isKeyLeader: true,
   },
    {
