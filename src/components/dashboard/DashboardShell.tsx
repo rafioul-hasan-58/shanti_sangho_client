@@ -27,7 +27,7 @@ import DashboardSidebar from "./DashboardSidebar";
 import AdminOverviewView from "./AdminOverviewView";
 import AdminUsersView from "./AdminUsersView";
 import MembersDirectory from "@/components/members/MembersDirectory";
-import type { BloodGroup } from "@/types";
+import type { BloodGroup, MembershipType } from "@/types";
 import { BLOOD_GROUP_OPTIONS, formatBloodGroupDisplay } from "@/lib/bloodGroup";
 import {
   getRoleDisplayMeta,
@@ -163,10 +163,12 @@ export default function DashboardShell({
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   const buildProfileForm = (u: typeof user) => ({
-    name: u?.name || "",
+    name: u?.name || (u as any)?.fullName || "",
     fatherName: u?.fatherName || "",
     motherName: u?.motherName || "",
-    bloodGroup: u?.bloodGroup || "UNKNOWN",
+    phoneNumber: u?.phoneNumber || (u as any)?.phone || "",
+    bloodGroup: (u?.bloodGroup as BloodGroup) || "UNKNOWN",
+    membershipType: (u?.membershipType as MembershipType) || "PERMANENT",
     bio: u?.bio || "",
     summary: u?.summary || "",
     profession: u?.profession || "",
@@ -251,19 +253,33 @@ export default function DashboardShell({
     setIsSavingProfile(true);
     setProfileSaveSuccess(false);
 
+    const trimmedName = profileForm.name.trim();
+    if (trimmedName.length < 2) {
+      alert(
+        isBn
+          ? "পুরো নাম কমপক্ষে ২ অক্ষরের হতে হবে।"
+          : "Full name must be at least 2 characters."
+      );
+      setIsSavingProfile(false);
+      return;
+    }
+
     try {
       await updateProfile({
-        name: profileForm.name,
-        fatherName: profileForm.fatherName || null,
-        motherName: profileForm.motherName || null,
+        name: trimmedName,
+        fullName: trimmedName,
+        fatherName: profileForm.fatherName.trim() || null,
+        motherName: profileForm.motherName.trim() || null,
+        phoneNumber: profileForm.phoneNumber.trim() || null,
         bloodGroup: profileForm.bloodGroup,
-        bio: profileForm.bio || null,
-        summary: profileForm.summary || null,
-        profession: profileForm.profession || null,
-        village: profileForm.village || null,
-        currentLocation: profileForm.currentLocation || null,
-        whatsappNumber: profileForm.whatsappNumber || null,
-        facebookProfile: profileForm.facebookProfile || null,
+        membershipType: profileForm.membershipType,
+        bio: profileForm.bio.trim() || null,
+        summary: profileForm.summary.trim() || null,
+        profession: profileForm.profession.trim() || null,
+        village: profileForm.village.trim() || null,
+        currentLocation: profileForm.currentLocation.trim() || null,
+        whatsappNumber: profileForm.whatsappNumber.trim() || null,
+        facebookProfile: profileForm.facebookProfile.trim() || null,
       });
 
       setSavedProfileForm(profileForm);
@@ -271,7 +287,11 @@ export default function DashboardShell({
       setTimeout(() => setProfileSaveSuccess(false), 4000);
     } catch (err) {
       console.error("Profile save error:", err);
-      alert(isBn ? "প্রোফাইল সংরক্ষণ ব্যর্থ হয়েছে" : "Failed to save profile");
+      const errMsg = err instanceof Error ? err.message : "";
+      alert(
+        errMsg ||
+          (isBn ? "প্রোফাইল সংরক্ষণ ব্যর্থ হয়েছে" : "Failed to save profile")
+      );
     } finally {
       setIsSavingProfile(false);
     }
@@ -364,6 +384,7 @@ export default function DashboardShell({
         setLocalProfilePicture(uploadResult.url);
         await updateProfile({
           picture: uploadResult.url,
+          profileImage: uploadResult.url,
         });
       } catch (uploadErr) {
         // Fallback to local preview if backend is offline or network error
@@ -371,6 +392,7 @@ export default function DashboardShell({
         setLocalProfilePicture(previewDataUrl);
         await updateProfile({
           picture: previewDataUrl,
+          profileImage: previewDataUrl,
         });
       }
 
@@ -413,7 +435,8 @@ export default function DashboardShell({
     setPhotoOptimizationNote(null);
     setPhotoError(null);
     await updateProfile({
-      picture: "",
+      picture: undefined,
+      profileImage: null,
     });
     setPhotoStatusMessage({
       bn: "প্রোফাইল ছবি সরানো হয়েছে।",
@@ -1094,6 +1117,30 @@ export default function DashboardShell({
                           placeholder={isBn ? "যেমন: ঢাকা, বাংলাদেশ" : "e.g. Dhaka, Bangladesh"}
                           className="w-full h-12 px-4 rounded-2xl bg-slate-50/70 border border-slate-200/90 text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-[#006a4e] focus:ring-4 focus:ring-[#006a4e]/10 transition-all outline-none shadow-2xs hover:bg-slate-50"
                         />
+                      </div>
+
+                      {/* phoneNumber (String?) */}
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <label className="block text-xs sm:text-sm font-bold text-slate-700">
+                            {isBn ? "মোবাইল নম্বর" : "Phone Number"}
+                          </label>
+                          <span className="text-[10px] text-slate-600 font-bold bg-slate-100 border border-slate-200/80 px-2 py-0.5 rounded-full">
+                            {isBn ? "কল ও এসএমএস" : "Call & SMS"}
+                          </span>
+                        </div>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-slate-600 font-bold text-base">
+                            📞
+                          </div>
+                          <input
+                            type="tel"
+                            value={profileForm.phoneNumber}
+                            onChange={(e) => setProfileForm({ ...profileForm, phoneNumber: e.target.value })}
+                            placeholder="+8801700000000"
+                            className="w-full h-12 pl-12 pr-4 rounded-2xl bg-slate-50/70 border border-slate-200/90 text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-[#006a4e] focus:ring-4 focus:ring-[#006a4e]/10 transition-all outline-none shadow-2xs hover:bg-slate-50"
+                          />
+                        </div>
                       </div>
 
                       {/* whatsappNumber (String?) */}

@@ -462,3 +462,165 @@ export async function deleteUserById(
   };
 }
 
+/**
+ * Payload interface for user profile updates matching the 14 allowed fields.
+ */
+export interface UpdateProfilePayload {
+  fullName?: string;
+  fatherName?: string | null;
+  motherName?: string | null;
+  profileImage?: string | null;
+  phoneNumber?: string | null;
+  whatsappNumber?: string | null;
+  bloodGroup?: string | null;
+  membershipType?: MembershipType | null;
+  bio?: string | null;
+  summary?: string | null;
+  profession?: string | null;
+  village?: string | null;
+  currentLocation?: string | null;
+  facebookProfile?: string | null;
+
+  // Frontend aliases that may be passed from forms / state:
+  name?: string;
+  picture?: string | null;
+  phone?: string | null;
+}
+
+/**
+ * Strictly filters the payload for `PATCH /api/v1/users/update-profile`.
+ * The server rejects unknown/extra properties with 400 Bad Request.
+ * Read-only fields (id, email, password, role, status, authProvider,
+ * emailVerified, phoneVerified, adminVerified, createdAt, updatedAt)
+ * are NEVER included.
+ * Cleared optional fields are converted to `null` or trimmed strings.
+ */
+export function sanitizeUpdateProfilePayload(
+  payload: UpdateProfilePayload
+): Record<string, unknown> {
+  const clean: Record<string, unknown> = {};
+
+  // 1. fullName (string, min 2 chars)
+  const rawFullName = payload.fullName ?? payload.name;
+  if (typeof rawFullName === "string") {
+    const trimmed = rawFullName.trim();
+    if (trimmed.length >= 2) {
+      clean.fullName = trimmed;
+    }
+  }
+
+  // Helper for optional string or null fields
+  const sanitizeOptionalField = (val: unknown): string | null | undefined => {
+    if (val === undefined) return undefined;
+    if (val === null) return null;
+    if (typeof val === "string") {
+      const trimmed = val.trim();
+      return trimmed.length > 0 ? trimmed : null;
+    }
+    return undefined;
+  };
+
+  // 2. fatherName (string or null)
+  if (payload.fatherName !== undefined) {
+    clean.fatherName = sanitizeOptionalField(payload.fatherName);
+  }
+
+  // 3. motherName (string or null)
+  if (payload.motherName !== undefined) {
+    clean.motherName = sanitizeOptionalField(payload.motherName);
+  }
+
+  // 4. profileImage (string URL or null)
+  const rawImage = payload.profileImage !== undefined ? payload.profileImage : payload.picture;
+  if (rawImage !== undefined) {
+    clean.profileImage = sanitizeOptionalField(rawImage);
+  }
+
+  // 5. phoneNumber (string or null)
+  const rawPhone = payload.phoneNumber !== undefined ? payload.phoneNumber : payload.phone;
+  if (rawPhone !== undefined) {
+    clean.phoneNumber = sanitizeOptionalField(rawPhone);
+  }
+
+  // 6. whatsappNumber (string or null)
+  if (payload.whatsappNumber !== undefined) {
+    clean.whatsappNumber = sanitizeOptionalField(payload.whatsappNumber);
+  }
+
+  // 7. bloodGroup (enum: 'A_POSITIVE' | 'A_NEGATIVE' | 'B_POSITIVE' | 'B_NEGATIVE' | 'AB_POSITIVE' | 'AB_NEGATIVE' | 'O_POSITIVE' | 'O_NEGATIVE' | 'UNKNOWN')
+  if (payload.bloodGroup !== undefined) {
+    clean.bloodGroup = toPrismaBloodGroup(payload.bloodGroup);
+  }
+
+  // 8. membershipType (enum: 'PERMANENT' | 'PLAYER_QUOTA')
+  if (payload.membershipType !== undefined) {
+    if (payload.membershipType === "PLAYER_QUOTA" || payload.membershipType === "PERMANENT") {
+      clean.membershipType = payload.membershipType;
+    } else if (payload.membershipType === null) {
+      clean.membershipType = "PERMANENT";
+    }
+  }
+
+  // 9. bio (string or null)
+  if (payload.bio !== undefined) {
+    clean.bio = sanitizeOptionalField(payload.bio);
+  }
+
+  // 10. summary (string or null)
+  if (payload.summary !== undefined) {
+    clean.summary = sanitizeOptionalField(payload.summary);
+  }
+
+  // 11. profession (string or null)
+  if (payload.profession !== undefined) {
+    clean.profession = sanitizeOptionalField(payload.profession);
+  }
+
+  // 12. village (string or null)
+  if (payload.village !== undefined) {
+    clean.village = sanitizeOptionalField(payload.village);
+  }
+
+  // 13. currentLocation (string or null)
+  if (payload.currentLocation !== undefined) {
+    clean.currentLocation = sanitizeOptionalField(payload.currentLocation);
+  }
+
+  // 14. facebookProfile (string URL or null)
+  if (payload.facebookProfile !== undefined) {
+    clean.facebookProfile = sanitizeOptionalField(payload.facebookProfile);
+  }
+
+  return clean;
+}
+
+/**
+ * Update authenticated user's own profile:
+ * `PATCH /api/v1/users/update-profile`
+ */
+export async function updateUserProfile(
+  payload: UpdateProfilePayload
+): Promise<{ user: Record<string, unknown>; message: string }> {
+  const body = sanitizeUpdateProfilePayload(payload);
+
+  const res = await apiRequest<Record<string, unknown>>("/users/update-profile", {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+
+  const rawUserData =
+    res.data && typeof res.data === "object"
+      ? (res.data as any).user && typeof (res.data as any).user === "object"
+        ? (res.data as any).user
+        : res.data
+      : body;
+
+  return {
+    user: rawUserData,
+    message: res.message || "Profile updated successfully",
+  };
+}
+

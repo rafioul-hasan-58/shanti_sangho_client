@@ -21,6 +21,7 @@ import {
   refreshAccessToken,
   subscribeAuthState,
 } from "@/lib/api";
+import { updateUserProfile, type UpdateProfilePayload } from "@/lib/api/users";
 import {
   decodeJwtPayload,
   extractTokensFromAuthPayload,
@@ -456,9 +457,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [persistSession]
   );
 
-  /** Update user profile fields (matches Prisma User schema) */
+  /** Update user profile fields via PATCH /api/v1/users/update-profile */
   const updateProfile = useCallback(
-    async (profileData: Partial<AuthUser>): Promise<AuthUser> => {
+    async (
+      profileData: Partial<AuthUser> & {
+        fullName?: string;
+        profileImage?: string | null;
+        phoneNumber?: string | null;
+      }
+    ): Promise<AuthUser> => {
       setError(null);
 
       // Merge with existing user
@@ -467,60 +474,84 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw new Error("No authenticated user session found");
       }
 
+      // 1. Prepare strictly filtered payload (only allowed 14 update fields)
+      const apiPayload: UpdateProfilePayload = {
+        fullName: profileData.fullName ?? profileData.name,
+        fatherName: profileData.fatherName,
+        motherName: profileData.motherName,
+        profileImage: profileData.profileImage ?? profileData.picture,
+        phoneNumber: profileData.phoneNumber ?? profileData.phone,
+        whatsappNumber: profileData.whatsappNumber,
+        bloodGroup: profileData.bloodGroup,
+        membershipType: profileData.membershipType,
+        bio: profileData.bio,
+        summary: profileData.summary,
+        profession: profileData.profession,
+        village: profileData.village,
+        currentLocation: profileData.currentLocation,
+        facebookProfile: profileData.facebookProfile,
+      };
+
       const updatedUser: AuthUser = {
         ...currentUser,
         ...profileData,
       };
 
-      // 1. Send update to backend API (fetchWithAuth attaches token and handles 401 refresh)
       try {
-        const payload = {
-          name: profileData.name ?? updatedUser.name,
-          fatherName: profileData.fatherName !== undefined ? profileData.fatherName : updatedUser.fatherName,
-          motherName: profileData.motherName !== undefined ? profileData.motherName : updatedUser.motherName,
-          bloodGroup: profileData.bloodGroup !== undefined ? profileData.bloodGroup : updatedUser.bloodGroup,
-          bio: profileData.bio !== undefined ? profileData.bio : updatedUser.bio,
-          summary: profileData.summary !== undefined ? profileData.summary : updatedUser.summary,
-          profession: profileData.profession !== undefined ? profileData.profession : updatedUser.profession,
-          village: profileData.village !== undefined ? profileData.village : updatedUser.village,
-          currentLocation: profileData.currentLocation !== undefined ? profileData.currentLocation : updatedUser.currentLocation,
-          whatsappNumber: profileData.whatsappNumber !== undefined ? profileData.whatsappNumber : updatedUser.whatsappNumber,
-          facebookProfile: profileData.facebookProfile !== undefined ? profileData.facebookProfile : updatedUser.facebookProfile,
-        };
-
-        let apiSuccess = false;
-        try {
-          const res = await fetchWithAuth("/users/profile", {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          });
-          if (res.ok) {
-            const json = await res.json().catch(() => null);
-            if (json?.data?.user) {
-              Object.assign(updatedUser, json.data.user);
-            }
-            apiSuccess = true;
+        const { user: backendUser } = await updateUserProfile(apiPayload);
+        if (backendUser && typeof backendUser === "object") {
+          // Sync database values back to AuthUser
+          if (backendUser.fullName && typeof backendUser.fullName === "string") {
+            updatedUser.name = backendUser.fullName;
+            updatedUser.fullName = backendUser.fullName;
           }
-        } catch {}
-
-        if (!apiSuccess) {
-          try {
-            const res2 = await fetchWithAuth("/user/profile", {
-              method: "PUT",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(payload),
-            });
-            if (res2.ok) {
-              const json2 = await res2.json().catch(() => null);
-              if (json2?.data?.user) {
-                Object.assign(updatedUser, json2.data.user);
-              }
-            }
-          } catch {}
+          if (backendUser.profileImage !== undefined) {
+            updatedUser.picture = (backendUser.profileImage as string) || undefined;
+            updatedUser.profileImage = (backendUser.profileImage as string) || null;
+          }
+          if (backendUser.phoneNumber !== undefined) {
+            updatedUser.phoneNumber = (backendUser.phoneNumber as string) || null;
+            updatedUser.phone = (backendUser.phoneNumber as string) || null;
+          }
+          if (backendUser.fatherName !== undefined) {
+            updatedUser.fatherName = (backendUser.fatherName as string) || null;
+          }
+          if (backendUser.motherName !== undefined) {
+            updatedUser.motherName = (backendUser.motherName as string) || null;
+          }
+          if (backendUser.bloodGroup) {
+            updatedUser.bloodGroup = String(backendUser.bloodGroup);
+          }
+          if (backendUser.membershipType) {
+            updatedUser.membershipType = backendUser.membershipType as any;
+          }
+          if (backendUser.bio !== undefined) {
+            updatedUser.bio = (backendUser.bio as string) || null;
+          }
+          if (backendUser.summary !== undefined) {
+            updatedUser.summary = (backendUser.summary as string) || null;
+          }
+          if (backendUser.profession !== undefined) {
+            updatedUser.profession = (backendUser.profession as string) || null;
+          }
+          if (backendUser.village !== undefined) {
+            updatedUser.village = (backendUser.village as string) || null;
+          }
+          if (backendUser.currentLocation !== undefined) {
+            updatedUser.currentLocation = (backendUser.currentLocation as string) || null;
+          }
+          if (backendUser.whatsappNumber !== undefined) {
+            updatedUser.whatsappNumber = (backendUser.whatsappNumber as string) || null;
+          }
+          if (backendUser.facebookProfile !== undefined) {
+            updatedUser.facebookProfile = (backendUser.facebookProfile as string) || null;
+          }
         }
       } catch (err) {
-        console.warn("Backend profile sync notice (saved locally):", err);
+        const errMsg = err instanceof Error ? err.message : String(err);
+        console.error("Profile update failed on server:", err);
+        setError(errMsg);
+        throw err;
       }
 
       // Preserve any refreshed/rotated tokens updated in storage during fetchWithAuth
@@ -538,7 +569,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         updatedUser.status = normalizeUserStatus(updatedUser.status);
       }
 
-      // 2. Persist in local state & storage
+      // 2. Persist confirmed session in local state & storage
       setUser(updatedUser);
       persistStoredSession(updatedUser);
 

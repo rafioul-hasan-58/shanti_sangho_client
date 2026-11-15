@@ -40,6 +40,11 @@ export interface AuthUser {
   adminApproved?: string | boolean | null;
 
   // Profile update fields matching Prisma schema
+  fullName?: string;
+  profileImage?: string | null;
+  phoneNumber?: string | null;
+  phone?: string | null;
+  membershipType?: MembershipType | null;
   fatherName?: string | null;
   motherName?: string | null;
   bloodGroup?: BloodGroup | string | null;

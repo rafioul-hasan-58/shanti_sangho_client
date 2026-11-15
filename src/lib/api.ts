@@ -120,9 +120,17 @@ export function clearStoredSession(): void {
 }
 
 function buildApiUrl(endpoint: string): string {
-  return endpoint.startsWith("http")
-    ? endpoint
-    : `${API_BASE_URL}${endpoint.startsWith("/") ? "" : "/"}${endpoint}`;
+  if (endpoint.startsWith("http://") || endpoint.startsWith("https://")) {
+    return endpoint;
+  }
+  const base = API_BASE_URL.replace(/\/+$/, "");
+  let path = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
+
+  // If base already ends with /api/v1 and path starts with /api/v1, prevent duplication
+  if (base.endsWith("/api/v1") && path.startsWith("/api/v1/")) {
+    path = path.slice(7);
+  }
+  return `${base}${path}`;
 }
 
 /**
