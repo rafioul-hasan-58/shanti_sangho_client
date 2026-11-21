@@ -24,6 +24,7 @@ import {
   Layers,
   ChevronDown,
   FileSpreadsheet,
+  Check,
 } from "lucide-react";
 import { useContributions, useFunds, useDeleteContribution } from "@/lib/hooks/use-finance";
 import type { Contribution } from "@/lib/api/finance";
@@ -94,57 +95,97 @@ export function ContributionsTable({
   const total = data?.total || 0;
   const totalPages = data?.totalPages || 1;
 
-  // Method filter tabs definition
-  const METHOD_TABS: Array<{
+  // Custom Method Dropdown State
+  const [isMethodDropdownOpen, setIsMethodDropdownOpen] = useState(false);
+  const methodDropdownRef = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        methodDropdownRef.current &&
+        !methodDropdownRef.current.contains(e.target as Node)
+      ) {
+        setIsMethodDropdownOpen(false);
+      }
+    };
+    if (isMethodDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isMethodDropdownOpen]);
+
+  // Method options definition
+  const METHOD_OPTIONS: Array<{
     id: PaymentMethod | "ALL";
     labelBn: string;
     labelEn: string;
     dotColor: string;
-    activeColor: string;
   }> = [
     {
       id: "ALL",
       labelBn: "সকল মেথড",
       labelEn: "All Methods",
       dotColor: "bg-slate-400",
-      activeColor: "bg-[#006a4e] text-white border-[#006a4e] shadow-xs",
     },
     {
       id: "CASH",
       labelBn: "ক্যাশ",
       labelEn: "Cash",
       dotColor: "bg-emerald-500",
-      activeColor: "bg-emerald-600 text-white border-emerald-600 shadow-xs",
     },
     {
       id: "BKASH",
       labelBn: "বিকাশ",
       labelEn: "bKash",
       dotColor: "bg-[#e2136e]",
-      activeColor: "bg-[#e2136e] text-white border-[#e2136e] shadow-xs",
     },
     {
       id: "NAGAD",
       labelBn: "নগদ",
       labelEn: "Nagad",
       dotColor: "bg-[#f7941d]",
-      activeColor: "bg-[#f7941d] text-white border-[#f7941d] shadow-xs",
     },
     {
       id: "BANK",
       labelBn: "ব্যাংক",
       labelEn: "Bank",
       dotColor: "bg-blue-500",
-      activeColor: "bg-blue-600 text-white border-blue-600 shadow-xs",
     },
     {
       id: "OTHER",
       labelBn: "অন্যান্য",
       labelEn: "Other",
       dotColor: "bg-purple-500",
-      activeColor: "bg-purple-600 text-white border-purple-600 shadow-xs",
     },
   ];
+
+  const selectedMethodOption =
+    METHOD_OPTIONS.find((opt) => opt.id === method) || METHOD_OPTIONS[0];
+
+  // Quick date presets helpers
+  const getTodayString = () => format(new Date(), "yyyy-MM-dd");
+  const getMonthStartString = () =>
+    format(
+      new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+      "yyyy-MM-dd"
+    );
+
+  const isTodayActive = from === getTodayString() && to === getTodayString();
+  const isMonthActive =
+    from === getMonthStartString() && to === getTodayString();
+
+  const handleDatePreset = (preset: "TODAY" | "THIS_MONTH") => {
+    if (preset === "TODAY") {
+      setFrom(getTodayString());
+      setTo(getTodayString());
+    } else if (preset === "THIS_MONTH") {
+      setFrom(getMonthStartString());
+      setTo(getTodayString());
+    }
+    setPage(1);
+  };
 
   const clearFilters = () => {
     setSearch("");
@@ -163,8 +204,7 @@ export function ContributionsTable({
     <div className="space-y-4">
       {/* Modern Filter Card */}
       <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs space-y-3">
-        {/* Top Controls: Search, Fund Filter, Date Range, Reset */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-2.5">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2.5">
           {/* Left: Search input */}
           <div className="relative flex-1 min-w-[200px]">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -196,7 +236,7 @@ export function ContributionsTable({
             )}
           </div>
 
-          {/* Right: Fund filter, Date range & Reset */}
+          {/* Right Controls: Fund Filter, Method Dropdown, Date Range, Presets & Reset */}
           <div className="flex items-center flex-wrap gap-2">
             {/* Fund Filter (shown if not scoped to a specific fund) */}
             {!fundId && (
@@ -207,7 +247,7 @@ export function ContributionsTable({
                     setFundFilter(e.target.value);
                     setPage(1);
                   }}
-                  className="appearance-none pl-8 pr-7 py-1.5 rounded-xl border border-slate-200/90 bg-slate-50 hover:bg-white hover:border-slate-300 text-xs font-bold text-slate-700 focus:outline-none focus:border-[#006a4e] cursor-pointer transition-colors shadow-2xs"
+                  className="appearance-none pl-8 pr-7 py-2 rounded-xl border border-slate-200/90 bg-slate-50 hover:bg-white hover:border-slate-300 text-xs font-bold text-slate-700 focus:outline-none focus:border-[#006a4e] cursor-pointer transition-colors shadow-2xs"
                 >
                   <option value="ALL">{isBn ? "সকল তহবিল" : "All Funds"}</option>
                   {funds.map((f) => (
@@ -221,30 +261,104 @@ export function ContributionsTable({
               </div>
             )}
 
-            {/* Date Range Picker Pill */}
-            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200/90 bg-slate-50 hover:bg-white hover:border-slate-300 text-xs shadow-2xs transition-colors">
-              <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-              <input
-                type="date"
-                value={from}
-                onChange={(e) => {
-                  setFrom(e.target.value);
-                  setPage(1);
-                }}
-                title={isBn ? "শুরুর তারিখ" : "From date"}
-                className="bg-transparent text-xs font-semibold text-slate-700 outline-none cursor-pointer max-w-[105px] sm:max-w-none"
-              />
-              <span className="text-slate-300 font-bold px-0.5 text-xs">-</span>
-              <input
-                type="date"
-                value={to}
-                onChange={(e) => {
-                  setTo(e.target.value);
-                  setPage(1);
-                }}
-                title={isBn ? "শেষ তারিখ" : "To date"}
-                className="bg-transparent text-xs font-semibold text-slate-700 outline-none cursor-pointer max-w-[105px] sm:max-w-none"
-              />
+            {/* Method Filter Dropdown */}
+            <div className="relative" ref={methodDropdownRef}>
+              <button
+                type="button"
+                onClick={() => setIsMethodDropdownOpen((prev) => !prev)}
+                className="inline-flex items-center justify-between gap-2 px-3 py-2 rounded-xl border border-slate-200/90 bg-slate-50 hover:bg-white hover:border-slate-300 text-xs font-bold text-slate-700 transition-all shadow-2xs cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#006a4e]/20 min-w-[130px]"
+              >
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`w-2.5 h-2.5 rounded-full shrink-0 ${selectedMethodOption.dotColor}`}
+                  />
+                  <span className="truncate">
+                    {isBn
+                      ? selectedMethodOption.labelBn
+                      : selectedMethodOption.labelEn}
+                  </span>
+                </div>
+                <ChevronDown
+                  className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${
+                    isMethodDropdownOpen ? "rotate-180 text-slate-700" : ""
+                  }`}
+                />
+              </button>
+
+              {isMethodDropdownOpen && (
+                <div className="absolute left-0 sm:left-auto sm:right-0 top-full mt-1.5 w-44 max-w-[calc(100vw-32px)] rounded-2xl bg-white shadow-2xl border border-slate-200/90 py-1.5 z-50 text-xs font-bold animate-in fade-in zoom-in-95 origin-top-left sm:origin-top-right">
+                  <div className="px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-slate-400 border-b border-slate-100">
+                    {isBn ? "পেমেন্ট মেথড" : "Payment Method"}
+                  </div>
+                  <div className="py-1">
+                    {METHOD_OPTIONS.map((opt) => {
+                      const isSelected = method === opt.id;
+                      return (
+                        <button
+                          key={opt.id}
+                          type="button"
+                          onClick={() => {
+                            setMethod(opt.id);
+                            setPage(1);
+                            setIsMethodDropdownOpen(false);
+                          }}
+                          className={`w-full flex items-center justify-between px-3 py-2 text-left transition-colors cursor-pointer ${
+                            isSelected
+                              ? "bg-[#006a4e]/5 text-[#006a4e] font-black"
+                              : "text-slate-700 hover:bg-slate-50 font-bold"
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span
+                              className={`w-2 h-2 rounded-full shrink-0 ${opt.dotColor}`}
+                            />
+                            <span>{isBn ? opt.labelBn : opt.labelEn}</span>
+                          </div>
+                          {isSelected && (
+                            <Check className="w-3.5 h-3.5 text-[#006a4e]" />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Date Range Picker with Branded From/To inputs */}
+            <div className="inline-flex items-center gap-1.5 p-1 rounded-xl border border-slate-200/90 bg-slate-50 hover:bg-white text-xs shadow-2xs transition-colors">
+              <Calendar className="w-3.5 h-3.5 text-[#006a4e] ml-1.5 shrink-0" />
+              <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-lg bg-white sm:bg-transparent">
+                <span className="text-[10px] uppercase font-bold text-slate-400">
+                  {isBn ? "শুরু" : "From"}:
+                </span>
+                <input
+                  type="date"
+                  value={from}
+                  onChange={(e) => {
+                    setFrom(e.target.value);
+                    setPage(1);
+                  }}
+                  title={isBn ? "শুরুর তারিখ" : "From date"}
+                  className="bg-transparent text-xs font-bold text-slate-700 outline-none cursor-pointer max-w-[105px] sm:max-w-none"
+                />
+              </div>
+              <span className="text-slate-300 font-bold px-0.5 text-xs">→</span>
+              <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-lg bg-white sm:bg-transparent">
+                <span className="text-[10px] uppercase font-bold text-slate-400">
+                  {isBn ? "শেষ" : "To"}:
+                </span>
+                <input
+                  type="date"
+                  value={to}
+                  onChange={(e) => {
+                    setTo(e.target.value);
+                    setPage(1);
+                  }}
+                  title={isBn ? "শেষ তারিখ" : "To date"}
+                  className="bg-transparent text-xs font-bold text-slate-700 outline-none cursor-pointer max-w-[105px] sm:max-w-none"
+                />
+              </div>
               {(from || to) && (
                 <button
                   type="button"
@@ -253,12 +367,38 @@ export function ContributionsTable({
                     setTo("");
                     setPage(1);
                   }}
-                  className="p-0.5 rounded text-slate-400 hover:text-rose-600 transition-colors cursor-pointer"
+                  className="p-1 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
                   title={isBn ? "তারিখ মুছুন" : "Clear date"}
                 >
                   <X className="w-3 h-3" />
                 </button>
               )}
+            </div>
+
+            {/* Quick Date Presets */}
+            <div className="inline-flex items-center gap-1 bg-slate-100 p-0.5 rounded-xl border border-slate-200/60 text-[11px] font-bold">
+              <button
+                type="button"
+                onClick={() => handleDatePreset("TODAY")}
+                className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${
+                  isTodayActive
+                    ? "bg-white text-[#006a4e] shadow-2xs font-black"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                {isBn ? "আজ" : "Today"}
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDatePreset("THIS_MONTH")}
+                className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${
+                  isMonthActive
+                    ? "bg-white text-[#006a4e] shadow-2xs font-black"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                {isBn ? "এই মাস" : "This Month"}
+              </button>
             </div>
 
             {/* Clear Filters Reset Button */}
@@ -274,44 +414,14 @@ export function ContributionsTable({
             )}
           </div>
         </div>
-
-        {/* Bottom Row: Payment Method Filter Chips */}
-        <div className="pt-2 border-t border-slate-100 flex items-center gap-2">
-          <span className="text-[11px] font-bold text-slate-400 shrink-0 hidden sm:inline">
-            {isBn ? "মেথড:" : "Method:"}
-          </span>
-          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 w-full">
-            {METHOD_TABS.map((tab) => {
-              const isSelected = method === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => {
-                    setMethod(tab.id);
-                    setPage(1);
-                  }}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer shrink-0 ${
-                    isSelected
-                      ? tab.activeColor
-                      : "bg-slate-50 hover:bg-white text-slate-600 border-slate-200/90 hover:border-slate-300"
-                  }`}
-                >
-                  <span
-                    className={`w-2 h-2 rounded-full shrink-0 ${
-                      isSelected ? "bg-white" : tab.dotColor
-                    }`}
-                  />
-                  <span>{isBn ? tab.labelBn : tab.labelEn}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
       </div>
 
       {/* Table Content */}
-      <div className="rounded-2xl bg-white border border-slate-200/80 shadow-xs overflow-hidden">
+      <div
+        className={`rounded-2xl bg-white border border-slate-200/80 shadow-xs transition-all ${
+          openDropdownId ? "overflow-visible" : "overflow-hidden"
+        }`}
+      >
         {isLoading ? (
           <div className="p-8 space-y-3">
             {[1, 2, 3, 4, 5].map((i) => (
@@ -383,7 +493,9 @@ export function ContributionsTable({
                     <tr
                       key={c.id}
                       onClick={() => setSelectedContribution(c)}
-                      className="hover:bg-slate-50/80 transition-colors cursor-pointer group"
+                      className={`hover:bg-slate-50/80 transition-colors cursor-pointer group ${
+                        openDropdownId === c.id ? "relative z-30" : ""
+                      }`}
                     >
                       {/* Date */}
                       <td className="py-3 px-4 font-medium text-slate-600 whitespace-nowrap">
@@ -505,16 +617,20 @@ export function ContributionsTable({
             </div>
 
             {/* Mobile Stacked Card View (under md) */}
-            <div className="md:hidden divide-y divide-slate-100">
+            <div className="md:hidden p-3 sm:p-4 space-y-3 bg-slate-50/40">
               {contributions.map((c) => (
                 <div
                   key={c.id}
                   onClick={() => setSelectedContribution(c)}
-                  className="p-4 space-y-2.5 active:bg-slate-50 transition-colors cursor-pointer relative"
+                  className={`p-3.5 sm:p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs hover:shadow-md transition-all cursor-pointer space-y-3 ${
+                    openDropdownId === c.id
+                      ? "relative z-30 overflow-visible"
+                      : "relative z-0"
+                  }`}
                 >
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <div className="relative w-6 h-6 rounded-full bg-[#006a4e]/10 text-[#006a4e] flex items-center justify-center font-bold text-[10px] shrink-0 overflow-hidden">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#006a4e]/10 text-[#006a4e] flex items-center justify-center font-black text-xs shrink-0 overflow-hidden ring-2 ring-emerald-500/15">
                         {c.giverAvatar ? (
                           <Image
                             src={c.giverAvatar}
@@ -527,13 +643,26 @@ export function ContributionsTable({
                           <span>{(c.giverName || "M").charAt(0).toUpperCase()}</span>
                         )}
                       </div>
-                      <span className="font-bold text-xs text-slate-900 truncate">
-                        {c.giverName || (isBn ? "ক্লাব সদস্য" : "Club Member")}
-                      </span>
+                      <div className="min-w-0">
+                        <h4 className="font-black text-xs sm:text-sm text-slate-900 truncate leading-snug">
+                          {c.giverName || (isBn ? "ক্লাব সদস্য" : "Club Member")}
+                        </h4>
+                        <div className="flex items-center gap-1.5 text-[11px] text-slate-400 font-medium">
+                          <span>{formatDate(c.receivedAt)}</span>
+                          {c.reference && (
+                            <>
+                              <span>•</span>
+                              <span className="font-mono text-slate-500 truncate max-w-[100px]">
+                                {c.reference}
+                              </span>
+                            </>
+                          )}
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      <span className="font-black text-sm tabular-nums text-emerald-700">
+                    <div className="flex items-center gap-1.5 shrink-0 pt-0.5">
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-xl bg-emerald-50 border border-emerald-200/70 font-black text-xs sm:text-sm text-emerald-700 tabular-nums shadow-2xs">
                         + {formatMoney(c.amount)}
                       </span>
 
@@ -552,7 +681,7 @@ export function ContributionsTable({
                         </button>
 
                         {openDropdownId === c.id && (
-                          <div className="absolute right-0 top-full mt-1 w-36 rounded-xl bg-white shadow-2xl border border-slate-200 py-1.5 z-40 text-xs font-semibold text-left animate-in fade-in zoom-in-95">
+                          <div className="absolute right-0 top-full mt-1 w-36 rounded-xl bg-white shadow-2xl border border-slate-200 py-1.5 z-50 text-xs font-semibold text-left animate-in fade-in zoom-in-95 origin-top-right">
                             <button
                               type="button"
                               onClick={() => {
@@ -599,56 +728,66 @@ export function ContributionsTable({
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1">
-                    <div className="flex items-center gap-2">
-                      <MethodBadge method={c.method} isBn={isBn} />
-                      <span>{formatDate(c.receivedAt)}</span>
+                  {/* Bottom Row: Method Badge & Collector */}
+                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                    <MethodBadge method={c.method} isBn={isBn} />
+                    <div className="flex items-center gap-1 text-[11px] text-slate-400 font-medium truncate max-w-[170px]">
+                      <User className="w-3 h-3 text-slate-400 shrink-0" />
+                      <span className="truncate">
+                        {isBn ? "সংগ্রহ:" : "Recv:"}{" "}
+                        <span className="font-bold text-slate-600">
+                          {c.receivedByName}
+                        </span>
+                      </span>
                     </div>
-                    <span>By: {c.receivedByName}</span>
                   </div>
                 </div>
               ))}
             </div>
-
-            {/* Pagination Controls */}
-            <div className="px-4 py-3 border-t border-slate-100 flex items-center justify-between gap-2 bg-slate-50/50 text-xs">
-              <span className="text-slate-500 font-medium">
-                {isBn
-                  ? `মোট ${total} টির মধ্যে ${(page - 1) * limit + 1}-${Math.min(
-                      page * limit,
-                      total
-                    )} টি প্রদর্শিত`
-                  : `Showing ${(page - 1) * limit + 1}-${Math.min(
-                      page * limit,
-                      total
-                    )} of ${total}`}
-              </span>
-
-              <div className="flex items-center gap-1">
-                <button
-                  type="button"
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  disabled={page <= 1}
-                  className="p-1.5 rounded-lg border border-slate-200 hover:bg-white disabled:opacity-40 transition-colors"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </button>
-                <span className="px-2 font-bold text-slate-700">
-                  {page} / {totalPages}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  disabled={page >= totalPages}
-                  className="p-1.5 rounded-lg border border-slate-200 hover:bg-white disabled:opacity-40 transition-colors"
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
           </>
         )}
       </div>
+
+      {/* Pagination Controls - Spaced Below Table with Generous Breathing Room */}
+      {totalPages > 1 && (
+        <div className="mt-4 px-4 py-3 sm:px-5 sm:py-3.5 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+          <span className="text-slate-500 font-medium">
+            {isBn
+              ? `মোট ${total} টির মধ্যে ${(page - 1) * limit + 1}-${Math.min(
+                  page * limit,
+                  total
+                )} টি প্রদর্শিত`
+              : `Showing ${(page - 1) * limit + 1}-${Math.min(
+                  page * limit,
+                  total
+                )} of ${total}`}
+          </span>
+
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page <= 1}
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 disabled:opacity-40 font-bold text-slate-700 transition-colors shadow-2xs cursor-pointer"
+            >
+              <ChevronLeft className="w-3.5 h-3.5" />
+              <span>{isBn ? "আগের" : "Prev"}</span>
+            </button>
+            <span className="px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200/80 font-black text-slate-800 tabular-nums">
+              {page} / {totalPages}
+            </span>
+            <button
+              type="button"
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page >= totalPages}
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 disabled:opacity-40 font-bold text-slate-700 transition-colors shadow-2xs cursor-pointer"
+            >
+              <span>{isBn ? "পরের" : "Next"}</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Read-Only Transaction Detail Drawer / Modal */}
       {selectedContribution && (
