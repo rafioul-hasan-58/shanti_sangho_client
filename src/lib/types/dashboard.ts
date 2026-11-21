@@ -99,6 +99,8 @@ export interface ManagedUser extends Member {
   name: string;
   picture?: string;
   phone?: string | null;
+  imagePublicId?: string | null;
+  googleId?: string | null;
   joinedAt?: string;
 }
 

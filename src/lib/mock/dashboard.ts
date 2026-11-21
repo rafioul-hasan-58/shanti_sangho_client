@@ -205,7 +205,7 @@ export const MOCK_DASHBOARD_STATS: DashboardStats = {
   expenditureTrend: 5.3,
 };
 
-export const MOCK_MANAGED_USERS: ManagedUser[] = [
+const RAW_MOCK_USERS: any[] = [
   {
     id: "usr-mahfuz",
     fullName: "মাহফুজুর রহমান",
@@ -536,4 +536,14 @@ export const MOCK_MANAGED_USERS: ManagedUser[] = [
     createdAt: "2026-06-28T10:00:00.000Z",
   },
 ];
+
+export const MOCK_MANAGED_USERS: ManagedUser[] = RAW_MOCK_USERS.map((raw) => ({
+  ...raw,
+  authProvider: (raw.authProvider === "GOOGLE" ? "GOOGLE" : "EMAIL") as "EMAIL" | "GOOGLE",
+  phoneVerified: Boolean(raw.phoneVerified ?? true),
+  adminVerified: Boolean(raw.adminVerified),
+  emailVerified: Boolean(raw.emailVerified),
+  updatedAt: String(raw.updatedAt || raw.createdAt || new Date().toISOString()),
+  createdAt: String(raw.createdAt || new Date().toISOString()),
+}));
 
