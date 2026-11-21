@@ -10,7 +10,6 @@ interface Props {
 
 interface FaqItem {
   id: string;
-  icon: string;
   categoryBn: string;
   categoryEn: string;
   questionBn: string;
@@ -28,8 +27,8 @@ interface FaqItem {
 
 export default function FaqSection({ locale }: Props) {
   const isBn = locale === "bn";
-  // Initially open the first FAQ item
-  const [openId, setOpenId] = useState<string | null>("founding");
+  // Initially closed so user sees only questions; clicking reveals the answer
+  const [openId, setOpenId] = useState<string | null>(null);
 
   const toggleItem = (id: string) => {
     setOpenId((prev) => (prev === id ? null : id));
@@ -38,7 +37,6 @@ export default function FaqSection({ locale }: Props) {
   const faqItems: FaqItem[] = [
     {
       id: "founding",
-      icon: "🏛️",
       categoryBn: "প্রতিষ্ঠা ও ইতিহাস",
       categoryEn: "History & Heritage",
       badgeBn: "২০০৭ থেকে ১৯+ বছর",
@@ -76,7 +74,6 @@ export default function FaqSection({ locale }: Props) {
     },
     {
       id: "president",
-      icon: "👑",
       categoryBn: "নেতৃত্ব ও প্রশাসন",
       categoryEn: "Leadership & Administration",
       badgeBn: "বর্তমান সভাপতি",
@@ -115,7 +112,6 @@ export default function FaqSection({ locale }: Props) {
     },
     {
       id: "engineer",
-      icon: "💻",
       categoryBn: "সফটওয়্যার ও প্রকৌশল",
       categoryEn: "Software & Engineering",
       badgeBn: "লিড ইঞ্জিনিয়ার",
@@ -174,7 +170,6 @@ export default function FaqSection({ locale }: Props) {
     },
     {
       id: "technology",
-      icon: "⚡",
       categoryBn: "প্রযুক্তি পরিকাঠামো",
       categoryEn: "Technology Stack",
       badgeBn: "Next.js 15 & Node.js",
@@ -189,19 +184,19 @@ export default function FaqSection({ locale }: Props) {
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
             <div className="p-3 rounded-xl bg-white/80 border border-slate-200/90 shadow-2xs">
-              <span className="font-extrabold text-[#006a4e] block mb-1">🌐 ফ্রন্টএন্ড ও ইউআই</span>
+              <span className="font-extrabold text-[#006a4e] block mb-1">ফ্রন্টএন্ড ও ইউআই</span>
               <p className="text-slate-600">Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS, Lucide Icons</p>
             </div>
             <div className="p-3 rounded-xl bg-white/80 border border-slate-200/90 shadow-2xs">
-              <span className="font-extrabold text-[#006a4e] block mb-1">⚙️ ব্যাকএন্ড ও এপিআই</span>
+              <span className="font-extrabold text-[#006a4e] block mb-1">ব্যাকএন্ড ও এপিআই</span>
               <p className="text-slate-600">Node.js, NestJS RESTful Architecture, JWT Auth, Token Rotation</p>
             </div>
             <div className="p-3 rounded-xl bg-white/80 border border-slate-200/90 shadow-2xs">
-              <span className="font-extrabold text-[#006a4e] block mb-1">🗄️ ডাটাবেস ও ওআরএম</span>
+              <span className="font-extrabold text-[#006a4e] block mb-1">ডাটাবেস ও ওআরএম</span>
               <p className="text-slate-600">MongoDB Database, Prisma ORM (Type-safe client)</p>
             </div>
             <div className="p-3 rounded-xl bg-white/80 border border-slate-200/90 shadow-2xs">
-              <span className="font-extrabold text-[#006a4e] block mb-1">☁️ ক্লাউড ও নিরাপত্তা</span>
+              <span className="font-extrabold text-[#006a4e] block mb-1">ক্লাউড ও নিরাপত্তা</span>
               <p className="text-slate-600">Cloudinary CDN (1:1 WebP Crop), Google OAuth 2.0 Single Sign-On</p>
             </div>
           </div>
@@ -218,19 +213,19 @@ export default function FaqSection({ locale }: Props) {
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
             <div className="p-3 rounded-xl bg-white/80 border border-slate-200/90 shadow-2xs">
-              <span className="font-extrabold text-[#006a4e] block mb-1">🌐 Frontend &amp; UI</span>
+              <span className="font-extrabold text-[#006a4e] block mb-1">Frontend &amp; UI</span>
               <p className="text-slate-600">Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS, Lucide Icons</p>
             </div>
             <div className="p-3 rounded-xl bg-white/80 border border-slate-200/90 shadow-2xs">
-              <span className="font-extrabold text-[#006a4e] block mb-1">⚙️ Backend &amp; APIs</span>
+              <span className="font-extrabold text-[#006a4e] block mb-1">Backend &amp; APIs</span>
               <p className="text-slate-600">Node.js, NestJS RESTful Architecture, JWT Auth, Token Rotation</p>
             </div>
             <div className="p-3 rounded-xl bg-white/80 border border-slate-200/90 shadow-2xs">
-              <span className="font-extrabold text-[#006a4e] block mb-1">🗄️ Database &amp; ORM</span>
+              <span className="font-extrabold text-[#006a4e] block mb-1">Database &amp; ORM</span>
               <p className="text-slate-600">MongoDB Database, Prisma ORM with strict schema models</p>
             </div>
             <div className="p-3 rounded-xl bg-white/80 border border-slate-200/90 shadow-2xs">
-              <span className="font-extrabold text-[#006a4e] block mb-1">☁️ Cloud &amp; Media</span>
+              <span className="font-extrabold text-[#006a4e] block mb-1">Cloud &amp; Media</span>
               <p className="text-slate-600">Cloudinary CDN (1:1 WebP image optimization), Google OAuth 2.0 SSO</p>
             </div>
           </div>
@@ -243,7 +238,6 @@ export default function FaqSection({ locale }: Props) {
     },
     {
       id: "members",
-      icon: "👥",
       categoryBn: "সদস্য ও সংগঠন",
       categoryEn: "Members & Community",
       badgeBn: "১৫০+ সদস্য",
@@ -309,7 +303,6 @@ export default function FaqSection({ locale }: Props) {
     },
     {
       id: "join",
-      icon: "📝",
       categoryBn: "সদস্যপদ ও নিবন্ধন",
       categoryEn: "Membership & Registration",
       badgeBn: "সরাসরি যুক্ত হোন",
@@ -372,13 +365,11 @@ export default function FaqSection({ locale }: Props) {
           </p>
         </div>
 
-        {/* Accordion FAQ List */}
+        {/* Accordion FAQ List: Just questions, clicking reveals answers */}
         <div className="space-y-3.5 relative z-10">
           {faqItems.map((item) => {
             const isOpen = openId === item.id;
-            const category = isBn ? item.categoryBn : item.categoryEn;
             const question = isBn ? item.questionBn : item.questionEn;
-            const badge = isBn ? item.badgeBn : item.badgeEn;
             const answer = isBn ? item.answerBn : item.answerEn;
             const action = item.actionLink
               ? {
@@ -396,37 +387,20 @@ export default function FaqSection({ locale }: Props) {
                     : "bg-white/85 hover:bg-white border-[#006a4e]/15 hover:border-[#006a4e]/30 shadow-2xs"
                 }`}
               >
-                {/* Accordion Trigger Header */}
+                {/* Accordion Trigger Header: Clean question title + toggle arrow */}
                 <button
                   type="button"
                   onClick={() => toggleItem(item.id)}
                   aria-expanded={isOpen}
-                  className="w-full px-4 sm:px-6 py-4 sm:py-4.5 flex items-start sm:items-center justify-between gap-3 sm:gap-4 text-left transition-colors cursor-pointer select-none group"
+                  className="w-full px-5 sm:px-6 py-4.5 sm:py-5 flex items-center justify-between gap-4 text-left transition-colors cursor-pointer select-none group"
                 >
-                  <div className="flex items-start sm:items-center gap-3 sm:gap-3.5 min-w-0 flex-1">
-                    <span className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-50 text-[#006a4e] border border-emerald-200/80 flex items-center justify-center text-lg sm:text-xl shrink-0 group-hover:scale-105 transition-transform">
-                      {item.icon}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                        <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-[#006a4e]">
-                          {category}
-                        </span>
-                        {badge && (
-                          <span className="text-[10px] font-bold px-2 py-0.2 rounded-full bg-emerald-100/70 text-[#004d38] border border-emerald-200">
-                            {badge}
-                          </span>
-                        )}
-                      </div>
-                      <h3
-                        className={`font-bold text-sm sm:text-base leading-snug transition-colors ${
-                          isOpen ? "text-[#006a4e]" : "text-pitch group-hover:text-[#006a4e]"
-                        }`}
-                      >
-                        {question}
-                      </h3>
-                    </div>
-                  </div>
+                  <h3
+                    className={`font-bold text-sm sm:text-base leading-snug transition-colors pr-2 flex-1 ${
+                      isOpen ? "text-[#006a4e]" : "text-pitch group-hover:text-[#006a4e]"
+                    }`}
+                  >
+                    {question}
+                  </h3>
 
                   {/* Toggle Arrow Pill */}
                   <span
@@ -442,9 +416,9 @@ export default function FaqSection({ locale }: Props) {
                   </span>
                 </button>
 
-                {/* Accordion Expandable Content */}
+                {/* Accordion Expandable Content: Shown only after clicking */}
                 {isOpen && (
-                  <div className="px-4 sm:px-6 pb-5 pt-1 border-t border-slate-100 animate-in fade-in duration-200">
+                  <div className="px-5 sm:px-6 pb-5 pt-1 border-t border-slate-100 animate-in fade-in duration-200">
                     <div className="pt-2">{answer}</div>
 
                     {/* Action link if available */}
