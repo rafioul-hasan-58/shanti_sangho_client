@@ -3,10 +3,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  fetchUsers,
-  toggleBlockUserById,
-  updateUserById,
-} from "@/lib/api/users";
+  fetchMembers,
+  fetchMembers as fetchUsers,
+  toggleBlockMemberById,
+  toggleBlockMemberById as toggleBlockUserById,
+  updateMemberById,
+  updateMemberById as updateUserById,
+} from "@/lib/api/memberService";
 import type {
   ManagedUser,
   UsersPaginationMeta,
@@ -126,7 +129,7 @@ export default function AdminUsersView({
     try {
       const res = await fetchUsers(params);
       if (isPendingView) {
-        const pendingAll = res.users.filter((u) => !u.adminVerified);
+        const pendingAll = res.users.filter((u: ManagedUser) => !u.adminVerified);
         const total = pendingAll.length;
         const limit = filters.limit;
         const totalPages = Math.max(1, Math.ceil(total / limit));
@@ -301,9 +304,9 @@ export default function AdminUsersView({
       <WelcomeCard
         locale={locale}
         badgeText={
-          isBn ? "ইউজার ম্যানেজমেন্ট ও অ্যাক্সেস কন্ট্রোল" : "USER MANAGEMENT SUITE"
+          isBn ? "সদস্য ব্যবস্থাপনা ও অনুমোদন" : "MEMBER MANAGEMENT SUITE"
         }
-        title={isBn ? "ইউজার ম্যানেজমেন্ট" : "User Management"}
+        title={isBn ? "সদস্য ব্যবস্থাপনা" : "Member Management"}
         subtitle={
           isBn
             ? "সাভারচালা শান্তি সংঘের নিবন্ধিত সদস্য, অপেক্ষমাণ অনুমোদন, রোল ও অ্যাকাউন্ট স্ট্যাটাস পরিচালনা করুন।"
@@ -315,14 +318,14 @@ export default function AdminUsersView({
               <p className="text-[10px] font-bold text-[#f2b705] uppercase tracking-wider">
                 {isPendingView
                   ? isBn ? "অপেক্ষমাণ" : "PENDING"
-                  : isBn ? "মোট ব্যবহারকারী" : "TOTAL USERS"}
+                  : isBn ? "মোট সদস্য" : "TOTAL MEMBERS"}
               </p>
               <p className="text-base font-extrabold text-white">
                 {meta.total}{" "}
                 <span className="text-xs font-semibold text-emerald-100">
                   {isPendingView
                     ? isBn ? "জন" : "Pending"
-                    : isBn ? "জন" : "Users"}
+                    : isBn ? "জন" : "Members"}
                 </span>
               </p>
             </div>
@@ -357,7 +360,7 @@ export default function AdminUsersView({
       />
 
       <div className="bg-white rounded-3xl p-4 sm:p-6 border border-slate-100 shadow-xs space-y-5">
-        {/* Sub-Tabs Switcher: All Users | Pending Users */}
+        {/* Sub-Tabs Switcher: All Members | Pending Members */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
           <div className="grid grid-cols-2 sm:inline-flex items-center gap-1.5 p-1 rounded-2xl bg-emerald-50/70 border border-emerald-200/80 w-full sm:w-auto">
             <button
@@ -372,7 +375,7 @@ export default function AdminUsersView({
               <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
-              <span className="truncate">{isBn ? "সকল ব্যবহারকারী" : "All Users"}</span>
+              <span className="truncate">{isBn ? "সকল সদস্য" : "All Members"}</span>
             </button>
             <button
               type="button"
@@ -386,14 +389,14 @@ export default function AdminUsersView({
               <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <span className="truncate">{isBn ? "অপেক্ষমাণ ব্যবহারকারী" : "Pending Users"}</span>
+              <span className="truncate">{isBn ? "অপেক্ষমাণ সদস্য" : "Pending Members"}</span>
             </button>
           </div>
 
           <span className="text-xs font-semibold text-slate-500 hidden sm:inline">
             {isPendingView
               ? isBn ? "অনুমোদনের অপেক্ষায় থাকা সদস্য যাচাই করুন" : "Review and approve awaiting registrations"
-              : isBn ? "সকল নিবন্ধিত ব্যবহারকারীর তালিকা পরিচালনা করুন" : "Browse, filter, edit and control user accounts"}
+              : isBn ? "সকল নিবন্ধিত সদস্যের তালিকা পরিচালনা করুন" : "Browse, filter, edit and control member accounts"}
           </span>
         </div>
 

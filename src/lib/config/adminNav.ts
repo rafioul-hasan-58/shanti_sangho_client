@@ -43,21 +43,21 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
   },
   {
     id: "committee",
-    labelEn: "Committee",
-    labelBn: "কার্যনির্বাহী কমিটি",
-    shortLabelEn: "Committee",
-    shortLabelBn: "কমিটি",
+    labelEn: "Executives / Leadership",
+    labelBn: "কার্যনির্বাহী পরিষদ ও নেতৃত্ব",
+    shortLabelEn: "Executives",
+    shortLabelBn: "পরিষদ",
     icon: UsersIcon,
     children: [
       {
-        labelEn: "All Committee Members",
-        labelBn: "সকল কমিটি সদস্য",
+        labelEn: "All Executives",
+        labelBn: "সকল কার্যনির্বাহী সদস্য",
         href: "/admin/committee",
         status: "ready",
       },
       {
-        labelEn: "Add Member",
-        labelBn: "নতুন সদস্য যোগ",
+        labelEn: "Add Executive",
+        labelBn: "নতুন কার্যনির্বাহী সদস্য যোগ",
         href: "/admin/committee/new",
         status: "ready",
       },
@@ -68,7 +68,7 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
         status: "cooking",
       },
       {
-        labelEn: "Reorder Members",
+        labelEn: "Reorder Executives",
         labelBn: "সদস্য ক্রম সাজান",
         href: "/admin/committee/reorder",
         status: "cooking",
@@ -146,10 +146,12 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
   {
     id: "members",
     labelEn: "Members",
-    labelBn: "ক্লাব সদস্য",
+    labelBn: "সদস্যবৃন্দ",
+    shortLabelEn: "Members",
+    shortLabelBn: "সদস্য",
     icon: UserCheckIcon,
     href: "/admin/members",
-    status: "cooking",
+    status: "ready",
   },
   {
     id: "finance",

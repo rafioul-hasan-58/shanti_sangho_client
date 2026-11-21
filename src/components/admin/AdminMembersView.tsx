@@ -16,10 +16,11 @@ import {
   Phone,
 } from "lucide-react";
 import {
-  fetchMembers,
-  deleteMember,
+  fetchExecutives,
+  deleteExecutive,
+  type Executive,
   type Member,
-} from "@/lib/api/members";
+} from "@/lib/api/executiveService";
 import MemberFormModal from "@/components/members/MemberFormModal";
 
 interface AdminMembersViewProps {
@@ -44,11 +45,11 @@ export default function AdminMembersView({ locale }: AdminMembersViewProps) {
     setLoading(true);
     setError(null);
     try {
-      const data = await fetchMembers();
-      setMembers(data);
+      const data = await fetchExecutives();
+      setMembers(data as Member[]);
     } catch (err: unknown) {
       const msg =
-        err instanceof Error ? err.message : "Failed to load members.";
+        err instanceof Error ? err.message : "Failed to load executives.";
       setError(msg);
     } finally {
       setLoading(false);
@@ -71,20 +72,20 @@ export default function AdminMembersView({ locale }: AdminMembersViewProps) {
 
   const handleDelete = async (member: Member) => {
     const confirmMessage = isBn
-      ? `আপনি কি নিশ্চিতভাবে "${member.nameBn || member.nameEn}" সদস্যকে মুছে ফেলতে চান? ক্লাউডিনারি থেকে ছবি সহ তথ্য সম্পূর্ণ মুছে যাবে।`
-      : `Are you sure you want to delete member "${member.nameEn}"? The profile photo on Cloudinary will also be deleted.`;
+      ? `আপনি কি নিশ্চিতভাবে "${member.nameBn || member.nameEn}" কার্যনির্বাহী সদস্যকে মুছে ফেলতে চান? ক্লাউডিনারি থেকে ছবি সহ তথ্য সম্পূর্ণ মুছে যাবে।`
+      : `Are you sure you want to delete executive "${member.nameEn}"? The profile photo on Cloudinary will also be deleted.`;
 
     if (!window.confirm(confirmMessage)) return;
 
     setDeletingId(member.id);
     try {
-      await deleteMember(member.id);
+      await deleteExecutive(member.id);
       setMembers((prev) => prev.filter((m) => m.id !== member.id));
     } catch {
       alert(
         isBn
-          ? "সদস্য মুছে ফেলতে সমস্যা হয়েছে।"
-          : "Failed to delete member. Please try again."
+          ? "কার্যনির্বাহী সদস্য মুছে ফেলতে সমস্যা হয়েছে।"
+          : "Failed to delete executive. Please try again."
       );
     } finally {
       setDeletingId(null);
@@ -122,12 +123,12 @@ export default function AdminMembersView({ locale }: AdminMembersViewProps) {
         <div>
           <h1 className="text-xl sm:text-2xl font-black text-[#12231d] flex items-center gap-2.5">
             <Users className="w-6 h-6 text-[#006a4e]" />
-            <span>{isBn ? "সদস্য ব্যবস্থাপনা" : "Member Management"}</span>
+            <span>{isBn ? "কার্যনির্বাহী পরিষদ ও নেতৃত্ব" : "Executives / Leadership"}</span>
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
             {isBn
-              ? "ক্লাব সদস্য তালিকা, ক্লাউডিনারি প্রোফাইল ছবি এবং বিবরণ পরিচালনা করুন"
-              : "Manage member profiles, upload and replace Cloudinary photos"}
+              ? "ক্লাবের কার্যনির্বাহী কমিটি, পদবী এবং প্রোফাইল তথ্য পরিচালনা করুন"
+              : "Manage executive leaders, portfolio roles, and Cloudinary photos"}
           </p>
         </div>
 
@@ -137,7 +138,7 @@ export default function AdminMembersView({ locale }: AdminMembersViewProps) {
           className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#006a4e] hover:bg-[#004d38] active:scale-95 text-white font-bold text-xs sm:text-sm shadow-md transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f2b705]"
         >
           <UserPlus className="w-4 h-4" />
-          <span>{isBn ? "নতুন সদস্য যোগ করুন" : "Add Member"}</span>
+          <span>{isBn ? "নতুন কার্যনির্বাহী যোগ করুন" : "Add Executive"}</span>
         </button>
       </div>
 

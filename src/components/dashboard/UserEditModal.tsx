@@ -4,7 +4,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import ThemedSelect from "@/components/common/ThemedSelect";
 import MemberImageUploader from "@/components/members/MemberImageUploader";
 import { BLOOD_GROUP_OPTIONS, toPrismaBloodGroup } from "@/lib/bloodGroup";
-import { updateUserById } from "@/lib/api/users";
+import { updateUserById } from "@/lib/api/memberService";
 import type {
   ManagedUser,
   UpdateManagedUserPayload,
@@ -76,7 +76,7 @@ const LABEL_CLASS =
   "block text-[11px] font-extrabold uppercase tracking-wide text-slate-500 mb-1";
 
 /**
- * Full UpdateUserDto edit modal wired to `PATCH /api/v1/users/:id`.
+ * Full UpdateUserDto edit modal wired to `PATCH /api/v1/members/:id`.
  */
 export default function UserEditModal({
   user,

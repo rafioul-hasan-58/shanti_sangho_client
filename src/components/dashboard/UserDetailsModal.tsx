@@ -6,7 +6,7 @@ import UserAvatar from "@/components/layout/UserAvatar";
 import RoleBadge from "@/components/layout/RoleBadge";
 import VerifiedTick from "@/components/common/VerifiedTick";
 import { isAdminVerified } from "@/lib/authRole";
-import { fetchUserById } from "@/lib/api/users";
+import { fetchMemberById } from "@/lib/api/memberService";
 import { formatBloodGroupDisplay } from "@/lib/bloodGroup";
 import {
   DeleteActionIcon,
@@ -31,7 +31,7 @@ interface UserDetailsModalProps {
 }
 
 /**
- * Modal inspecting full sanitized user details loaded via `GET /api/v1/users/:id`.
+ * Modal inspecting full sanitized user details loaded via `GET /api/v1/members/:id`.
  */
 export default function UserDetailsModal({
   user,
@@ -58,7 +58,7 @@ export default function UserDetailsModal({
     setLoading(true);
     setError(null);
 
-    fetchUserById(user.id)
+    fetchMemberById(user.id)
       .then((loaded) => {
         if (!cancelled) setFreshUser(loaded);
       })

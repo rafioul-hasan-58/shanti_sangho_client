@@ -25,12 +25,17 @@ import {
 import { formatMonthLabel } from "@/lib/constants/categories";
 
 export {
+  fetchMembers,
+  fetchMemberById,
+  updateMemberById,
+  toggleBlockMemberById,
+  deleteMemberById,
   fetchUsers,
   fetchUserById,
   updateUserById,
   toggleBlockUserById,
   deleteUserById,
-} from "@/lib/api/users";
+} from "@/lib/api/memberService";
 
 /**
  * Fetch top-level dashboard statistics (total members, pending, total expenditure, trends)

@@ -18,10 +18,10 @@ import VerifiedTick from "@/components/common/VerifiedTick";
 import { useAuth } from "@/context/AuthContext";
 import { isAdminVerified } from "@/lib/authRole";
 import {
-  fetchUserById,
-  toggleBlockUserById,
-  updateUserById,
-} from "@/lib/api/users";
+  fetchMemberById,
+  toggleBlockMemberById,
+  updateMemberById,
+} from "@/lib/api/memberService";
 import { formatBloodGroupDisplay } from "@/lib/bloodGroup";
 import type { ManagedUser } from "@/lib/types/dashboard";
 import {
@@ -44,7 +44,7 @@ interface UserDetailsPageViewProps {
 }
 
 /**
- * Dynamic full-page user details view loaded via `GET /api/v1/users/:id`.
+ * Dynamic full-page member details view loaded via `GET /api/v1/members/:id`.
  */
 export default function UserDetailsPageView({
   userId,
@@ -96,7 +96,7 @@ export default function UserDetailsPageView({
     setLoading(true);
     setError(null);
 
-    fetchUserById(userId)
+    fetchMemberById(userId)
       .then((loaded) => {
         if (!cancelled) setFreshUser(loaded);
       })
@@ -128,7 +128,7 @@ export default function UserDetailsPageView({
     setBusy(true);
     setFeedback(null);
     try {
-      const res = await toggleBlockUserById(freshUser.id);
+      const res = await toggleBlockMemberById(freshUser.id);
       setFreshUser(res.user);
       setFeedback({ type: "success", text: res.message });
     } catch (err) {
@@ -151,7 +151,7 @@ export default function UserDetailsPageView({
     setBusy(true);
     setFeedback(null);
     try {
-      const res = await updateUserById(freshUser.id, {
+      const res = await updateMemberById(freshUser.id, {
         adminVerified: true,
         status: "ACTIVE",
       });

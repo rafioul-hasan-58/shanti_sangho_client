@@ -10,7 +10,7 @@ import ThemedSelect from "@/components/common/ThemedSelect";
 import UserPaginationBar from "@/components/dashboard/UserPaginationBar";
 import { isAdminVerified } from "@/lib/authRole";
 import { BLOOD_GROUP_OPTIONS } from "@/lib/bloodGroup";
-import { fetchPublicMembers } from "@/lib/api/users";
+import { fetchPublicMembers } from "@/lib/api/memberService";
 import { ROLE_OPTIONS } from "@/components/dashboard/userManagementConfig";
 import type {
   ManagedUser,

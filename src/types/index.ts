@@ -1,10 +1,10 @@
 export type Role = "USER" | "MODERATOR" | "ADMIN" | "SUPER_ADMIN";
+export type MemberRole = Role;
 export type ViewRole = "user" | "admin";
 export type UserStatus = "ACTIVE" | "SUSPENDED";
-export type MembershipType = "PERMANENT" | "PLAYER_QUOTA";
+export type MemberStatus = UserStatus;
 
 export type BloodGroup =
-  | "UNKNOWN"
   | "A_POSITIVE"
   | "A_NEGATIVE"
   | "B_POSITIVE"
@@ -13,6 +13,7 @@ export type BloodGroup =
   | "AB_NEGATIVE"
   | "O_POSITIVE"
   | "O_NEGATIVE"
+  | "UNKNOWN"
   | "A+"
   | "A-"
   | "B+"
@@ -21,6 +22,103 @@ export type BloodGroup =
   | "AB-"
   | "O+"
   | "O-";
+
+export type MembershipType =
+  | "GENERAL"
+  | "LIFETIME"
+  | "DONOR"
+  | "HONORARY"
+  | "STUDENT"
+  | "PERMANENT"
+  | "PLAYER_QUOTA";
+
+export interface Member {
+  id: string;
+  fullName: string;
+  email: string;
+  fatherName?: string | null;
+  motherName?: string | null;
+  phoneNumber?: string | null;
+  bloodGroup: BloodGroup;
+  bio?: string | null;
+  summary?: string | null;
+  status: MemberStatus;
+  role: MemberRole;
+  profession?: string | null;
+  village?: string | null;
+  currentLocation?: string | null;
+  whatsappNumber?: string | null;
+  membershipType: MembershipType;
+  facebookProfile?: string | null;
+  profileImage?: string | null;
+  authProvider: "EMAIL" | "GOOGLE";
+  emailVerified: boolean;
+  phoneVerified: boolean;
+  adminVerified: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MembersListResponse {
+  success: boolean;
+  statusCode: number;
+  message: string;
+  data: {
+    members: Member[];
+    meta: {
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+      hasNextPage: boolean;
+      hasPreviousPage: boolean;
+    };
+  };
+}
+
+export type ExecutiveType = "COMMITTEE" | "ADVISORY" | "GENERAL";
+
+export interface Executive {
+  id: string;
+  slug: string;
+  nameEn: string;
+  nameBn: string;
+  roleEn: string;
+  roleBn: string;
+  type: ExecutiveType;
+  image?: string | null;
+  imagePublicId?: string | null;
+  joiningYear: string;
+  isKeyLeader: boolean;
+  order: number;
+  villageEn: string;
+  villageBn: string;
+  summaryEn: string;
+  summaryBn: string;
+  keyContributionEn: string[];
+  keyContributionBn: string[];
+  mottoEn?: string | null;
+  mottoBn?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ExecutivesListResponse {
+  success: boolean;
+  statusCode: number;
+  message: string;
+  data: {
+    executives: Executive[];
+    meta: {
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+      hasNextPage: boolean;
+      hasPreviousPage: boolean;
+    };
+  };
+}
 
 export interface AuthUser {
   id: string;

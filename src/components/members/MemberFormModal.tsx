@@ -3,7 +3,13 @@
 import React, { useState, useEffect } from "react";
 import { X, Loader2, Save, UserPlus } from "lucide-react";
 import MemberImageUploader from "./MemberImageUploader";
-import { createMember, updateMember, type Member } from "@/lib/api/members";
+import {
+  createExecutive,
+  updateExecutive,
+  type Executive,
+  type Member,
+  type ExecutiveType,
+} from "@/lib/api/executiveService";
 import { BLOOD_GROUP_OPTIONS } from "@/lib/bloodGroup";
 
 export interface MemberFormModalProps {
@@ -141,9 +147,9 @@ export default function MemberFormModal({
 
       let result: Member;
       if (isEditing && member?.id) {
-        result = await updateMember(member.id, payload);
+        result = (await updateExecutive(member.id, payload)) as Member;
       } else {
-        result = await createMember(payload);
+        result = (await createExecutive(payload)) as Member;
       }
 
       onSaved(result);
@@ -369,7 +375,7 @@ export default function MemberFormModal({
 
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                {isBn ? "ক্যাটাগরি" : "Category"}
+                {isBn ? "ক্যাটাগরি / টাইপ" : "Category / Type"}
               </label>
               <select
                 value={formData.category}
@@ -378,17 +384,14 @@ export default function MemberFormModal({
                 }
                 className="w-full h-11 px-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-medium text-slate-900 focus:bg-white focus:border-[#006a4e] focus:ring-4 focus:ring-[#006a4e]/10 outline-none transition-all"
               >
-                <option value="executive">
-                  {isBn ? "কার্যনির্বাহী (Executive)" : "Executive"}
+                <option value="COMMITTEE">
+                  {isBn ? "কার্যনির্বাহী পরিষদ (COMMITTEE)" : "Committee"}
                 </option>
-                <option value="general">
-                  {isBn ? "সাধারণ সদস্য (General)" : "General Member"}
+                <option value="ADVISORY">
+                  {isBn ? "উপদেষ্টা পরিষদ (ADVISORY)" : "Advisory"}
                 </option>
-                <option value="advisor">
-                  {isBn ? "উপদেষ্টা (Advisor)" : "Advisor"}
-                </option>
-                <option value="player">
-                  {isBn ? "খেলোয়াড় (Player)" : "Player"}
+                <option value="GENERAL">
+                  {isBn ? "সাধারণ পরিষদ (GENERAL)" : "General"}
                 </option>
               </select>
             </div>

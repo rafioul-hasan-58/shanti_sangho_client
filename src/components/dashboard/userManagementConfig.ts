@@ -47,6 +47,31 @@ export const MEMBERSHIP_BADGE_MAP: Record<
   MembershipType,
   { labelEn: string; labelBn: string; className: string }
 > = {
+  GENERAL: {
+    labelEn: "General",
+    labelBn: "সাধারণ",
+    className: "bg-blue-50 text-blue-800 border-blue-200",
+  },
+  LIFETIME: {
+    labelEn: "Lifetime",
+    labelBn: "আজীবন",
+    className: "bg-purple-50 text-purple-800 border-purple-200",
+  },
+  DONOR: {
+    labelEn: "Donor",
+    labelBn: "দাতা",
+    className: "bg-teal-50 text-teal-800 border-teal-200",
+  },
+  HONORARY: {
+    labelEn: "Honorary",
+    labelBn: "সম্মানসূচক",
+    className: "bg-indigo-50 text-indigo-800 border-indigo-200",
+  },
+  STUDENT: {
+    labelEn: "Student",
+    labelBn: "শিক্ষার্থী",
+    className: "bg-sky-50 text-sky-800 border-sky-200",
+  },
   PERMANENT: {
     labelEn: "Permanent",
     labelBn: "স্থায়ী",

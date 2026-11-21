@@ -22,10 +22,10 @@ import {
   subscribeAuthState,
 } from "@/lib/api";
 import {
-  fetchUserById,
-  updateUserProfile,
+  fetchMemberById,
+  updateMemberProfile,
   type UpdateProfilePayload,
-} from "@/lib/api/users";
+} from "@/lib/api/memberService";
 import {
   decodeJwtPayload,
   extractTokensFromAuthPayload,
@@ -232,7 +232,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const syncFreshProfile = useCallback(async (userId: string) => {
     if (!userId || typeof window === "undefined") return;
     try {
-      const fresh = await fetchUserById(userId);
+      const fresh = await fetchMemberById(userId);
       if (fresh) {
         setUser((prev) => {
           if (!prev || prev.id !== fresh.id) return prev;
@@ -542,7 +542,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [persistSession]
   );
 
-  /** Update user profile fields via PATCH /api/v1/users/update-profile */
+  /** Update member profile fields via PATCH /api/v1/members/update-profile */
   const updateProfile = useCallback(
     async (
       profileData: Partial<AuthUser> & {
@@ -583,7 +583,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       };
 
       try {
-        const { user: backendUser } = await updateUserProfile(apiPayload);
+        const { member: backendMember } = await updateMemberProfile(apiPayload);
+        const backendUser = backendMember;
         if (backendUser && typeof backendUser === "object") {
           // Sync database values back to AuthUser
           if (backendUser.fullName && typeof backendUser.fullName === "string") {

@@ -22,7 +22,7 @@ const ExpenseChart = dynamic(
 );
 import { isAdminVerified } from "@/lib/authRole";
 import { getDashboardStats } from "@/lib/api/dashboard";
-import { fetchUsers } from "@/lib/api/users";
+import { fetchMembers } from "@/lib/api/memberService";
 import type { DashboardStats, ManagedUser } from "@/lib/types/dashboard";
 import { formatBDT } from "@/lib/constants/categories";
 import { formatBloodGroupDisplay } from "@/lib/bloodGroup";
@@ -61,7 +61,7 @@ export default function AdminOverviewView({
       .catch((err) => console.error("Error loading stats:", err))
       .finally(() => setLoading(false));
 
-    fetchUsers({ page: 1, limit: 50, sortBy: "createdAt", sortOrder: "desc" })
+    fetchMembers({ page: 1, limit: 50, sortBy: "createdAt", sortOrder: "desc" })
       .then((res) => {
         const filtered = res.users.filter((u) => !u.adminVerified);
         setTotalPendingCount(filtered.length);

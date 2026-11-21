@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { deleteUserById } from "@/lib/api/users";
+import { deleteMemberById } from "@/lib/api/memberService";
 import type { ManagedUser } from "@/lib/types/dashboard";
 
 interface UserDeleteConfirmModalProps {
@@ -12,7 +12,7 @@ interface UserDeleteConfirmModalProps {
 }
 
 /**
- * Confirmation modal before permanently deleting a user via `DELETE /api/v1/users/:id`.
+ * Confirmation modal before permanently deleting a member via `DELETE /api/v1/members/:id`.
  */
 export default function UserDeleteConfirmModal({
   user,
@@ -29,7 +29,7 @@ export default function UserDeleteConfirmModal({
     setSubmitting(true);
     setError(null);
     try {
-      const result = await deleteUserById(user.id);
+      const result = await deleteMemberById(user.id);
       onDeleted(result.user, result.message);
     } catch (err) {
       setError(
