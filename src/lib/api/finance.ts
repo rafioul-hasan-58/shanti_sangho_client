@@ -771,7 +771,11 @@ export async function deleteFund(id: string): Promise<boolean> {
       method: "DELETE",
     });
     if (res.ok) return true;
-  } catch {}
+    const json = await res.json().catch(() => null);
+    if (json?.message) throw new Error(json.message);
+  } catch (err: any) {
+    if (err?.message) throw err;
+  }
 
   const { funds } = getMockStore();
   const remainingFunds = funds.filter((f) => f.id !== id);
@@ -1019,7 +1023,11 @@ export async function updateContribution(
       const json = await res.json();
       return normalizeContribution(json?.data?.contribution ?? json?.data ?? json);
     }
-  } catch {}
+    const json = await res.json().catch(() => null);
+    if (json?.message) throw new Error(json.message);
+  } catch (err: any) {
+    if (err?.message) throw err;
+  }
 
   const { contributions } = getMockStore();
   const updatedList = contributions.map((c) =>
@@ -1040,7 +1048,11 @@ export async function deleteContribution(id: string): Promise<boolean> {
       method: "DELETE",
     });
     if (res.ok) return true;
-  } catch {}
+    const json = await res.json().catch(() => null);
+    if (json?.message) throw new Error(json.message);
+  } catch (err: any) {
+    if (err?.message) throw err;
+  }
 
   const { contributions } = getMockStore();
   saveMockStore({ contributions: contributions.filter((c) => c.id !== id) });
@@ -1235,7 +1247,11 @@ export async function updateExpense(
       const json = await res.json();
       return normalizeExpense(json?.data?.expense ?? json?.data ?? json);
     }
-  } catch {}
+    const json = await res.json().catch(() => null);
+    if (json?.message) throw new Error(json.message);
+  } catch (err: any) {
+    if (err?.message) throw err;
+  }
 
   const { expenses } = getMockStore();
   const updatedList = expenses.map((e) =>
@@ -1256,7 +1272,11 @@ export async function deleteExpense(id: string): Promise<boolean> {
       method: "DELETE",
     });
     if (res.ok) return true;
-  } catch {}
+    const json = await res.json().catch(() => null);
+    if (json?.message) throw new Error(json.message);
+  } catch (err: any) {
+    if (err?.message) throw err;
+  }
 
   const { expenses } = getMockStore();
   saveMockStore({ expenses: expenses.filter((e) => e.id !== id) });

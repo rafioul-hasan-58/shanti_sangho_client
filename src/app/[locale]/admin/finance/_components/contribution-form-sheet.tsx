@@ -4,8 +4,9 @@ import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
-import { X, Plus, AlertCircle, CheckCircle2, DollarSign, Calendar, FileText, UserCheck, Users, HelpCircle } from "lucide-react";
-import { useFunds, useAddContribution } from "@/lib/hooks/use-finance";
+import { X, Plus, AlertCircle, CheckCircle2, DollarSign, Calendar, FileText, UserCheck, Users, HelpCircle, Edit3 } from "lucide-react";
+import { useFunds, useAddContribution, useUpdateContribution } from "@/lib/hooks/use-finance";
+import type { Contribution } from "@/lib/api/finance";
 import { useAuth } from "@/context/AuthContext";
 import {
   contributionFormSchema,
@@ -21,6 +22,7 @@ interface ContributionFormSheetProps {
   isOpen: boolean;
   onClose: () => void;
   defaultFundId?: string;
+  contributionToEdit?: Contribution | null;
   isBn?: boolean;
 }
 
@@ -28,11 +30,14 @@ export function ContributionFormSheet({
   isOpen,
   onClose,
   defaultFundId,
+  contributionToEdit,
   isBn = false,
 }: ContributionFormSheetProps) {
+  const isEditing = Boolean(contributionToEdit);
   const { user } = useAuth();
   const { data: funds = [], isLoading: isLoadingFunds } = useFunds();
   const addContributionMutation = useAddContribution();
+  const updateContributionMutation = useUpdateContribution();
 
   const [confirmDiscardOpen, setConfirmDiscardOpen] = useState(false);
   const [successToast, setSuccessToast] = useState<string | null>(null);
@@ -68,18 +73,34 @@ export function ContributionFormSheet({
   const selectedGiverMemberId = watch("giverMemberId");
   const selectedReceiverId = watch("receivedById");
 
-  // Sync defaultFundId or initial fund
+  // Sync contributionToEdit or defaultFundId
   useEffect(() => {
-    if (defaultFundId) {
+    if (contributionToEdit) {
+      reset({
+        fundId: contributionToEdit.fundId,
+        amount: contributionToEdit.amount,
+        method: (contributionToEdit.method as PaymentMethod) || "CASH",
+        receivedAt: format(new Date(contributionToEdit.receivedAt), "yyyy-MM-dd"),
+        giverType: contributionToEdit.giverMemberId ? "MEMBER" : "OUTSIDER",
+        giverMemberId: contributionToEdit.giverMemberId || null,
+        giverName: contributionToEdit.giverName || "",
+        receivedById: contributionToEdit.receivedById || defaultReceiverId,
+        reference: contributionToEdit.reference || "",
+        note: contributionToEdit.note || "",
+      });
+    } else if (defaultFundId) {
       setValue("fundId", defaultFundId);
     } else if (funds.length > 0 && !selectedFundId) {
       setValue("fundId", funds[0].id);
     }
-  }, [defaultFundId, funds, selectedFundId, setValue]);
+  }, [contributionToEdit, defaultFundId, funds, defaultReceiverId, reset, setValue, selectedFundId, isOpen]);
 
   // Handle Close with dirty check
   const handleAttemptClose = () => {
-    if (isDirty && !addContributionMutation.isPending) {
+    const isPending = isEditing
+      ? updateContributionMutation.isPending
+      : addContributionMutation.isPending;
+    if (isDirty && !isPending) {
       setConfirmDiscardOpen(true);
     } else {
       handleFinalClose();
@@ -95,23 +116,46 @@ export function ContributionFormSheet({
   // Submit Handler
   const onSubmit = async (values: ContributionFormValues) => {
     try {
-      await addContributionMutation.mutateAsync({
-        fundId: values.fundId,
-        amount: Number(values.amount),
-        method: values.method,
-        receivedAt: new Date(values.receivedAt).toISOString(),
-        receivedById: values.receivedById,
-        giverMemberId: values.giverType === "MEMBER" ? values.giverMemberId : null,
-        giverName: values.giverType === "OUTSIDER" ? values.giverName : null,
-        reference: values.reference || null,
-        note: values.note || null,
-      });
+      if (isEditing && contributionToEdit) {
+        await updateContributionMutation.mutateAsync({
+          id: contributionToEdit.id,
+          payload: {
+            fundId: values.fundId,
+            amount: Number(values.amount),
+            method: values.method,
+            receivedAt: new Date(values.receivedAt).toISOString(),
+            receivedById: values.receivedById,
+            giverMemberId: values.giverType === "MEMBER" ? values.giverMemberId : null,
+            giverName: values.giverType === "OUTSIDER" ? values.giverName : null,
+            reference: values.reference || null,
+            note: values.note || null,
+          },
+        });
 
-      setSuccessToast(
-        isBn
-          ? "অনুদানের টাকা সফলভাবে জমা হয়েছে!"
-          : "Contribution successfully recorded!"
-      );
+        setSuccessToast(
+          isBn
+            ? "অনুদানের তথ্য সফলভাবে আপডেট করা হয়েছে!"
+            : "Contribution successfully updated!"
+        );
+      } else {
+        await addContributionMutation.mutateAsync({
+          fundId: values.fundId,
+          amount: Number(values.amount),
+          method: values.method,
+          receivedAt: new Date(values.receivedAt).toISOString(),
+          receivedById: values.receivedById,
+          giverMemberId: values.giverType === "MEMBER" ? values.giverMemberId : null,
+          giverName: values.giverType === "OUTSIDER" ? values.giverName : null,
+          reference: values.reference || null,
+          note: values.note || null,
+        });
+
+        setSuccessToast(
+          isBn
+            ? "অনুদানের টাকা সফলভাবে জমা হয়েছে!"
+            : "Contribution successfully recorded!"
+        );
+      }
 
       setTimeout(() => {
         setSuccessToast(null);
@@ -139,14 +183,24 @@ export function ContributionFormSheet({
         <header className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
           <div className="flex items-center gap-2.5">
             <div className="p-2 rounded-xl bg-emerald-100/70 text-[#006a4e]">
-              <Plus className="w-5 h-5 stroke-[2.5]" />
+              {isEditing ? <Edit3 className="w-5 h-5 stroke-[2.5]" /> : <Plus className="w-5 h-5 stroke-[2.5]" />}
             </div>
             <div>
               <h2 className="font-black text-base sm:text-lg text-slate-900 leading-tight">
-                {isBn ? "নতুন অনুদান জমা করুন" : "Add Contribution"}
+                {isEditing
+                  ? isBn
+                    ? "অনুদানের তথ্য সম্পাদনা"
+                    : "Edit Contribution"
+                  : isBn
+                  ? "নতুন অনুদান জমা করুন"
+                  : "Add Contribution"}
               </h2>
               <p className="text-xs text-slate-500 font-medium">
-                {isBn
+                {isEditing
+                  ? isBn
+                    ? "অনুদানের বিবরণ ও রেফারেন্স সংশোধন করুন"
+                    : "Update details of recorded contribution"
+                  : isBn
                   ? "তহবিলে অর্থ সংগ্রহের বিবরণ রেকর্ড করুন"
                   : "Record new incoming money to a fund"}
               </p>
@@ -410,16 +464,38 @@ export function ContributionFormSheet({
           <button
             type="submit"
             form="contribution-form"
-            disabled={addContributionMutation.isPending}
+            disabled={
+              isEditing
+                ? updateContributionMutation.isPending
+                : addContributionMutation.isPending
+            }
             className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-[#006a4e] hover:bg-[#004d38] active:scale-95 disabled:opacity-50 text-white text-xs sm:text-sm font-bold shadow-md transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f2b705]"
           >
-            {addContributionMutation.isPending ? (
+            {(isEditing
+              ? updateContributionMutation.isPending
+              : addContributionMutation.isPending) ? (
               <span className="inline-flex items-center gap-2">
                 <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                <span>{isBn ? "জমা হচ্ছে..." : "Submitting..."}</span>
+                <span>
+                  {isEditing
+                    ? isBn
+                      ? "আপডেট হচ্ছে..."
+                      : "Updating..."
+                    : isBn
+                    ? "জমা হচ্ছে..."
+                    : "Submitting..."}
+                </span>
               </span>
             ) : (
-              <span>{isBn ? "অনুদান সংরক্ষণ করুন" : "Save Contribution"}</span>
+              <span>
+                {isEditing
+                  ? isBn
+                    ? "আপডেট সংরক্ষণ করুন"
+                    : "Update Contribution"
+                  : isBn
+                  ? "অনুদান সংরক্ষণ করুন"
+                  : "Save Contribution"}
+              </span>
             )}
           </button>
         </footer>

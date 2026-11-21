@@ -17,8 +17,10 @@ import {
   AlertCircle,
   Receipt,
   Loader2,
+  Edit3,
 } from "lucide-react";
-import { useFunds, useAddExpense } from "@/lib/hooks/use-finance";
+import { useFunds, useAddExpense, useUpdateExpense } from "@/lib/hooks/use-finance";
+import type { Expense } from "@/lib/api/finance";
 import { useAuth } from "@/context/AuthContext";
 import { uploadReceiptImage } from "@/lib/api/upload";
 import {
@@ -33,6 +35,7 @@ interface ExpenseFormSheetProps {
   isOpen: boolean;
   onClose: () => void;
   defaultFundId?: string;
+  expenseToEdit?: Expense | null;
   isBn?: boolean;
 }
 
@@ -40,11 +43,14 @@ export function ExpenseFormSheet({
   isOpen,
   onClose,
   defaultFundId,
+  expenseToEdit,
   isBn = false,
 }: ExpenseFormSheetProps) {
+  const isEditing = Boolean(expenseToEdit);
   const { user } = useAuth();
   const { data: funds = [], isLoading: isLoadingFunds } = useFunds();
   const addExpenseMutation = useAddExpense();
+  const updateExpenseMutation = useUpdateExpense();
 
   const [confirmDiscardOpen, setConfirmDiscardOpen] = useState(false);
   const [successToast, setSuccessToast] = useState<string | null>(null);
@@ -86,17 +92,34 @@ export function ExpenseFormSheet({
   const numEnteredAmount = Number(enteredAmount) || 0;
   const isOverBalance = numEnteredAmount > 0 && currentFund && numEnteredAmount > currentRemaining;
 
+  // Sync expenseToEdit or defaultFundId
   useEffect(() => {
-    if (defaultFundId) {
+    if (expenseToEdit) {
+      reset({
+        fundId: expenseToEdit.fundId,
+        amount: expenseToEdit.amount,
+        spentAt: format(new Date(expenseToEdit.spentAt), "yyyy-MM-dd"),
+        spentOn: expenseToEdit.spentOn,
+        spentById: expenseToEdit.spentById || defaultHandlerId,
+        note: expenseToEdit.note || "",
+        receiptUrl: expenseToEdit.receiptUrl || null,
+      });
+      setReceiptPreviewUrl(expenseToEdit.receiptUrl || null);
+    } else if (defaultFundId) {
       setValue("fundId", defaultFundId);
+      setReceiptPreviewUrl(null);
     } else if (funds.length > 0 && !selectedFundId) {
       setValue("fundId", funds[0].id);
+      setReceiptPreviewUrl(null);
     }
-  }, [defaultFundId, funds, selectedFundId, setValue]);
+  }, [expenseToEdit, defaultFundId, funds, defaultHandlerId, reset, setValue, selectedFundId, isOpen]);
 
   // Handle Close with dirty check
   const handleAttemptClose = () => {
-    if (isDirty && !addExpenseMutation.isPending) {
+    const isPending = isEditing
+      ? updateExpenseMutation.isPending
+      : addExpenseMutation.isPending;
+    if (isDirty && !isPending) {
       setConfirmDiscardOpen(true);
     } else {
       handleFinalClose();
@@ -144,21 +167,42 @@ export function ExpenseFormSheet({
   // Submit Handler
   const onSubmit = async (values: ExpenseFormValues) => {
     try {
-      await addExpenseMutation.mutateAsync({
-        fundId: values.fundId,
-        amount: Number(values.amount),
-        spentAt: new Date(values.spentAt).toISOString(),
-        spentOn: values.spentOn,
-        spentById: values.spentById || null,
-        note: values.note || null,
-        receiptUrl: values.receiptUrl || null,
-      });
+      if (isEditing && expenseToEdit) {
+        await updateExpenseMutation.mutateAsync({
+          id: expenseToEdit.id,
+          payload: {
+            fundId: values.fundId,
+            amount: Number(values.amount),
+            spentAt: new Date(values.spentAt).toISOString(),
+            spentOn: values.spentOn,
+            spentById: values.spentById || null,
+            note: values.note || null,
+            receiptUrl: values.receiptUrl || null,
+          },
+        });
 
-      setSuccessToast(
-        isBn
-          ? "ব্যয়ের হিসাব সফলভাবে সংরক্ষণ করা হয়েছে!"
-          : "Expense successfully recorded!"
-      );
+        setSuccessToast(
+          isBn
+            ? "ব্যয়ের হিসাব সফলভাবে আপডেট করা হয়েছে!"
+            : "Expense updated successfully!"
+        );
+      } else {
+        await addExpenseMutation.mutateAsync({
+          fundId: values.fundId,
+          amount: Number(values.amount),
+          spentAt: new Date(values.spentAt).toISOString(),
+          spentOn: values.spentOn,
+          spentById: values.spentById || null,
+          note: values.note || null,
+          receiptUrl: values.receiptUrl || null,
+        });
+
+        setSuccessToast(
+          isBn
+            ? "ব্যয়ের হিসাব সফলভাবে সংরক্ষণ করা হয়েছে!"
+            : "Expense successfully recorded!"
+        );
+      }
 
       setTimeout(() => {
         setSuccessToast(null);
@@ -186,14 +230,24 @@ export function ExpenseFormSheet({
         <header className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
           <div className="flex items-center gap-2.5">
             <div className="p-2 rounded-xl bg-rose-100/70 text-[#f42a41]">
-              <Receipt className="w-5 h-5 stroke-[2.5]" />
+              {isEditing ? <Edit3 className="w-5 h-5 stroke-[2.5]" /> : <Receipt className="w-5 h-5 stroke-[2.5]" />}
             </div>
             <div>
               <h2 className="font-black text-base sm:text-lg text-slate-900 leading-tight">
-                {isBn ? "নতুন ব্যয়ের হিসাব যোগ করুন" : "Add Expense"}
+                {isEditing
+                  ? isBn
+                    ? "ব্যয় হিসাব সম্পাদনা"
+                    : "Edit Expense"
+                  : isBn
+                  ? "নতুন ব্যয়ের হিসাব যোগ করুন"
+                  : "Add Expense"}
               </h2>
               <p className="text-xs text-slate-500 font-medium">
-                {isBn
+                {isEditing
+                  ? isBn
+                    ? "ব্যয়ের বিবরণ, পরিমাণ বা রসিদ সংশোধন করুন"
+                    : "Update details of recorded expenditure"
+                  : isBn
                   ? "ক্লাবের তহবিল থেকে খরচের বিবরণ রেকর্ড করুন"
                   : "Record an expenditure from a club fund"}
               </p>
@@ -475,16 +529,38 @@ export function ExpenseFormSheet({
           <button
             type="submit"
             form="expense-form"
-            disabled={addExpenseMutation.isPending}
+            disabled={
+              isEditing
+                ? updateExpenseMutation.isPending
+                : addExpenseMutation.isPending
+            }
             className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-[#006a4e] hover:bg-[#004d38] active:scale-95 disabled:opacity-50 text-white text-xs sm:text-sm font-bold shadow-md transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f2b705]"
           >
-            {addExpenseMutation.isPending ? (
+            {(isEditing
+              ? updateExpenseMutation.isPending
+              : addExpenseMutation.isPending) ? (
               <span className="inline-flex items-center gap-2">
                 <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                <span>{isBn ? "সংরক্ষণ হচ্ছে..." : "Submitting..."}</span>
+                <span>
+                  {isEditing
+                    ? isBn
+                      ? "আপডেট হচ্ছে..."
+                      : "Updating..."
+                    : isBn
+                    ? "সংরক্ষণ হচ্ছে..."
+                    : "Submitting..."}
+                </span>
               </span>
             ) : (
-              <span>{isBn ? "খরচের হিসাব সংরক্ষণ করুন" : "Save Expense"}</span>
+              <span>
+                {isEditing
+                  ? isBn
+                    ? "আপডেট সংরক্ষণ করুন"
+                    : "Update Expense"
+                  : isBn
+                  ? "খরচের হিসাব সংরক্ষণ করুন"
+                  : "Save Expense"}
+              </span>
             )}
           </button>
         </footer>

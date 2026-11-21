@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { format } from "date-fns";
 import {
@@ -16,12 +16,19 @@ import {
   X,
   User,
   FileSpreadsheet,
+  MoreVertical,
+  Edit3,
+  Trash2,
+  AlertTriangle,
+  Loader2,
+  AlertCircle,
 } from "lucide-react";
-import { useContributions, useFunds } from "@/lib/hooks/use-finance";
+import { useContributions, useFunds, useDeleteContribution } from "@/lib/hooks/use-finance";
 import type { Contribution } from "@/lib/api/finance";
 import type { PaymentMethod } from "@/lib/schemas/finance";
 import { formatMoney, formatDate } from "@/lib/format";
 import { MethodBadge } from "./method-badge";
+import { ContributionFormSheet } from "./contribution-form-sheet";
 
 interface ContributionsTableProps {
   fundId?: string;
@@ -35,6 +42,8 @@ export function ContributionsTable({
   onAddClick,
 }: ContributionsTableProps) {
   const { data: funds = [] } = useFunds();
+  const deleteContributionMutation = useDeleteContribution();
+
   const [search, setSearch] = useState("");
   const [method, setMethod] = useState<PaymentMethod | "ALL">("ALL");
   const [fundFilter, setFundFilter] = useState<string>("ALL");
@@ -48,6 +57,26 @@ export function ContributionsTable({
   // Selected row for detail drawer
   const [selectedContribution, setSelectedContribution] =
     useState<Contribution | null>(null);
+
+  // Edit Sheet State
+  const [contributionToEdit, setContributionToEdit] = useState<Contribution | null>(null);
+  const [isEditSheetOpen, setIsEditSheetOpen] = useState(false);
+
+  // Delete Modal State
+  const [contributionToDelete, setContributionToDelete] = useState<Contribution | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  // 3-Dot Dropdown State
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    if (!openDropdownId) return;
+    const handleClick = () => setOpenDropdownId(null);
+    document.addEventListener("click", handleClick);
+    return () => document.removeEventListener("click", handleClick);
+  }, [openDropdownId]);
 
   const { data, isLoading, isError, refetch } = useContributions({
     fundId: effectiveFundId,
@@ -361,11 +390,69 @@ export function ContributionsTable({
                         </span>
                       </td>
 
-                      {/* Action */}
-                      <td className="py-3 px-4 text-center">
-                        <span className="inline-flex p-1.5 rounded-lg text-slate-400 group-hover:text-[#006a4e] group-hover:bg-[#EEF8F1] transition-colors">
-                          <Eye className="w-4 h-4" />
-                        </span>
+                      {/* Action: 3-Dot Dropdown */}
+                      <td
+                        className="py-3 px-4 text-center relative"
+                        onClick={(ev) => ev.stopPropagation()}
+                      >
+                        <div className="relative inline-block text-left">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setOpenDropdownId(openDropdownId === c.id ? null : c.id);
+                            }}
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer"
+                            aria-label="Actions"
+                          >
+                            <MoreVertical className="w-4 h-4" />
+                          </button>
+
+                          {openDropdownId === c.id && (
+                            <div className="absolute right-0 top-full mt-1 w-44 rounded-xl bg-white shadow-xl border border-slate-200 py-1.5 z-30 text-xs font-semibold text-left animate-in fade-in zoom-in-95">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setOpenDropdownId(null);
+                                  setSelectedContribution(c);
+                                }}
+                                className="w-full flex items-center gap-2 px-3 py-2 text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
+                              >
+                                <Eye className="w-3.5 h-3.5 text-emerald-600" />
+                                <span>{isBn ? "বিস্তারিত দেখুন" : "View Details"}</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setOpenDropdownId(null);
+                                  setContributionToEdit(c);
+                                  setIsEditSheetOpen(true);
+                                }}
+                                className="w-full flex items-center gap-2 px-3 py-2 text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
+                              >
+                                <Edit3 className="w-3.5 h-3.5 text-blue-600" />
+                                <span>{isBn ? "সম্পাদনা করুন" : "Edit"}</span>
+                              </button>
+
+                              <div className="my-1 border-t border-slate-100" />
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setOpenDropdownId(null);
+                                  setDeleteError(null);
+                                  setContributionToDelete(c);
+                                  setIsDeleteModalOpen(true);
+                                }}
+                                className="w-full flex items-center gap-2 px-3 py-2 text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                              >
+                                <Trash2 className="w-3.5 h-3.5 text-rose-600" />
+                                <span>{isBn ? "মুছে ফেলুন" : "Delete"}</span>
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -379,7 +466,7 @@ export function ContributionsTable({
                 <div
                   key={c.id}
                   onClick={() => setSelectedContribution(c)}
-                  className="p-4 space-y-2.5 active:bg-slate-50 transition-colors cursor-pointer"
+                  className="p-4 space-y-2.5 active:bg-slate-50 transition-colors cursor-pointer relative"
                 >
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2 min-w-0">
@@ -401,9 +488,71 @@ export function ContributionsTable({
                       </span>
                     </div>
 
-                    <span className="font-black text-sm tabular-nums text-emerald-700 shrink-0">
-                      + {formatMoney(c.amount)}
-                    </span>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <span className="font-black text-sm tabular-nums text-emerald-700">
+                        + {formatMoney(c.amount)}
+                      </span>
+
+                      {/* 3-Dot Menu on Mobile Card */}
+                      <div className="relative" onClick={(ev) => ev.stopPropagation()}>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setOpenDropdownId(openDropdownId === c.id ? null : c.id);
+                          }}
+                          className="p-1 rounded-lg text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer"
+                          aria-label="Actions"
+                        >
+                          <MoreVertical className="w-4 h-4" />
+                        </button>
+
+                        {openDropdownId === c.id && (
+                          <div className="absolute right-0 top-full mt-1 w-44 rounded-xl bg-white shadow-xl border border-slate-200 py-1.5 z-30 text-xs font-semibold text-left animate-in fade-in zoom-in-95">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setOpenDropdownId(null);
+                                setSelectedContribution(c);
+                              }}
+                              className="w-full flex items-center gap-2 px-3 py-2 text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
+                            >
+                              <Eye className="w-3.5 h-3.5 text-emerald-600" />
+                              <span>{isBn ? "বিস্তারিত দেখুন" : "View Details"}</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setOpenDropdownId(null);
+                                setContributionToEdit(c);
+                                setIsEditSheetOpen(true);
+                              }}
+                              className="w-full flex items-center gap-2 px-3 py-2 text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
+                            >
+                              <Edit3 className="w-3.5 h-3.5 text-blue-600" />
+                              <span>{isBn ? "সম্পাদনা করুন" : "Edit"}</span>
+                            </button>
+
+                            <div className="my-1 border-t border-slate-100" />
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setOpenDropdownId(null);
+                                setDeleteError(null);
+                                setContributionToDelete(c);
+                                setIsDeleteModalOpen(true);
+                              }}
+                              className="w-full flex items-center gap-2 px-3 py-2 text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                            >
+                              <Trash2 className="w-3.5 h-3.5 text-rose-600" />
+                              <span>{isBn ? "মুছে ফেলুন" : "Delete"}</span>
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
 
                   <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1">
@@ -550,6 +699,112 @@ export function ContributionsTable({
                 className="w-full py-2.5 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-700 font-bold text-xs sm:text-sm transition-colors"
               >
                 {isBn ? "বন্ধ করুন" : "Close"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Contribution Sheet */}
+      <ContributionFormSheet
+        isOpen={isEditSheetOpen}
+        onClose={() => {
+          setIsEditSheetOpen(false);
+          setContributionToEdit(null);
+        }}
+        contributionToEdit={contributionToEdit}
+        isBn={isBn}
+      />
+
+      {/* Delete Contribution Modal */}
+      {isDeleteModalOpen && contributionToDelete && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn"
+          onClick={() => setIsDeleteModalOpen(false)}
+        >
+          <div
+            className="w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl border border-slate-200 space-y-4 animate-scaleUp"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2.5 rounded-2xl bg-rose-100 text-rose-700">
+                  <Trash2 className="w-5 h-5 stroke-[2.2]" />
+                </div>
+                <div>
+                  <h3 className="font-black text-base text-slate-900">
+                    {isBn ? "অনুদান রেকর্ড মুছে ফেলবেন?" : "Delete Contribution?"}
+                  </h3>
+                  <p className="text-xs text-slate-500 font-medium">
+                    {formatMoney(contributionToDelete.amount)} • {contributionToDelete.giverName || "Member"}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsDeleteModalOpen(false)}
+                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-600 leading-relaxed">
+              {isBn
+                ? `আপনি কি নিশ্চিতভাবে এই ${formatMoney(
+                    contributionToDelete.amount
+                  )} টাকার অনুদানের রেকর্ডটি স্থায়ীভাবে মুছে ফেলতে চান? মুছে ফেলার সাথে সাথে সংশ্লিষ্ট তহবিলের ব্যালেন্স পুনর্গণনা করা হবে।`
+                : `Are you sure you want to permanently delete this contribution of ${formatMoney(
+                    contributionToDelete.amount
+                  )}? The fund total and balance will be recalculated automatically.`}
+            </p>
+
+            {deleteError && (
+              <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{deleteError}</span>
+              </div>
+            )}
+
+            <div className="flex items-center justify-end gap-2.5 pt-2">
+              <button
+                type="button"
+                onClick={() => setIsDeleteModalOpen(false)}
+                className="px-4 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold transition-colors cursor-pointer"
+              >
+                {isBn ? "বাতিল" : "Cancel"}
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  setDeleteError(null);
+                  try {
+                    await deleteContributionMutation.mutateAsync(contributionToDelete.id);
+                    setIsDeleteModalOpen(false);
+                    setContributionToDelete(null);
+                  } catch (err: any) {
+                    setDeleteError(
+                      err?.message ||
+                        (isBn ? "মুছে ফেলতে ব্যর্থ হয়েছে।" : "Failed to delete contribution.")
+                    );
+                  }
+                }}
+                disabled={deleteContributionMutation.isPending}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+              >
+                {deleteContributionMutation.isPending ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>{isBn ? "মুছে ফেলা হচ্ছে..." : "Deleting..."}</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>{isBn ? "হ্যাঁ, মুছে ফেলুন" : "Yes, Delete"}</span>
+                  </>
+                )}
               </button>
             </div>
           </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -12,13 +12,21 @@ import {
   AlertTriangle,
   Receipt,
   FileSpreadsheet,
+  MoreVertical,
+  Edit3,
+  Trash2,
+  Power,
+  X,
+  Loader2,
+  AlertCircle,
 } from "lucide-react";
-import { useFund } from "@/lib/hooks/use-finance";
+import { useFund, useUpdateFund, useDeleteFund } from "@/lib/hooks/use-finance";
 import { formatMoney } from "@/lib/format";
 import { ContributionsTable } from "./contributions-table";
 import { ExpensesTable } from "./expenses-table";
 import { ContributionFormSheet } from "./contribution-form-sheet";
 import { ExpenseFormSheet } from "./expense-form-sheet";
+import { FundFormDialog } from "./fund-form-dialog";
 import { withLocaleHref } from "@/lib/config/adminNav";
 
 interface FundDetailClientProps {
@@ -30,12 +38,37 @@ export function FundDetailClient({ fundId, locale }: FundDetailClientProps) {
   const router = useRouter();
   const isBn = locale === "bn";
   const { data: fund, isLoading, isError } = useFund(fundId);
+  const updateFundMutation = useUpdateFund();
+  const deleteFundMutation = useDeleteFund();
 
   const [activeTab, setActiveTab] = useState<"contributions" | "expenses">(
     "contributions"
   );
   const [contributionSheetOpen, setContributionSheetOpen] = useState(false);
   const [expenseSheetOpen, setExpenseSheetOpen] = useState(false);
+
+  // Fund 3-dot menu & dialog states
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  // Close menu on click outside
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handleClick = (e: MouseEvent | TouchEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    document.addEventListener("touchstart", handleClick);
+    return () => {
+      document.removeEventListener("mousedown", handleClick);
+      document.removeEventListener("touchstart", handleClick);
+    };
+  }, [menuOpen]);
 
   if (isLoading) {
     return (
@@ -158,6 +191,85 @@ export function FundDetailClient({ fundId, locale }: FundDetailClientProps) {
               <Receipt className="w-4 h-4 text-[#f42a41]" />
               <span>{isBn ? "ব্যয় যোগ" : "Add Expense"}</span>
             </button>
+
+            {/* 3-Dot Action Menu for Fund */}
+            <div className="relative shrink-0">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setMenuOpen((prev) => !prev);
+                }}
+                className="p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-500 hover:text-slate-900 transition-colors cursor-pointer"
+                aria-label="Fund actions"
+              >
+                <MoreVertical className="w-4 h-4" />
+              </button>
+
+              {menuOpen && (
+                <div
+                  ref={menuRef}
+                  onClick={(e) => e.stopPropagation()}
+                  className="absolute right-0 top-full mt-1.5 w-48 rounded-xl bg-white shadow-xl border border-slate-200 py-1.5 z-30 text-xs font-semibold animate-in fade-in zoom-in-95"
+                >
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      setIsEditDialogOpen(true);
+                    }}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-slate-700 hover:bg-slate-50 transition-colors text-left cursor-pointer"
+                  >
+                    <Edit3 className="w-3.5 h-3.5 text-blue-600" />
+                    <span>{isBn ? "তহবিল সম্পাদনা করুন" : "Edit Fund"}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      setMenuOpen(false);
+                      try {
+                        await updateFundMutation.mutateAsync({
+                          id: fund.id,
+                          payload: { isActive: !fund.isActive },
+                        });
+                      } catch {}
+                    }}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-slate-700 hover:bg-slate-50 transition-colors text-left cursor-pointer"
+                  >
+                    <Power
+                      className={`w-3.5 h-3.5 ${
+                        fund.isActive ? "text-amber-600" : "text-emerald-600"
+                      }`}
+                    />
+                    <span>
+                      {fund.isActive
+                        ? isBn
+                          ? "তহবিল নিষ্ক্রিয় করুন"
+                          : "Deactivate Fund"
+                        : isBn
+                        ? "তহবিল সক্রিয় করুন"
+                        : "Activate Fund"}
+                    </span>
+                  </button>
+
+                  <div className="my-1 border-t border-slate-100" />
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      setDeleteError(null);
+                      setIsDeleteModalOpen(true);
+                    }}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-rose-600 hover:bg-rose-50 transition-colors text-left cursor-pointer"
+                  >
+                    <Trash2 className="w-3.5 h-3.5 text-rose-600" />
+                    <span>{isBn ? "তহবিল মুছে ফেলুন" : "Delete Fund"}</span>
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -238,6 +350,179 @@ export function FundDetailClient({ fundId, locale }: FundDetailClientProps) {
         defaultFundId={fund.id}
         isBn={isBn}
       />
+
+      {/* Edit Fund Dialog */}
+      <FundFormDialog
+        isOpen={isEditDialogOpen}
+        onClose={() => setIsEditDialogOpen(false)}
+        fundToEdit={fund}
+        isBn={isBn}
+      />
+
+      {/* Delete Confirmation Modal */}
+      {isDeleteModalOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn"
+          onClick={() => setIsDeleteModalOpen(false)}
+        >
+          <div
+            className="w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl border border-slate-200 space-y-4 animate-scaleUp"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2.5">
+                <div
+                  className={`p-2.5 rounded-2xl ${
+                    (fund.summary?.contributionsCount ?? 0) > 0 ||
+                    (fund.summary?.expensesCount ?? 0) > 0
+                      ? "bg-amber-100 text-amber-700"
+                      : "bg-rose-100 text-rose-700"
+                  }`}
+                >
+                  <AlertTriangle className="w-5 h-5 stroke-[2.2]" />
+                </div>
+                <div>
+                  <h3 className="font-black text-base text-slate-900">
+                    {(fund.summary?.contributionsCount ?? 0) > 0 ||
+                    (fund.summary?.expensesCount ?? 0) > 0
+                      ? isBn
+                        ? "তহবিল মুছে ফেলা নিষিদ্ধ"
+                        : "Deletion Blocked"
+                      : isBn
+                      ? "তহবিলটি স্থায়ীভাবে মুছে ফেলতে চান?"
+                      : "Delete Fund Permanently?"}
+                  </h3>
+                  <p className="text-xs text-slate-500 font-medium">
+                    {fund.name}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsDeleteModalOpen(false)}
+                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {(fund.summary?.contributionsCount ?? 0) > 0 ||
+            (fund.summary?.expensesCount ?? 0) > 0 ? (
+              <div className="p-4 rounded-2xl bg-amber-50/80 border border-amber-200/80 text-xs text-amber-900 space-y-2">
+                <p className="font-bold">
+                  {isBn
+                    ? "এই তহবিলে আর্থিক লেনদেন সংরক্ষিত আছে:"
+                    : "This fund contains recorded financial transactions:"}
+                </p>
+                <ul className="list-disc pl-5 space-y-1 font-medium">
+                  <li>
+                    {isBn
+                      ? `মোট অনুদান: ${
+                          fund.summary?.contributionsCount ?? 0
+                        } টি`
+                      : `Total contributions: ${
+                          fund.summary?.contributionsCount ?? 0
+                        }`}
+                  </li>
+                  <li>
+                    {isBn
+                      ? `মোট ব্যয়: ${fund.summary?.expensesCount ?? 0} টি`
+                      : `Total expenses: ${
+                          fund.summary?.expensesCount ?? 0
+                        }`}
+                  </li>
+                </ul>
+                <p className="font-bold pt-1 text-amber-950">
+                  {isBn
+                    ? "আর্থিক অডিট শৃঙ্খলা বজায় রাখতে এই তহবিল মুছে ফেলা যাবে না। এর পরিবর্তে তহবিলটি নিষ্ক্রিয় (Inactive) করতে পারেন।"
+                    : "To preserve financial audit records, this fund cannot be deleted. You can deactivate it instead."}
+                </p>
+              </div>
+            ) : (
+              <p className="text-xs text-slate-600 leading-relaxed">
+                {isBn
+                  ? `আপনি কি নিশ্চিত যে "${fund.name}" তহবিলটি মুছে ফেলতে চান? এতে কোনো লেনদেন নেই এবং এটি মুছে ফেললে তা আর ফিরিয়ে আনা যাবে না।`
+                  : `Are you sure you want to delete "${fund.name}"? This empty fund has no transactions and this action cannot be undone.`}
+              </p>
+            )}
+
+            {deleteError && (
+              <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{deleteError}</span>
+              </div>
+            )}
+
+            <div className="flex items-center justify-end gap-2.5 pt-2">
+              <button
+                type="button"
+                onClick={() => setIsDeleteModalOpen(false)}
+                className="px-4 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold transition-colors cursor-pointer"
+              >
+                {isBn ? "বাতিল" : "Cancel"}
+              </button>
+
+              {(fund.summary?.contributionsCount ?? 0) > 0 ||
+              (fund.summary?.expensesCount ?? 0) > 0 ? (
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await updateFundMutation.mutateAsync({
+                      id: fund.id,
+                      payload: { isActive: !fund.isActive },
+                    });
+                    setIsDeleteModalOpen(false);
+                  }}
+                  className="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+                >
+                  {fund.isActive
+                    ? isBn
+                      ? "তহবিলটি নিষ্ক্রিয় করুন"
+                      : "Deactivate Fund"
+                    : isBn
+                    ? "বন্ধ করুন"
+                    : "Close"}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={async () => {
+                    setDeleteError(null);
+                    try {
+                      await deleteFundMutation.mutateAsync(fund.id);
+                      setIsDeleteModalOpen(false);
+                      router.replace(withLocaleHref("/admin/finance", locale));
+                    } catch (err: any) {
+                      setDeleteError(
+                        err?.message ||
+                          (isBn
+                            ? "তহবিল মুছে ফেলতে ব্যর্থ হয়েছে।"
+                            : "Failed to delete fund.")
+                      );
+                    }
+                  }}
+                  disabled={deleteFundMutation.isPending}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+                >
+                  {deleteFundMutation.isPending ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>{isBn ? "মুছে ফেলা হচ্ছে..." : "Deleting..."}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>{isBn ? "হ্যাঁ, মুছে ফেলুন" : "Yes, Delete"}</span>
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
