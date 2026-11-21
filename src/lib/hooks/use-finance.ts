@@ -3,14 +3,26 @@ import {
   getFunds,
   getFundById,
   getFundSummary,
+  createFund,
+  updateFund,
+  deleteFund,
   getContributions,
+  getContributionById,
   createContribution,
+  updateContribution,
+  deleteContribution,
   getExpenses,
+  getExpenseById,
   createExpense,
+  updateExpense,
+  deleteExpense,
   searchFinanceMembers,
   getFinanceOverview,
+  type FundQueryParams,
   type ContributionQueryParams,
   type ExpenseQueryParams,
+  type CreateFundPayload,
+  type UpdateFundPayload,
   type CreateContributionPayload,
   type CreateExpensePayload,
 } from "@/lib/api/finance";
@@ -19,23 +31,25 @@ import {
 export const financeKeys = {
   all: ["finance"] as const,
   overview: () => [...financeKeys.all, "overview"] as const,
-  funds: () => [...financeKeys.all, "funds"] as const,
+  funds: (params?: FundQueryParams) => [...financeKeys.all, "funds", params] as const,
   fund: (id: string) => [...financeKeys.all, "fund", id] as const,
   fundSummary: (id: string) => [...financeKeys.all, "fund-summary", id] as const,
   contributions: (params?: ContributionQueryParams) =>
     [...financeKeys.all, "contributions", params] as const,
+  contribution: (id: string) => [...financeKeys.all, "contribution", id] as const,
   expenses: (params?: ExpenseQueryParams) =>
     [...financeKeys.all, "expenses", params] as const,
+  expense: (id: string) => [...financeKeys.all, "expense", id] as const,
   members: (query: string) => [...financeKeys.all, "members", query] as const,
 };
 
 /**
  * Fetch all club funds
  */
-export function useFunds() {
+export function useFunds(params?: FundQueryParams) {
   return useQuery({
-    queryKey: financeKeys.funds(),
-    queryFn: getFunds,
+    queryKey: financeKeys.funds(params),
+    queryFn: () => getFunds(params),
   });
 }
 
@@ -47,6 +61,47 @@ export function useFund(fundId: string) {
     queryKey: financeKeys.fund(fundId),
     queryFn: () => getFundById(fundId),
     enabled: Boolean(fundId),
+  });
+}
+
+/**
+ * Mutation: Create a new fund
+ */
+export function useCreateFund() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: CreateFundPayload) => createFund(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: financeKeys.all });
+    },
+  });
+}
+
+/**
+ * Mutation: Update a fund
+ */
+export function useUpdateFund() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: UpdateFundPayload }) =>
+      updateFund(id, payload),
+    onSuccess: (_data, { id }) => {
+      queryClient.invalidateQueries({ queryKey: financeKeys.all });
+      queryClient.invalidateQueries({ queryKey: financeKeys.fund(id) });
+    },
+  });
+}
+
+/**
+ * Mutation: Delete empty fund
+ */
+export function useDeleteFund() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => deleteFund(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: financeKeys.all });
+    },
   });
 }
 
@@ -111,8 +166,6 @@ export function useAddContribution() {
   return useMutation({
     mutationFn: (payload: CreateContributionPayload) => createContribution(payload),
     onSuccess: (newContribution) => {
-      queryClient.invalidateQueries({ queryKey: financeKeys.funds() });
-      queryClient.invalidateQueries({ queryKey: financeKeys.overview() });
       queryClient.invalidateQueries({ queryKey: financeKeys.all });
       if (newContribution.fundId) {
         queryClient.invalidateQueries({
@@ -127,6 +180,38 @@ export function useAddContribution() {
 }
 
 /**
+ * Mutation: Update contribution
+ */
+export function useUpdateContribution() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: Partial<CreateContributionPayload>;
+    }) => updateContribution(id, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: financeKeys.all });
+    },
+  });
+}
+
+/**
+ * Mutation: Delete contribution
+ */
+export function useDeleteContribution() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => deleteContribution(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: financeKeys.all });
+    },
+  });
+}
+
+/**
  * Mutation: Add a new expense
  * Invalidates funds, overview, expenses, and fund summaries
  */
@@ -136,8 +221,6 @@ export function useAddExpense() {
   return useMutation({
     mutationFn: (payload: CreateExpensePayload) => createExpense(payload),
     onSuccess: (newExpense) => {
-      queryClient.invalidateQueries({ queryKey: financeKeys.funds() });
-      queryClient.invalidateQueries({ queryKey: financeKeys.overview() });
       queryClient.invalidateQueries({ queryKey: financeKeys.all });
       if (newExpense.fundId) {
         queryClient.invalidateQueries({
@@ -147,6 +230,38 @@ export function useAddExpense() {
           queryKey: financeKeys.fund(newExpense.fundId),
         });
       }
+    },
+  });
+}
+
+/**
+ * Mutation: Update expense
+ */
+export function useUpdateExpense() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: Partial<CreateExpensePayload>;
+    }) => updateExpense(id, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: financeKeys.all });
+    },
+  });
+}
+
+/**
+ * Mutation: Delete expense
+ */
+export function useDeleteExpense() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => deleteExpense(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: financeKeys.all });
     },
   });
 }

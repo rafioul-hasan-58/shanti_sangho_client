@@ -17,7 +17,7 @@ import {
   User,
   FileSpreadsheet,
 } from "lucide-react";
-import { useContributions } from "@/lib/hooks/use-finance";
+import { useContributions, useFunds } from "@/lib/hooks/use-finance";
 import type { Contribution } from "@/lib/api/finance";
 import type { PaymentMethod } from "@/lib/schemas/finance";
 import { formatMoney, formatDate } from "@/lib/format";
@@ -34,19 +34,23 @@ export function ContributionsTable({
   isBn = false,
   onAddClick,
 }: ContributionsTableProps) {
+  const { data: funds = [] } = useFunds();
   const [search, setSearch] = useState("");
   const [method, setMethod] = useState<PaymentMethod | "ALL">("ALL");
+  const [fundFilter, setFundFilter] = useState<string>("ALL");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [page, setPage] = useState(1);
   const limit = 10;
+
+  const effectiveFundId = fundId || (fundFilter !== "ALL" ? fundFilter : undefined);
 
   // Selected row for detail drawer
   const [selectedContribution, setSelectedContribution] =
     useState<Contribution | null>(null);
 
   const { data, isLoading, isError, refetch } = useContributions({
-    fundId,
+    fundId: effectiveFundId,
     q: search || undefined,
     method: method === "ALL" ? undefined : method,
     from: from || undefined,
@@ -104,12 +108,15 @@ export function ContributionsTable({
   const clearFilters = () => {
     setSearch("");
     setMethod("ALL");
+    setFundFilter("ALL");
     setFrom("");
     setTo("");
     setPage(1);
   };
 
-  const hasActiveFilters = Boolean(search || method !== "ALL" || from || to);
+  const hasActiveFilters = Boolean(
+    search || method !== "ALL" || (!fundId && fundFilter !== "ALL") || from || to
+  );
 
   return (
     <div className="space-y-4">
@@ -143,8 +150,27 @@ export function ContributionsTable({
           )}
         </div>
 
-        {/* Right: Method filter, Date range, Export CSV */}
+        {/* Right: Fund filter, Method filter, Date range, Export CSV */}
         <div className="flex items-center flex-wrap gap-2">
+          {/* Fund Filter (shown if not scoped to a specific fund) */}
+          {!fundId && (
+            <select
+              value={fundFilter}
+              onChange={(e) => {
+                setFundFilter(e.target.value);
+                setPage(1);
+              }}
+              className="px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-700 focus:outline-none focus:border-[#006a4e] cursor-pointer"
+            >
+              <option value="ALL">{isBn ? "সকল তহবিল" : "All Funds"}</option>
+              {funds.map((f) => (
+                <option key={f.id} value={f.id}>
+                  {f.name}
+                </option>
+              ))}
+            </select>
+          )}
+
           {/* Method Filter */}
           <select
             value={method}

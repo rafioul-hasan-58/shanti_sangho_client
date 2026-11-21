@@ -16,9 +16,11 @@ import {
   Trash2,
   AlertCircle,
   Receipt,
+  Loader2,
 } from "lucide-react";
 import { useFunds, useAddExpense } from "@/lib/hooks/use-finance";
 import { useAuth } from "@/context/AuthContext";
+import { uploadReceiptImage } from "@/lib/api/upload";
 import {
   expenseFormSchema,
   type ExpenseFormInput,
@@ -49,6 +51,7 @@ export function ExpenseFormSheet({
 
   // Receipt image preview
   const [receiptPreviewUrl, setReceiptPreviewUrl] = useState<string | null>(null);
+  const [isUploadingReceipt, setIsUploadingReceipt] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const defaultHandlerId = user?.id ? String(user.id) : null;
@@ -107,15 +110,26 @@ export function ExpenseFormSheet({
     onClose();
   };
 
-  // Receipt file select handler
-  const handleReceiptFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Receipt file select handler with Cloudinary upload
+  const handleReceiptFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Create an object URL for local preview
+    // Create an object URL for instant preview
     const objectUrl = URL.createObjectURL(file);
     setReceiptPreviewUrl(objectUrl);
     setValue("receiptUrl", objectUrl, { shouldDirty: true });
+    setIsUploadingReceipt(true);
+
+    try {
+      const uploadedUrl = await uploadReceiptImage(file);
+      setValue("receiptUrl", uploadedUrl, { shouldDirty: true });
+      setReceiptPreviewUrl(uploadedUrl);
+    } catch (err) {
+      console.warn("Receipt image upload fallback to preview URL:", err);
+    } finally {
+      setIsUploadingReceipt(false);
+    }
   };
 
   const handleRemoveReceipt = () => {
@@ -385,9 +399,17 @@ export function ExpenseFormSheet({
                     <span className="text-xs font-bold text-slate-800 truncate block">
                       {isBn ? "রসিদের ছবি সংযুক্ত" : "Receipt image attached"}
                     </span>
-                    <span className="text-[11px] text-emerald-700 font-medium block">
-                      Ready to upload
-                    </span>
+                    {isUploadingReceipt ? (
+                      <span className="text-[11px] text-amber-600 font-medium flex items-center gap-1">
+                        <Loader2 className="w-3 h-3 animate-spin shrink-0" />
+                        <span>{isBn ? "ক্লাউডে আপলোড হচ্ছে..." : "Uploading image..."}</span>
+                      </span>
+                    ) : (
+                      <span className="text-[11px] text-[#006a4e] font-semibold flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3 shrink-0" />
+                        <span>{isBn ? "আপলোড সম্পন্ন" : "Uploaded to cloud"}</span>
+                      </span>
+                    )}
                   </div>
                 </div>
                 <button

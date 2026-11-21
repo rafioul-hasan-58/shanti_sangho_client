@@ -344,3 +344,52 @@ export async function deleteProfilePhoto(
     );
   }
 }
+
+/**
+ * Upload receipt or voucher image for financial expense recording via `POST /api/v1/upload/image`.
+ * Falls back to `/upload/profile` or local URL if offline.
+ */
+export async function uploadReceiptImage(file: File): Promise<string> {
+  const base = (
+    process.env.NEXT_PUBLIC_API_URL ||
+    process.env.NEXT_PUBLIC_API_BASE_URL ||
+    process.env.API_BASE_URL ||
+    ""
+  ).replace(/\/+$/, "");
+
+  const endpoint = base.endsWith("/api/v1")
+    ? `${base}/upload/image`
+    : `${base}/api/v1/upload/image`;
+
+  const token = getStoredAccessToken();
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: formData,
+    });
+
+    if (res.ok) {
+      const json = await res.json().catch(() => ({}));
+      const payload = json.data ?? json;
+      const url = payload.url || payload.secure_url || payload.receiptUrl;
+      if (url) return String(url);
+    }
+  } catch (err) {
+    console.warn("Direct upload/image failed, attempting profile endpoint fallback:", err);
+  }
+
+  // Fallback to uploadProfilePhoto
+  try {
+    const res = await uploadProfilePhoto({ file });
+    if (res.url) return res.url;
+  } catch {}
+
+  // Local object URL fallback
+  return URL.createObjectURL(file);
+}

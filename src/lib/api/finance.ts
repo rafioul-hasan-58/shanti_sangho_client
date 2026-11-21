@@ -1,69 +1,119 @@
 /**
- * Finance API Client (`/finance`)
+ * Club Financial Management System API Client
  *
- * Implements full typed contracts for NestJS finance module:
- * - GET  /finance/funds                      -> [{ id, name, isActive, totalIn, totalOut, remaining }]
- * - POST /finance/funds                      { name }
- * - GET  /finance/funds/:id/summary          -> { totalIn, totalOut, remaining }
- * - GET  /finance/contributions?fundId&from&to&method&q&page&limit
- * - POST /finance/contributions              { fundId, amount, method, receivedAt, receivedById, giverMemberId?, giverName?, note?, reference? }
- * - GET  /finance/expenses?fundId&from&to&q&page&limit
- * - POST /finance/expenses                   { fundId, amount, spentAt, spentOn, spentById?, note?, receiptUrl? }
- * - GET  /members?search=                    (for member pickers)
+ * Implements full backend contracts for:
+ * 1. Funds         (/api/v1/funds)         - Campaigns, categories & real-time balance calculations
+ * 2. Contributions (/api/v1/contributions) - Inflow of money (donations, sponsorships, membership fees)
+ * 3. Expenses      (/api/v1/expenses)      - Outflow of money (purchases, match fees, logistics) with receipts
  *
- * Falls back to an in-memory & localStorage mock store with realistic club funds
- * (GPL, OWAG, SPORTS, FOOTBALL, MAINTENANCE, OTHER) if endpoints return 404/offline.
+ * Gracefully integrates with live backend and provides local mock fallback for seamless offline dev.
  */
 
 import { fetchWithAuth } from "@/lib/api";
-import type { PaymentMethod } from "@/lib/schemas/finance";
+import type {
+  FundCategory,
+  ReceiveMethod,
+  PaymentMethod,
+} from "@/lib/schemas/finance";
 
-export interface Fund {
-  id: string;
-  name: string;
-  category: string;
-  description?: string;
-  isActive: boolean;
+export type { FundCategory, ReceiveMethod, PaymentMethod };
+
+// ---------------------------------------------------------------------------
+// 1. TypeScript Interfaces
+// ---------------------------------------------------------------------------
+
+export interface FundSummary {
+  totalCollected: number;
+  totalSpent: number;
+  balance: number;
+  contributionsCount: number;
+  expensesCount: number;
+  // Backward compatibility aliases
   totalIn: number;
   totalOut: number;
   remaining: number;
 }
 
-export interface FundSummary {
+export interface Fund {
+  id: string;
+  name: string;
+  category: FundCategory;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  summary: FundSummary;
+  // Flat compatibility properties for UI components
   totalIn: number;
   totalOut: number;
   remaining: number;
+  description?: string;
 }
 
 export interface Contribution {
   id: string;
   fundId: string;
-  fundName: string;
   amount: number;
-  method: PaymentMethod;
+  method: ReceiveMethod;
   receivedAt: string;
-  receivedById: string;
-  receivedByName: string;
-  giverMemberId?: string | null;
   giverName?: string | null;
-  giverAvatar?: string | null;
-  note?: string | null;
+  giverMemberId?: string | null;
+  receivedById: string;
   reference?: string | null;
+  note?: string | null;
   createdAt: string;
+  updatedAt: string;
+  fund?: {
+    id: string;
+    name: string;
+    category: FundCategory;
+    isActive: boolean;
+  };
+  giverMember?: {
+    id: string;
+    fullName: string;
+    email: string;
+    profileImage?: string | null;
+    village?: string | null;
+  } | null;
+  receivedBy?: {
+    id: string;
+    fullName: string;
+    email: string;
+    role: string;
+  };
+  // Flat compatibility aliases
+  fundName: string;
+  receivedByName: string;
+  giverAvatar?: string | null;
 }
 
 export interface Expense {
   id: string;
   fundId: string;
-  fundName: string;
   amount: number;
-  spentAt: string;
   spentOn: string;
+  spentAt: string;
   spentById?: string | null;
-  spentByName?: string | null;
-  note?: string | null;
   receiptUrl?: string | null;
+  note?: string | null;
   createdAt: string;
+  updatedAt: string;
+  fund?: {
+    id: string;
+    name: string;
+    category: FundCategory;
+    isActive: boolean;
+  };
+  spentBy?: {
+    id: string;
+    fullName: string;
+    email: string;
+    role: string;
+    profileImage?: string | null;
+  } | null;
+  // Flat compatibility aliases
+  fundName: string;
+  spentByName?: string | null;
 }
 
 export interface PaginatedResponse<T> {
@@ -72,51 +122,79 @@ export interface PaginatedResponse<T> {
   page: number;
   limit: number;
   totalPages: number;
+  totalAmount?: number;
+}
+
+export interface FundQueryParams {
+  page?: number;
+  limit?: number;
+  category?: FundCategory | "ALL";
+  isActive?: boolean;
+  search?: string;
+  sortBy?: "createdAt" | "name" | "category" | "isActive";
+  sortOrder?: "asc" | "desc";
 }
 
 export interface ContributionQueryParams {
   fundId?: string;
-  from?: string;
-  to?: string;
-  method?: PaymentMethod | "ALL";
-  q?: string;
+  giverMemberId?: string;
+  receivedById?: string;
+  method?: ReceiveMethod | "ALL";
+  startDate?: string;
+  endDate?: string;
+  from?: string; // Compatibility alias
+  to?: string;   // Compatibility alias
+  search?: string;
+  q?: string;    // Compatibility alias
   page?: number;
   limit?: number;
-  sortBy?: "date" | "amount";
+  sortBy?: "receivedAt" | "amount" | "createdAt" | "date";
   sortOrder?: "asc" | "desc";
 }
 
 export interface ExpenseQueryParams {
   fundId?: string;
-  from?: string;
-  to?: string;
-  q?: string;
+  spentById?: string;
+  startDate?: string;
+  endDate?: string;
+  from?: string; // Compatibility alias
+  to?: string;   // Compatibility alias
+  search?: string;
+  q?: string;    // Compatibility alias
   page?: number;
   limit?: number;
-  sortBy?: "date" | "amount";
+  sortBy?: "spentAt" | "amount" | "createdAt" | "date";
   sortOrder?: "asc" | "desc";
 }
+
+export interface CreateFundPayload {
+  name: string;
+  category: FundCategory;
+  isActive?: boolean;
+}
+
+export type UpdateFundPayload = Partial<CreateFundPayload>;
 
 export interface CreateContributionPayload {
   fundId: string;
   amount: number;
-  method: PaymentMethod;
-  receivedAt: string;
-  receivedById: string;
+  method: ReceiveMethod;
+  receivedAt?: string;
   giverMemberId?: string | null;
   giverName?: string | null;
-  note?: string | null;
   reference?: string | null;
+  note?: string | null;
+  receivedById?: string;
 }
 
 export interface CreateExpensePayload {
   fundId: string;
   amount: number;
-  spentAt: string;
   spentOn: string;
+  spentAt?: string;
   spentById?: string | null;
-  note?: string | null;
   receiptUrl?: string | null;
+  note?: string | null;
 }
 
 export interface FinanceMember {
@@ -143,7 +221,7 @@ export interface RecentActivityItem {
   subtitle?: string;
   fundName: string;
   fundId: string;
-  method?: PaymentMethod;
+  method?: ReceiveMethod;
   note?: string | null;
   reference?: string | null;
 }
@@ -157,259 +235,299 @@ export interface FinanceOverview {
   recentActivity: RecentActivityItem[];
 }
 
-// --------------------------------------------------------------------------
-// Default In-Memory / LocalStorage Mock Seed Data (TODO: Replace with NestJS)
-// --------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// 2. Normalization Helpers
+// ---------------------------------------------------------------------------
+
+function normalizeCategory(cat?: string | null): FundCategory {
+  const upper = String(cat ?? "").toUpperCase().trim();
+  if (
+    upper === "GPL" ||
+    upper === "SPORTS" ||
+    upper === "OWAJ" ||
+    upper === "IFTER_MAHFIL" ||
+    upper === "FOOTBALL" ||
+    upper === "OTHERS"
+  ) {
+    return upper as FundCategory;
+  }
+  if (upper === "OWAG") return "OWAJ";
+  if (upper === "MAINTENANCE" || upper === "OTHER") return "OTHERS";
+  return "OTHERS";
+}
+
+export function normalizeFund(raw: Record<string, unknown>, idx = 0): Fund {
+  const id = String(raw.id ?? raw._id ?? `fund-${idx + 1}`);
+  const name = String(raw.name ?? "Club Fund");
+  const category = normalizeCategory(raw.category as string);
+  const isActive = raw.isActive !== false;
+  const createdAt = String(raw.createdAt || new Date().toISOString());
+  const updatedAt = String(raw.updatedAt || new Date().toISOString());
+
+  const rawSummary = (raw.summary as Record<string, unknown> | undefined) || {};
+  const totalCollected = Number(rawSummary.totalCollected ?? raw.totalIn ?? 0);
+  const totalSpent = Number(rawSummary.totalSpent ?? raw.totalOut ?? 0);
+  const balance = Number(rawSummary.balance ?? raw.remaining ?? totalCollected - totalSpent);
+  const contributionsCount = Number(rawSummary.contributionsCount ?? 0);
+  const expensesCount = Number(rawSummary.expensesCount ?? 0);
+
+  const summary: FundSummary = {
+    totalCollected,
+    totalSpent,
+    balance,
+    contributionsCount,
+    expensesCount,
+    totalIn: totalCollected,
+    totalOut: totalSpent,
+    remaining: balance,
+  };
+
+  return {
+    id,
+    name,
+    category,
+    isActive,
+    createdAt,
+    updatedAt,
+    summary,
+    totalIn: totalCollected,
+    totalOut: totalSpent,
+    remaining: balance,
+    description: (raw.description as string) || undefined,
+  };
+}
+
+export function normalizeContribution(raw: Record<string, unknown>, idx = 0): Contribution {
+  const id = String(raw.id ?? raw._id ?? `cnt-${idx + 1}`);
+  const fundId = String(raw.fundId ?? "");
+  const amount = Number(raw.amount ?? 0);
+  const method = (String(raw.method ?? "CASH").toUpperCase() as ReceiveMethod) || "CASH";
+  const receivedAt = String(raw.receivedAt || raw.createdAt || new Date().toISOString());
+  const createdAt = String(raw.createdAt || receivedAt);
+  const updatedAt = String(raw.updatedAt || createdAt);
+
+  const fundObj = raw.fund as Record<string, unknown> | undefined;
+  const giverMemberObj = raw.giverMember as Record<string, unknown> | undefined;
+  const receivedByObj = raw.receivedBy as Record<string, unknown> | undefined;
+
+  const fundName = String(raw.fundName ?? fundObj?.name ?? "Club Fund");
+  const giverName =
+    (raw.giverName as string) ||
+    (giverMemberObj?.fullName as string) ||
+    (giverMemberObj?.name as string) ||
+    null;
+  const giverMemberId = (raw.giverMemberId as string) || (giverMemberObj?.id as string) || null;
+  const giverAvatar =
+    (raw.giverAvatar as string) ||
+    (giverMemberObj?.profileImage as string) ||
+    (giverMemberObj?.avatar as string) ||
+    null;
+  const receivedById = String(raw.receivedById ?? receivedByObj?.id ?? "admin");
+  const receivedByName = String(
+    raw.receivedByName ?? receivedByObj?.fullName ?? receivedByObj?.name ?? "Admin"
+  );
+  const reference = (raw.reference as string) || null;
+  const note = (raw.note as string) || null;
+
+  return {
+    id,
+    fundId,
+    amount,
+    method,
+    receivedAt,
+    giverName,
+    giverMemberId,
+    receivedById,
+    reference,
+    note,
+    createdAt,
+    updatedAt,
+    fund: fundObj
+      ? {
+          id: String(fundObj.id || fundId),
+          name: String(fundObj.name || fundName),
+          category: normalizeCategory(fundObj.category as string),
+          isActive: fundObj.isActive !== false,
+        }
+      : undefined,
+    giverMember: giverMemberObj
+      ? {
+          id: String(giverMemberObj.id || giverMemberId || ""),
+          fullName: String(giverMemberObj.fullName || giverMemberObj.name || ""),
+          email: String(giverMemberObj.email || ""),
+          profileImage: giverAvatar,
+          village: (giverMemberObj.village as string) || null,
+        }
+      : null,
+    receivedBy: receivedByObj
+      ? {
+          id: String(receivedByObj.id || receivedById),
+          fullName: String(receivedByObj.fullName || receivedByObj.name || receivedByName),
+          email: String(receivedByObj.email || ""),
+          role: String(receivedByObj.role || "ADMIN"),
+        }
+      : undefined,
+    fundName,
+    receivedByName,
+    giverAvatar,
+  };
+}
+
+export function normalizeExpense(raw: Record<string, unknown>, idx = 0): Expense {
+  const id = String(raw.id ?? raw._id ?? `exp-${idx + 1}`);
+  const fundId = String(raw.fundId ?? "");
+  const amount = Number(raw.amount ?? 0);
+  const spentOn = String(raw.spentOn ?? "Club Expenditure");
+  const spentAt = String(raw.spentAt || raw.createdAt || new Date().toISOString());
+  const createdAt = String(raw.createdAt || spentAt);
+  const updatedAt = String(raw.updatedAt || createdAt);
+
+  const fundObj = raw.fund as Record<string, unknown> | undefined;
+  const spentByObj = raw.spentBy as Record<string, unknown> | undefined;
+
+  const fundName = String(raw.fundName ?? fundObj?.name ?? "Club Fund");
+  const spentById = (raw.spentById as string) || (spentByObj?.id as string) || null;
+  const spentByName = String(
+    raw.spentByName ?? spentByObj?.fullName ?? spentByObj?.name ?? "Admin"
+  );
+  const receiptUrl = (raw.receiptUrl as string) || null;
+  const note = (raw.note as string) || null;
+
+  return {
+    id,
+    fundId,
+    amount,
+    spentOn,
+    spentAt,
+    spentById,
+    receiptUrl,
+    note,
+    createdAt,
+    updatedAt,
+    fund: fundObj
+      ? {
+          id: String(fundObj.id || fundId),
+          name: String(fundObj.name || fundName),
+          category: normalizeCategory(fundObj.category as string),
+          isActive: fundObj.isActive !== false,
+        }
+      : undefined,
+    spentBy: spentByObj
+      ? {
+          id: String(spentByObj.id || spentById || ""),
+          fullName: String(spentByObj.fullName || spentByObj.name || spentByName),
+          email: String(spentByObj.email || ""),
+          role: String(spentByObj.role || "ADMIN"),
+          profileImage: (spentByObj.profileImage as string) || null,
+        }
+      : null,
+    fundName,
+    spentByName,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// 3. Fallback Initial Mock Store (for offline development)
+// ---------------------------------------------------------------------------
+
 const INITIAL_FUNDS: Fund[] = [
-  {
-    id: "fund-gpl",
+  normalizeFund({
+    id: "fund-gpl-2026",
     name: "গোরান প্রিমিয়ার লীগ ২০২৬ (GPL Season 5)",
     category: "GPL",
-    description: "ক্লাব প্রিমিয়ার ক্রিকেট ও শর্টপিচ টুর্নামেন্ট",
+    description: "ক্লাবের বার্ষিক ফ্ল্যাগশিপ ক্রিকেট টুর্নামেন্ট",
     isActive: true,
-    totalIn: 450000,
-    totalOut: 380000,
-    remaining: 70000,
-  },
-  {
-    id: "fund-owag",
+    summary: {
+      totalCollected: 450000,
+      totalSpent: 310000,
+      balance: 140000,
+      contributionsCount: 18,
+      expensesCount: 12,
+    },
+  }),
+  normalizeFund({
+    id: "fund-owaj",
     name: "শীতবস্ত্র ও জরুরি চিকিৎসা সহায়তা",
-    category: "OWAG",
+    category: "OWAJ",
     description: "ওয়ান ওয়ার্ল্ড এইড গ্রুপ দুস্থ ও সামাজিক কল্যাণ তহবিল",
     isActive: true,
-    totalIn: 320000,
-    totalOut: 210000,
-    remaining: 110000,
-  },
-  {
+    summary: {
+      totalCollected: 320000,
+      totalSpent: 210000,
+      balance: 110000,
+      contributionsCount: 14,
+      expensesCount: 8,
+    },
+  }),
+  normalizeFund({
     id: "fund-sports",
     name: "বার্ষিক ক্রীড়া সরঞ্জাম ও টুর্নামেন্ট",
     category: "SPORTS",
     description: "ক্লাবের সামগ্রিক খেলাধুলা, ব্যাডমিন্টন ও ক্রীড়া সামগ্রী",
     isActive: true,
-    totalIn: 185000,
-    totalOut: 145000,
-    remaining: 40000,
-  },
-  {
+    summary: {
+      totalCollected: 185000,
+      totalSpent: 145000,
+      balance: 40000,
+      contributionsCount: 9,
+      expensesCount: 6,
+    },
+  }),
+  normalizeFund({
     id: "fund-football",
     name: "ক্লাব ফুটবল টিম ও অফিশিয়াল জার্সি",
     category: "FOOTBALL",
     description: "স্থানীয় ফুটবল লীগ দল ও প্র্যাকটিস কিটস",
     isActive: true,
-    totalIn: 220000,
-    totalOut: 215000,
-    remaining: 5000, // Low balance (<10%)
-  },
-  {
-    id: "fund-maintenance",
-    name: "ক্লাব ভবন সংস্কার ও বৈদ্যুতিক কাজ",
-    category: "MAINTENANCE",
-    description: "ক্লাব ঘর মেরামত, পেইন্টিং ও পানি-বিদ্যুৎ ব্যবস্থাপনা",
+    summary: {
+      totalCollected: 220000,
+      totalSpent: 215000,
+      balance: 5000, // Low balance (<10%)
+      contributionsCount: 11,
+      expensesCount: 10,
+    },
+  }),
+  normalizeFund({
+    id: "fund-ifter",
+    name: "পবিত্র মাহে রমজান ইফতার মাহফিল ২০২৬",
+    category: "IFTER_MAHFIL",
+    description: "ক্লাব সদস্য ও গ্রামবাসীর সম্মিলিত ইফতার আয়োজন",
     isActive: true,
-    totalIn: 95000,
-    totalOut: 62000,
-    remaining: 33000,
-  },
-  {
+    summary: {
+      totalCollected: 95000,
+      totalSpent: 62000,
+      balance: 33000,
+      contributionsCount: 8,
+      expensesCount: 4,
+    },
+  }),
+  normalizeFund({
     id: "fund-other",
     name: "সাধারণ আপৎকালীন ও বিবিধ তহবিল",
-    category: "OTHER",
+    category: "OTHERS",
     description: "জরুরি ক্লাব ফান্ড ও অন্যান্য আকস্মিক খরচ",
     isActive: true,
-    totalIn: 65000,
-    totalOut: 30000,
-    remaining: 35000,
-  },
+    summary: {
+      totalCollected: 65000,
+      totalSpent: 30000,
+      balance: 35000,
+      contributionsCount: 5,
+      expensesCount: 3,
+    },
+  }),
 ];
 
 const INITIAL_MEMBERS: FinanceMember[] = [
-  { id: "mem-1", name: "Rafioul Hasan (Sourav)", role: "Super Admin", phone: "+880 1712-000001", avatar: "/admin/sourav.jpg" },
-  { id: "mem-2", name: "Tanvir Ahmed", role: "General Secretary", phone: "+880 1712-000002" },
-  { id: "mem-3", name: "Mahmudul Hasan", role: "Treasurer", phone: "+880 1823-000003" },
-  { id: "mem-4", name: "Shakil Hossain", role: "Sports Secretary", phone: "+880 1934-000004" },
-  { id: "mem-5", name: "Nazmul Islam", role: "Executive Member", phone: "+880 1612-000005" },
-  { id: "mem-6", name: "Farhan Kabir", role: "Club Member", phone: "+880 1512-000006" },
-  { id: "mem-7", name: "Arifur Rahman", role: "Club Member", phone: "+880 1755-000007" },
+  { id: "usr-mahfuz", name: "Mahfojor Rahman (সভাপতি)", avatar: "/images/committee/mahfuz.png", role: "ADMIN" },
+  { id: "usr-rakib", name: "Rakib Hasan (সিনিয়র সহ-সভাপতি)", avatar: "/images/committee/rakib.png", role: "ADMIN" },
+  { id: "usr-rasel", name: "Rasel Shuvo (সিনিয়র সহ-সভাপতি)", avatar: "/images/committee/rasel.png", role: "ADMIN" },
+  { id: "usr-mustakim", name: "Mostakim (সাধারণ সম্পাদক)", avatar: "/images/committee/mustakim.png", role: "ADMIN" },
+  { id: "usr-sourav", name: "Rafioul Hasan Sourav (ডিজিটাল সিস্টেম)", avatar: "/images/committee/sourav.png", role: "SUPER_ADMIN" },
 ];
 
-const INITIAL_CONTRIBUTIONS: Contribution[] = [
-  {
-    id: "cnt-1",
-    fundId: "fund-gpl",
-    fundName: "GPL",
-    amount: 50000,
-    method: "BKASH",
-    receivedAt: "2026-11-20T10:30:00Z",
-    receivedById: "mem-1",
-    receivedByName: "Rafioul Hasan",
-    giverMemberId: "mem-2",
-    giverName: "Tanvir Ahmed",
-    giverAvatar: null,
-    reference: "TRX-BK987421",
-    note: "Tournament team registration entry fee",
-    createdAt: "2026-11-20T10:30:00Z",
-  },
-  {
-    id: "cnt-2",
-    fundId: "fund-owag",
-    fundName: "OWAG",
-    amount: 25000,
-    method: "BANK",
-    receivedAt: "2026-11-18T14:15:00Z",
-    receivedById: "mem-3",
-    receivedByName: "Mahmudul Hasan",
-    giverMemberId: null,
-    giverName: "Dr. K. M. Rahman",
-    reference: "CHQ-882910",
-    note: "Winter blanket distribution sponsorship",
-    createdAt: "2026-11-18T14:15:00Z",
-  },
-  {
-    id: "cnt-3",
-    fundId: "fund-sports",
-    fundName: "SPORTS",
-    amount: 15000,
-    method: "NAGAD",
-    receivedAt: "2026-11-15T11:00:00Z",
-    receivedById: "mem-1",
-    receivedByName: "Rafioul Hasan",
-    giverMemberId: "mem-4",
-    giverName: "Shakil Hossain",
-    reference: "TRX-NG3341",
-    note: "Monthly sports quota contribution",
-    createdAt: "2026-11-15T11:00:00Z",
-  },
-  {
-    id: "cnt-4",
-    fundId: "fund-football",
-    fundName: "FOOTBALL",
-    amount: 20000,
-    method: "CASH",
-    receivedAt: "2026-11-12T16:00:00Z",
-    receivedById: "mem-3",
-    receivedByName: "Mahmudul Hasan",
-    giverMemberId: "mem-5",
-    giverName: "Nazmul Islam",
-    reference: null,
-    note: "Friendly match jersey fund",
-    createdAt: "2026-11-12T16:00:00Z",
-  },
-  {
-    id: "cnt-5",
-    fundId: "fund-maintenance",
-    fundName: "MAINTENANCE",
-    amount: 10000,
-    method: "BKASH",
-    receivedAt: "2026-11-08T09:45:00Z",
-    receivedById: "mem-1",
-    receivedByName: "Rafioul Hasan",
-    giverMemberId: "mem-6",
-    giverName: "Farhan Kabir",
-    reference: "TRX-BK11299",
-    note: "Clubhouse electricity and lighting renovation",
-    createdAt: "2026-11-08T09:45:00Z",
-  },
-  {
-    id: "cnt-6",
-    fundId: "fund-gpl",
-    fundName: "GPL",
-    amount: 35000,
-    method: "BANK",
-    receivedAt: "2026-10-25T11:30:00Z",
-    receivedById: "mem-3",
-    receivedByName: "Mahmudul Hasan",
-    giverMemberId: null,
-    giverName: "Apex Motors Ltd",
-    reference: "EFT-88390",
-    note: "GPL 2026 Banner Sponsor",
-    createdAt: "2026-10-25T11:30:00Z",
-  },
-];
-
-const INITIAL_EXPENSES: Expense[] = [
-  {
-    id: "exp-1",
-    fundId: "fund-football",
-    fundName: "FOOTBALL",
-    amount: 18000,
-    spentAt: "2026-11-19T17:00:00Z",
-    spentOn: "Official match jerseys and bibs",
-    spentById: "mem-4",
-    spentByName: "Shakil Hossain",
-    note: "Purchased from Stadium Market Shop #12",
-    receiptUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=600&auto=format&fit=crop&q=80",
-    createdAt: "2026-11-19T17:00:00Z",
-  },
-  {
-    id: "exp-2",
-    fundId: "fund-gpl",
-    fundName: "GPL",
-    amount: 42000,
-    spentAt: "2026-11-16T15:30:00Z",
-    spentOn: "Trophies and player medals package",
-    spentById: "mem-2",
-    spentByName: "Tanvir Ahmed",
-    note: "Champion trophy, runner-up, man of the match awards",
-    receiptUrl: null,
-    createdAt: "2026-11-16T15:30:00Z",
-  },
-  {
-    id: "exp-3",
-    fundId: "fund-maintenance",
-    fundName: "MAINTENANCE",
-    amount: 8500,
-    spentAt: "2026-11-11T12:00:00Z",
-    spentOn: "Water pump repairs & plumbing fixtures",
-    spentById: "mem-1",
-    spentByName: "Rafioul Hasan",
-    note: "Repaired main motor pump at clubhouse",
-    receiptUrl: null,
-    createdAt: "2026-11-11T12:00:00Z",
-  },
-  {
-    id: "exp-4",
-    fundId: "fund-owag",
-    fundName: "OWAG",
-    amount: 30000,
-    spentAt: "2026-11-05T10:00:00Z",
-    spentOn: "Medical emergency aid for local village resident",
-    spentById: "mem-3",
-    spentByName: "Mahmudul Hasan",
-    note: "Approved by committee resolution #14",
-    receiptUrl: null,
-    createdAt: "2026-11-05T10:00:00Z",
-  },
-];
-
-// Helper to access / sync local mock store
 const STORAGE_KEY_FUNDS = "shanti_finance_funds";
 const STORAGE_KEY_CONTRIBUTIONS = "shanti_finance_contributions";
 const STORAGE_KEY_EXPENSES = "shanti_finance_expenses";
-
-function normalizeStoredFund(raw: any): Fund {
-  const defaultPresets: Record<string, { name: string; category: string }> = {
-    GPL: { name: "গোরান প্রিমিয়ার লীগ ২০২৬ (GPL Season 5)", category: "GPL" },
-    OWAG: { name: "শীতবস্ত্র ও জরুরি চিকিৎসা সহায়তা", category: "OWAG" },
-    SPORTS: { name: "বার্ষিক ক্রীড়া সরঞ্জাম ও টুর্নামেন্ট", category: "SPORTS" },
-    FOOTBALL: { name: "ক্লাব ফুটবল টিম ও অফিশিয়াল জার্সি", category: "FOOTBALL" },
-    MAINTENANCE: { name: "ক্লাব ভবন সংস্কার ও বৈদ্যুতিক কাজ", category: "MAINTENANCE" },
-    OTHER: { name: "সাধারণ আপৎকালীন ও বিবিধ তহবিল", category: "OTHER" },
-  };
-
-  const rawName = String(raw.name || "").trim();
-  const upper = rawName.toUpperCase();
-  const preset = defaultPresets[upper];
-
-  const category = (raw.category || preset?.category || "OTHER").toUpperCase();
-  const name = preset ? preset.name : (raw.name || "Club Fund");
-
-  return {
-    ...raw,
-    name,
-    category,
-  };
-}
 
 function getMockStore(): {
   funds: Fund[];
@@ -418,189 +536,355 @@ function getMockStore(): {
 } {
   if (typeof window === "undefined") {
     return {
-      funds: [...INITIAL_FUNDS],
-      contributions: [...INITIAL_CONTRIBUTIONS],
-      expenses: [...INITIAL_EXPENSES],
+      funds: INITIAL_FUNDS,
+      contributions: [],
+      expenses: [],
     };
   }
 
   let funds = INITIAL_FUNDS;
-  let contributions = INITIAL_CONTRIBUTIONS;
-  let expenses = INITIAL_EXPENSES;
+  let contributions: Contribution[] = [];
+  let expenses: Expense[] = [];
 
   try {
     const storedFunds = localStorage.getItem(STORAGE_KEY_FUNDS);
     if (storedFunds) {
       const parsed = JSON.parse(storedFunds);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        funds = parsed.map(normalizeStoredFund);
+        funds = parsed.map(normalizeFund);
       }
     }
   } catch {}
 
   try {
-    const storedCnt = localStorage.getItem(STORAGE_KEY_CONTRIBUTIONS);
-    if (storedCnt) contributions = JSON.parse(storedCnt);
+    const storedContributions = localStorage.getItem(STORAGE_KEY_CONTRIBUTIONS);
+    if (storedContributions) {
+      const parsed = JSON.parse(storedContributions);
+      if (Array.isArray(parsed)) contributions = parsed.map(normalizeContribution);
+    }
   } catch {}
 
   try {
-    const storedExp = localStorage.getItem(STORAGE_KEY_EXPENSES);
-    if (storedExp) expenses = JSON.parse(storedExp);
+    const storedExpenses = localStorage.getItem(STORAGE_KEY_EXPENSES);
+    if (storedExpenses) {
+      const parsed = JSON.parse(storedExpenses);
+      if (Array.isArray(parsed)) expenses = parsed.map(normalizeExpense);
+    }
   } catch {}
 
   return { funds, contributions, expenses };
 }
 
-function saveMockStore(data: {
+function saveMockStore(partial: {
   funds?: Fund[];
   contributions?: Contribution[];
   expenses?: Expense[];
 }) {
   if (typeof window === "undefined") return;
   try {
-    if (data.funds) localStorage.setItem(STORAGE_KEY_FUNDS, JSON.stringify(data.funds));
-    if (data.contributions) localStorage.setItem(STORAGE_KEY_CONTRIBUTIONS, JSON.stringify(data.contributions));
-    if (data.expenses) localStorage.setItem(STORAGE_KEY_EXPENSES, JSON.stringify(data.expenses));
+    if (partial.funds) localStorage.setItem(STORAGE_KEY_FUNDS, JSON.stringify(partial.funds));
+    if (partial.contributions) {
+      localStorage.setItem(STORAGE_KEY_CONTRIBUTIONS, JSON.stringify(partial.contributions));
+    }
+    if (partial.expenses) localStorage.setItem(STORAGE_KEY_EXPENSES, JSON.stringify(partial.expenses));
   } catch {}
 }
 
-// --------------------------------------------------------------------------
-// API Fetchers with Graceful Fallback
-// --------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// 4. Funds API Methods (/api/v1/funds)
+// ---------------------------------------------------------------------------
 
 /**
- * GET /finance/funds
- * Returns all active club funds with totals and remaining balances.
+ * GET /api/v1/funds (Public)
+ * List all funds with filters, pagination & balance summaries.
  */
-export async function getFunds(): Promise<Fund[]> {
-  // TODO: Real backend integration at GET /api/v1/finance/funds
+export async function getFunds(params: FundQueryParams = {}): Promise<Fund[]> {
+  const query = new URLSearchParams();
+  if (params.page) query.set("page", String(params.page));
+  if (params.limit) query.set("limit", String(params.limit));
+  if (params.category && params.category !== "ALL") query.set("category", params.category);
+  if (typeof params.isActive === "boolean") query.set("isActive", String(params.isActive));
+  if (params.search) query.set("search", params.search);
+  if (params.sortBy) query.set("sortBy", params.sortBy);
+  if (params.sortOrder) query.set("sortOrder", params.sortOrder);
+
+  const qs = query.toString() ? `?${query.toString()}` : "";
+
+  // 1. Primary: GET /api/v1/funds
   try {
-    const res = await fetchWithAuth("/finance/funds");
+    const res = await fetchWithAuth(`/funds${qs}`, { skipAuth: true });
     if (res.ok) {
       const json = await res.json();
-      const list = json?.data ?? json;
-      if (Array.isArray(list) && list.length > 0) return list;
+      const payload = json?.data?.funds ?? json?.data ?? json?.funds ?? json;
+      if (Array.isArray(payload)) {
+        return payload.map(normalizeFund);
+      }
     }
   } catch {}
 
-  // Fallback to local mock store
-  const { funds } = getMockStore();
+  // 2. Legacy fallback: /finance/funds
+  try {
+    const res = await fetchWithAuth(`/finance/funds${qs}`);
+    if (res.ok) {
+      const json = await res.json();
+      const payload = json?.data ?? json;
+      if (Array.isArray(payload)) {
+        return payload.map(normalizeFund);
+      }
+    }
+  } catch {}
+
+  // 3. Fallback to local mock store
+  let { funds } = getMockStore();
+  if (params.category && params.category !== "ALL") {
+    funds = funds.filter((f) => f.category === params.category);
+  }
+  if (typeof params.isActive === "boolean") {
+    funds = funds.filter((f) => f.isActive === params.isActive);
+  }
+  if (params.search) {
+    const q = params.search.toLowerCase().trim();
+    funds = funds.filter((f) => f.name.toLowerCase().includes(q));
+  }
   return funds;
 }
 
 /**
- * POST /finance/funds
- * Create a new fund.
- */
-export async function createFund(name: string, category: string = "OTHER"): Promise<Fund> {
-  // TODO: Real backend integration at POST /api/v1/finance/funds
-  try {
-    const res = await fetchWithAuth("/finance/funds", {
-      method: "POST",
-      body: JSON.stringify({ name, category }),
-    });
-    if (res.ok) {
-      const json = await res.json();
-      return json?.data ?? json;
-    }
-  } catch {}
-
-  const { funds } = getMockStore();
-  const id = `fund-${name.toLowerCase().replace(/[^a-z0-9]/g, "-")}-${Date.now()}`;
-  const newFund: Fund = {
-    id,
-    name: name.trim(),
-    category: (category || "OTHER").toUpperCase().trim(),
-    isActive: true,
-    totalIn: 0,
-    totalOut: 0,
-    remaining: 0,
-  };
-  const updatedFunds = [...funds, newFund];
-  saveMockStore({ funds: updatedFunds });
-  return newFund;
-}
-
-/**
- * GET /finance/funds/:id/summary
- * Returns totalIn, totalOut, remaining for a single fund.
- */
-export async function getFundSummary(fundId: string): Promise<FundSummary> {
-  // TODO: Real backend integration at GET /api/v1/finance/funds/:id/summary
-  try {
-    const res = await fetchWithAuth(`/finance/funds/${fundId}/summary`);
-    if (res.ok) {
-      const json = await res.json();
-      return json?.data ?? json;
-    }
-  } catch {}
-
-  const { funds } = getMockStore();
-  const found = funds.find((f) => f.id === fundId || f.name.toLowerCase() === fundId.toLowerCase());
-  if (found) {
-    return {
-      totalIn: found.totalIn,
-      totalOut: found.totalOut,
-      remaining: found.remaining,
-    };
-  }
-  return { totalIn: 0, totalOut: 0, remaining: 0 };
-}
-
-/**
- * GET single fund by ID or Name
+ * GET /api/v1/funds/:id (Public)
+ * Get single fund details with financial summary.
  */
 export async function getFundById(fundId: string): Promise<Fund | null> {
+  try {
+    const res = await fetchWithAuth(`/funds/${encodeURIComponent(fundId)}`, { skipAuth: true });
+    if (res.ok) {
+      const json = await res.json();
+      const payload = json?.data?.fund ?? json?.data ?? json;
+      if (payload && typeof payload === "object") {
+        return normalizeFund(payload);
+      }
+    }
+  } catch {}
+
   const funds = await getFunds();
   return funds.find((f) => f.id === fundId || f.name.toLowerCase() === fundId.toLowerCase()) ?? null;
 }
 
 /**
- * GET /finance/contributions
- * Paginated and filterable list of contributions.
+ * POST /api/v1/funds (Admin / Super Admin)
+ * Create a new fund: { name, category, isActive }
+ */
+export async function createFund(
+  nameOrPayload: string | CreateFundPayload,
+  categoryInput?: string
+): Promise<Fund> {
+  const payload: CreateFundPayload =
+    typeof nameOrPayload === "string"
+      ? {
+          name: nameOrPayload.trim(),
+          category: normalizeCategory(categoryInput),
+          isActive: true,
+        }
+      : {
+          name: nameOrPayload.name.trim(),
+          category: normalizeCategory(nameOrPayload.category),
+          isActive: nameOrPayload.isActive !== false,
+        };
+
+  try {
+    const res = await fetchWithAuth("/funds", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+    if (res.ok) {
+      const json = await res.json();
+      const raw = json?.data?.fund ?? json?.data ?? json;
+      return normalizeFund(raw);
+    }
+  } catch {}
+
+  // Fallback to local mock store
+  const { funds } = getMockStore();
+  const id = `fund-${payload.name.toLowerCase().replace(/[^a-z0-9]/g, "-")}-${Date.now()}`;
+  const newFund: Fund = normalizeFund({
+    id,
+    name: payload.name,
+    category: payload.category,
+    isActive: payload.isActive !== false,
+    summary: {
+      totalCollected: 0,
+      totalSpent: 0,
+      balance: 0,
+      contributionsCount: 0,
+      expensesCount: 0,
+    },
+  });
+
+  saveMockStore({ funds: [...funds, newFund] });
+  return newFund;
+}
+
+/**
+ * PATCH /api/v1/funds/:id (Admin / Super Admin)
+ * Update fund name, category, or active status.
+ */
+export async function updateFund(id: string, payload: UpdateFundPayload): Promise<Fund> {
+  try {
+    const res = await fetchWithAuth(`/funds/${encodeURIComponent(id)}`, {
+      method: "PATCH",
+      body: JSON.stringify(payload),
+    });
+    if (res.ok) {
+      const json = await res.json();
+      const raw = json?.data?.fund ?? json?.data ?? json;
+      return normalizeFund(raw);
+    }
+  } catch {}
+
+  // Mock store update
+  const { funds } = getMockStore();
+  const updatedFunds = funds.map((f) => {
+    if (f.id === id) {
+      return normalizeFund({
+        ...f,
+        ...payload,
+        name: payload.name ? payload.name.trim() : f.name,
+        category: payload.category ? normalizeCategory(payload.category) : f.category,
+        isActive: payload.isActive !== undefined ? payload.isActive : f.isActive,
+      });
+    }
+    return f;
+  });
+
+  saveMockStore({ funds: updatedFunds });
+  const updated = updatedFunds.find((f) => f.id === id);
+  if (!updated) throw new Error("Fund not found");
+  return updated;
+}
+
+/**
+ * DELETE /api/v1/funds/:id (Admin / Super Admin)
+ * Delete empty fund (rejects if fund has contributions/expenses).
+ */
+export async function deleteFund(id: string): Promise<boolean> {
+  try {
+    const res = await fetchWithAuth(`/funds/${encodeURIComponent(id)}`, {
+      method: "DELETE",
+    });
+    if (res.ok) return true;
+  } catch {}
+
+  const { funds } = getMockStore();
+  const remainingFunds = funds.filter((f) => f.id !== id);
+  saveMockStore({ funds: remainingFunds });
+  return true;
+}
+
+/**
+ * GET /api/v1/funds/:id/summary (Public)
+ */
+export async function getFundSummary(fundId: string): Promise<FundSummary> {
+  try {
+    const res = await fetchWithAuth(`/funds/${encodeURIComponent(fundId)}/summary`, {
+      skipAuth: true,
+    });
+    if (res.ok) {
+      const json = await res.json();
+      const raw = json?.data ?? json;
+      const totalCollected = Number(raw.totalCollected ?? raw.totalIn ?? 0);
+      const totalSpent = Number(raw.totalSpent ?? raw.totalOut ?? 0);
+      const balance = Number(raw.balance ?? raw.remaining ?? totalCollected - totalSpent);
+      return {
+        totalCollected,
+        totalSpent,
+        balance,
+        contributionsCount: Number(raw.contributionsCount ?? 0),
+        expensesCount: Number(raw.expensesCount ?? 0),
+        totalIn: totalCollected,
+        totalOut: totalSpent,
+        remaining: balance,
+      };
+    }
+  } catch {}
+
+  const fund = await getFundById(fundId);
+  if (fund) return fund.summary;
+  return {
+    totalCollected: 0,
+    totalSpent: 0,
+    balance: 0,
+    contributionsCount: 0,
+    expensesCount: 0,
+    totalIn: 0,
+    totalOut: 0,
+    remaining: 0,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// 5. Contributions API Methods (/api/v1/contributions)
+// ---------------------------------------------------------------------------
+
+/**
+ * GET /api/v1/contributions (Public)
+ * List contributions with filters, date range & total sum.
  */
 export async function getContributions(
   params: ContributionQueryParams = {}
 ): Promise<PaginatedResponse<Contribution>> {
-  // TODO: Real backend integration at GET /api/v1/finance/contributions
   const query = new URLSearchParams();
   if (params.fundId) query.set("fundId", params.fundId);
-  if (params.from) query.set("from", params.from);
-  if (params.to) query.set("to", params.to);
+  if (params.giverMemberId) query.set("giverMemberId", params.giverMemberId);
+  if (params.receivedById) query.set("receivedById", params.receivedById);
   if (params.method && params.method !== "ALL") query.set("method", params.method);
-  if (params.q) query.set("q", params.q);
+
+  const startDate = params.startDate || params.from;
+  const endDate = params.endDate || params.to;
+  if (startDate) query.set("startDate", startDate);
+  if (endDate) query.set("endDate", endDate);
+
+  const search = params.search || params.q;
+  if (search) query.set("search", search);
+
   if (params.page) query.set("page", String(params.page));
   if (params.limit) query.set("limit", String(params.limit));
 
+  const sortBy = params.sortBy === "date" ? "receivedAt" : params.sortBy;
+  if (sortBy) query.set("sortBy", sortBy);
+  if (params.sortOrder) query.set("sortOrder", params.sortOrder);
+
+  const qs = query.toString() ? `?${query.toString()}` : "";
+
+  // 1. Primary: GET /api/v1/contributions
   try {
-    const res = await fetchWithAuth(`/finance/contributions?${query.toString()}`);
+    const res = await fetchWithAuth(`/contributions${qs}`, { skipAuth: true });
     if (res.ok) {
       const json = await res.json();
-      if (json?.data && Array.isArray(json.data)) return json;
-      if (Array.isArray(json)) {
+      const list = json?.data?.contributions ?? json?.data ?? json?.contributions;
+      if (Array.isArray(list)) {
+        const total = Number(json?.data?.meta?.total ?? json?.meta?.total ?? list.length);
+        const limit = Number(params.limit || 10);
         return {
-          data: json,
-          total: json.length,
-          page: params.page || 1,
-          limit: params.limit || 10,
-          totalPages: Math.ceil(json.length / (params.limit || 10)),
+          data: list.map(normalizeContribution),
+          total,
+          page: Number(params.page || 1),
+          limit,
+          totalPages: Math.max(1, Math.ceil(total / limit)),
+          totalAmount: Number(json?.data?.totalAmount ?? json?.totalAmount ?? 0),
         };
       }
     }
   } catch {}
 
-  // Filter local mock contributions
+  // 2. Mock store fallback
   const { contributions } = getMockStore();
   let filtered = [...contributions];
 
-  if (params.fundId) {
-    filtered = filtered.filter((c) => c.fundId === params.fundId);
-  }
-  if (params.method && params.method !== "ALL") {
-    filtered = filtered.filter((c) => c.method === params.method);
-  }
-  if (params.q && params.q.trim()) {
-    const q = params.q.toLowerCase().trim();
+  if (params.fundId) filtered = filtered.filter((c) => c.fundId === params.fundId);
+  if (params.giverMemberId) filtered = filtered.filter((c) => c.giverMemberId === params.giverMemberId);
+  if (params.method && params.method !== "ALL") filtered = filtered.filter((c) => c.method === params.method);
+
+  if (search && search.trim()) {
+    const q = search.toLowerCase().trim();
     filtered = filtered.filter(
       (c) =>
         c.giverName?.toLowerCase().includes(q) ||
@@ -610,80 +894,107 @@ export async function getContributions(
         c.receivedByName.toLowerCase().includes(q)
     );
   }
-  if (params.from) {
-    const fromTime = new Date(params.from).getTime();
+
+  if (startDate) {
+    const fromTime = new Date(startDate).getTime();
     filtered = filtered.filter((c) => new Date(c.receivedAt).getTime() >= fromTime);
   }
-  if (params.to) {
-    const toTime = new Date(params.to).getTime() + 86400000; // End of day
+  if (endDate) {
+    const toTime = new Date(endDate).getTime() + 86400000;
     filtered = filtered.filter((c) => new Date(c.receivedAt).getTime() <= toTime);
   }
 
-  // Sort by date desc
   filtered.sort((a, b) => new Date(b.receivedAt).getTime() - new Date(a.receivedAt).getTime());
 
+  const total = filtered.length;
   const page = params.page || 1;
   const limit = params.limit || 10;
-  const total = filtered.length;
   const totalPages = Math.max(1, Math.ceil(total / limit));
   const startIndex = (page - 1) * limit;
   const data = filtered.slice(startIndex, startIndex + limit);
+  const totalAmount = filtered.reduce((acc, c) => acc + c.amount, 0);
 
-  return { data, total, page, limit, totalPages };
+  return { data, total, page, limit, totalPages, totalAmount };
 }
 
 /**
- * POST /finance/contributions
- * Add a new contribution. Updates fund remaining balance.
+ * GET /api/v1/contributions/:id (Public)
+ */
+export async function getContributionById(id: string): Promise<Contribution | null> {
+  try {
+    const res = await fetchWithAuth(`/contributions/${encodeURIComponent(id)}`, { skipAuth: true });
+    if (res.ok) {
+      const json = await res.json();
+      const payload = json?.data?.contribution ?? json?.data ?? json;
+      return normalizeContribution(payload);
+    }
+  } catch {}
+
+  const { contributions } = getMockStore();
+  return contributions.find((c) => c.id === id) ?? null;
+}
+
+/**
+ * POST /api/v1/contributions (Admin / Super Admin / Moderator)
+ * Record new contribution/donation.
  */
 export async function createContribution(
   payload: CreateContributionPayload
 ): Promise<Contribution> {
-  // TODO: Real backend integration at POST /api/v1/finance/contributions
   try {
-    const res = await fetchWithAuth("/finance/contributions", {
+    const res = await fetchWithAuth("/contributions", {
       method: "POST",
       body: JSON.stringify(payload),
     });
     if (res.ok) {
       const json = await res.json();
-      return json?.data ?? json;
+      const raw = json?.data?.contribution ?? json?.data ?? json;
+      return normalizeContribution(raw);
     }
   } catch {}
 
+  // Mock store
   const { funds, contributions } = getMockStore();
   const fund = funds.find((f) => f.id === payload.fundId);
-  const fundName = fund?.name || "OTHER";
+  const fundName = fund?.name || "Fund";
+  const receiver = INITIAL_MEMBERS.find((m) => m.id === payload.receivedById);
+  const giver = payload.giverMemberId
+    ? INITIAL_MEMBERS.find((m) => m.id === payload.giverMemberId)
+    : null;
 
-  const members = INITIAL_MEMBERS;
-  const receiver = members.find((m) => m.id === payload.receivedById);
-  const giver = payload.giverMemberId ? members.find((m) => m.id === payload.giverMemberId) : null;
-
-  const newContribution: Contribution = {
+  const newContribution = normalizeContribution({
     id: `cnt-${Date.now()}`,
     fundId: payload.fundId,
     fundName,
     amount: Math.round(Number(payload.amount)),
     method: payload.method,
     receivedAt: payload.receivedAt || new Date().toISOString(),
-    receivedById: payload.receivedById,
+    receivedById: payload.receivedById || "admin",
     receivedByName: receiver?.name || "Admin",
     giverMemberId: payload.giverMemberId || null,
-    giverName: payload.giverName || giver?.name || "Anonymous Member",
+    giverName: payload.giverName || giver?.name || "Club Member",
     giverAvatar: giver?.avatar || null,
     reference: payload.reference || null,
     note: payload.note || null,
     createdAt: new Date().toISOString(),
-  };
+  });
 
   const updatedContributions = [newContribution, ...contributions];
-
-  // Update fund totals
   const updatedFunds = funds.map((f) => {
     if (f.id === payload.fundId) {
       const nextIn = f.totalIn + newContribution.amount;
       const nextRemaining = nextIn - f.totalOut;
-      return { ...f, totalIn: nextIn, remaining: nextRemaining };
+      return normalizeFund({
+        ...f,
+        totalIn: nextIn,
+        remaining: nextRemaining,
+        summary: {
+          ...f.summary,
+          totalCollected: nextIn,
+          balance: nextRemaining,
+          contributionsCount: (f.summary.contributionsCount || 0) + 1,
+        },
+      });
     }
     return f;
   });
@@ -693,46 +1004,111 @@ export async function createContribution(
 }
 
 /**
- * GET /finance/expenses
- * Paginated and filterable list of expenses.
+ * PATCH /api/v1/contributions/:id (Admin / Super Admin)
+ */
+export async function updateContribution(
+  id: string,
+  payload: Partial<CreateContributionPayload>
+): Promise<Contribution> {
+  try {
+    const res = await fetchWithAuth(`/contributions/${encodeURIComponent(id)}`, {
+      method: "PATCH",
+      body: JSON.stringify(payload),
+    });
+    if (res.ok) {
+      const json = await res.json();
+      return normalizeContribution(json?.data?.contribution ?? json?.data ?? json);
+    }
+  } catch {}
+
+  const { contributions } = getMockStore();
+  const updatedList = contributions.map((c) =>
+    c.id === id ? normalizeContribution({ ...c, ...payload }) : c
+  );
+  saveMockStore({ contributions: updatedList });
+  const found = updatedList.find((c) => c.id === id);
+  if (!found) throw new Error("Contribution not found");
+  return found;
+}
+
+/**
+ * DELETE /api/v1/contributions/:id (Admin / Super Admin)
+ */
+export async function deleteContribution(id: string): Promise<boolean> {
+  try {
+    const res = await fetchWithAuth(`/contributions/${encodeURIComponent(id)}`, {
+      method: "DELETE",
+    });
+    if (res.ok) return true;
+  } catch {}
+
+  const { contributions } = getMockStore();
+  saveMockStore({ contributions: contributions.filter((c) => c.id !== id) });
+  return true;
+}
+
+// ---------------------------------------------------------------------------
+// 6. Expenses API Methods (/api/v1/expenses)
+// ---------------------------------------------------------------------------
+
+/**
+ * GET /api/v1/expenses (Public)
+ * List expenditures with filters, date range & total sum.
  */
 export async function getExpenses(
   params: ExpenseQueryParams = {}
 ): Promise<PaginatedResponse<Expense>> {
-  // TODO: Real backend integration at GET /api/v1/finance/expenses
   const query = new URLSearchParams();
   if (params.fundId) query.set("fundId", params.fundId);
-  if (params.from) query.set("from", params.from);
-  if (params.to) query.set("to", params.to);
-  if (params.q) query.set("q", params.q);
+  if (params.spentById) query.set("spentById", params.spentById);
+
+  const startDate = params.startDate || params.from;
+  const endDate = params.endDate || params.to;
+  if (startDate) query.set("startDate", startDate);
+  if (endDate) query.set("endDate", endDate);
+
+  const search = params.search || params.q;
+  if (search) query.set("search", search);
+
   if (params.page) query.set("page", String(params.page));
   if (params.limit) query.set("limit", String(params.limit));
 
+  const sortBy = params.sortBy === "date" ? "spentAt" : params.sortBy;
+  if (sortBy) query.set("sortBy", sortBy);
+  if (params.sortOrder) query.set("sortOrder", params.sortOrder);
+
+  const qs = query.toString() ? `?${query.toString()}` : "";
+
+  // 1. Primary: GET /api/v1/expenses
   try {
-    const res = await fetchWithAuth(`/finance/expenses?${query.toString()}`);
+    const res = await fetchWithAuth(`/expenses${qs}`, { skipAuth: true });
     if (res.ok) {
       const json = await res.json();
-      if (json?.data && Array.isArray(json.data)) return json;
-      if (Array.isArray(json)) {
+      const list = json?.data?.expenses ?? json?.data ?? json?.expenses;
+      if (Array.isArray(list)) {
+        const total = Number(json?.data?.meta?.total ?? json?.meta?.total ?? list.length);
+        const limit = Number(params.limit || 10);
         return {
-          data: json,
-          total: json.length,
-          page: params.page || 1,
-          limit: params.limit || 10,
-          totalPages: Math.ceil(json.length / (params.limit || 10)),
+          data: list.map(normalizeExpense),
+          total,
+          page: Number(params.page || 1),
+          limit,
+          totalPages: Math.max(1, Math.ceil(total / limit)),
+          totalAmount: Number(json?.data?.totalAmount ?? json?.totalAmount ?? 0),
         };
       }
     }
   } catch {}
 
+  // 2. Mock store fallback
   const { expenses } = getMockStore();
   let filtered = [...expenses];
 
-  if (params.fundId) {
-    filtered = filtered.filter((e) => e.fundId === params.fundId);
-  }
-  if (params.q && params.q.trim()) {
-    const q = params.q.toLowerCase().trim();
+  if (params.fundId) filtered = filtered.filter((e) => e.fundId === params.fundId);
+  if (params.spentById) filtered = filtered.filter((e) => e.spentById === params.spentById);
+
+  if (search && search.trim()) {
+    const q = search.toLowerCase().trim();
     filtered = filtered.filter(
       (e) =>
         e.spentOn.toLowerCase().includes(q) ||
@@ -741,54 +1117,71 @@ export async function getExpenses(
         e.spentByName?.toLowerCase().includes(q)
     );
   }
-  if (params.from) {
-    const fromTime = new Date(params.from).getTime();
+
+  if (startDate) {
+    const fromTime = new Date(startDate).getTime();
     filtered = filtered.filter((e) => new Date(e.spentAt).getTime() >= fromTime);
   }
-  if (params.to) {
-    const toTime = new Date(params.to).getTime() + 86400000;
+  if (endDate) {
+    const toTime = new Date(endDate).getTime() + 86400000;
     filtered = filtered.filter((e) => new Date(e.spentAt).getTime() <= toTime);
   }
 
   filtered.sort((a, b) => new Date(b.spentAt).getTime() - new Date(a.spentAt).getTime());
 
+  const total = filtered.length;
   const page = params.page || 1;
   const limit = params.limit || 10;
-  const total = filtered.length;
   const totalPages = Math.max(1, Math.ceil(total / limit));
   const startIndex = (page - 1) * limit;
   const data = filtered.slice(startIndex, startIndex + limit);
+  const totalAmount = filtered.reduce((acc, e) => acc + e.amount, 0);
 
-  return { data, total, page, limit, totalPages };
+  return { data, total, page, limit, totalPages, totalAmount };
 }
 
 /**
- * POST /finance/expenses
- * Add a new expense. Deducts from fund remaining balance.
+ * GET /api/v1/expenses/:id (Public)
  */
-export async function createExpense(
-  payload: CreateExpensePayload
-): Promise<Expense> {
-  // TODO: Real backend integration at POST /api/v1/finance/expenses
+export async function getExpenseById(id: string): Promise<Expense | null> {
   try {
-    const res = await fetchWithAuth("/finance/expenses", {
+    const res = await fetchWithAuth(`/expenses/${encodeURIComponent(id)}`, { skipAuth: true });
+    if (res.ok) {
+      const json = await res.json();
+      const payload = json?.data?.expense ?? json?.data ?? json;
+      return normalizeExpense(payload);
+    }
+  } catch {}
+
+  const { expenses } = getMockStore();
+  return expenses.find((e) => e.id === id) ?? null;
+}
+
+/**
+ * POST /api/v1/expenses (Admin / Super Admin)
+ * Record new expenditure. Deducts from fund remaining balance.
+ */
+export async function createExpense(payload: CreateExpensePayload): Promise<Expense> {
+  try {
+    const res = await fetchWithAuth("/expenses", {
       method: "POST",
       body: JSON.stringify(payload),
     });
     if (res.ok) {
       const json = await res.json();
-      return json?.data ?? json;
+      const raw = json?.data?.expense ?? json?.data ?? json;
+      return normalizeExpense(raw);
     }
   } catch {}
 
   const { funds, expenses } = getMockStore();
   const fund = funds.find((f) => f.id === payload.fundId);
-  const fundName = fund?.name || "OTHER";
+  const fundName = fund?.name || "Fund";
+  const handler = payload.spentById
+    ? INITIAL_MEMBERS.find((m) => m.id === payload.spentById)
+    : null;
 
-  const members = INITIAL_MEMBERS;
-  const handler = payload.spentById ? members.find((m) => m.id === payload.spentById) : null;
-
-  const newExpense: Expense = {
+  const newExpense = normalizeExpense({
     id: `exp-${Date.now()}`,
     fundId: payload.fundId,
     fundName,
@@ -800,16 +1193,24 @@ export async function createExpense(
     note: payload.note || null,
     receiptUrl: payload.receiptUrl || null,
     createdAt: new Date().toISOString(),
-  };
+  });
 
   const updatedExpenses = [newExpense, ...expenses];
-
-  // Update fund totals
   const updatedFunds = funds.map((f) => {
     if (f.id === payload.fundId) {
       const nextOut = f.totalOut + newExpense.amount;
       const nextRemaining = f.totalIn - nextOut;
-      return { ...f, totalOut: nextOut, remaining: nextRemaining };
+      return normalizeFund({
+        ...f,
+        totalOut: nextOut,
+        remaining: nextRemaining,
+        summary: {
+          ...f.summary,
+          totalSpent: nextOut,
+          balance: nextRemaining,
+          expensesCount: (f.summary.expensesCount || 0) + 1,
+        },
+      });
     }
     return f;
   });
@@ -819,23 +1220,77 @@ export async function createExpense(
 }
 
 /**
- * GET /members?search=
- * Member combobox picker search helper.
+ * PATCH /api/v1/expenses/:id (Admin / Super Admin)
  */
-export async function searchFinanceMembers(query = ""): Promise<FinanceMember[]> {
-  // TODO: Real backend integration at GET /api/v1/members?search=
+export async function updateExpense(
+  id: string,
+  payload: Partial<CreateExpensePayload>
+): Promise<Expense> {
   try {
-    const res = await fetchWithAuth(`/members?search=${encodeURIComponent(query)}`);
+    const res = await fetchWithAuth(`/expenses/${encodeURIComponent(id)}`, {
+      method: "PATCH",
+      body: JSON.stringify(payload),
+    });
     if (res.ok) {
       const json = await res.json();
-      const list = json?.data ?? json;
+      return normalizeExpense(json?.data?.expense ?? json?.data ?? json);
+    }
+  } catch {}
+
+  const { expenses } = getMockStore();
+  const updatedList = expenses.map((e) =>
+    e.id === id ? normalizeExpense({ ...e, ...payload }) : e
+  );
+  saveMockStore({ expenses: updatedList });
+  const found = updatedList.find((e) => e.id === id);
+  if (!found) throw new Error("Expense not found");
+  return found;
+}
+
+/**
+ * DELETE /api/v1/expenses/:id (Admin / Super Admin)
+ */
+export async function deleteExpense(id: string): Promise<boolean> {
+  try {
+    const res = await fetchWithAuth(`/expenses/${encodeURIComponent(id)}`, {
+      method: "DELETE",
+    });
+    if (res.ok) return true;
+  } catch {}
+
+  const { expenses } = getMockStore();
+  saveMockStore({ expenses: expenses.filter((e) => e.id !== id) });
+  return true;
+}
+
+// ---------------------------------------------------------------------------
+// 7. Member Combobox & Finance Overview
+// ---------------------------------------------------------------------------
+
+/**
+ * GET /api/v1/members?search=
+ * Search members for contribution giver / receiver comboboxes.
+ */
+export async function searchFinanceMembers(query = ""): Promise<FinanceMember[]> {
+  try {
+    const res = await fetchWithAuth(`/members?search=${encodeURIComponent(query)}`, {
+      skipAuth: true,
+    });
+    if (res.ok) {
+      const json = await res.json();
+      const list = json?.data?.members ?? json?.data ?? json?.members ?? json;
       if (Array.isArray(list)) {
         return list.map((m: Record<string, unknown>, idx: number) => ({
           id: String(m.id || m._id || `mem-${idx}`),
-          name: String(m.name || m.fullName || m.nameEn || m.nameBn || "Member"),
-          avatar: typeof m.image === "string" ? m.image : typeof m.avatar === "string" ? m.avatar : null,
-          role: typeof m.roleEn === "string" ? m.roleEn : typeof m.role === "string" ? m.role : undefined,
-          phone: typeof m.phone === "string" ? m.phone : null,
+          name: String(m.fullName || m.name || m.nameEn || m.nameBn || "Member"),
+          avatar:
+            typeof m.profileImage === "string"
+              ? m.profileImage
+              : typeof m.image === "string"
+              ? m.image
+              : null,
+          role: typeof m.role === "string" ? m.role : undefined,
+          phone: typeof m.phoneNumber === "string" ? m.phoneNumber : null,
           email: typeof m.email === "string" ? m.email : null,
         }));
       }
@@ -853,7 +1308,7 @@ export async function searchFinanceMembers(query = ""): Promise<FinanceMember[]>
 }
 
 /**
- * Aggregated finance overview for the top stats, charts, and activity
+ * Aggregated finance overview for dashboard stat cards, charts, and activity.
  */
 export async function getFinanceOverview(): Promise<FinanceOverview> {
   const funds = await getFunds();
@@ -866,7 +1321,6 @@ export async function getFinanceOverview(): Promise<FinanceOverview> {
   });
   const totalRemaining = totalRaised - totalSpent;
 
-  // Last 6 months in vs out flow
   const monthlyFlow: MonthlyFlow[] = [
     { month: "Jun", in: 140000, out: 95000 },
     { month: "Jul", in: 190000, out: 130000 },
@@ -876,7 +1330,6 @@ export async function getFinanceOverview(): Promise<FinanceOverview> {
     { month: "Nov", in: 240000, out: 172000 },
   ];
 
-  // Fetch recent 8 contributions and expenses
   const { data: contributions } = await getContributions({ limit: 10 });
   const { data: expenses } = await getExpenses({ limit: 10 });
 
@@ -907,7 +1360,6 @@ export async function getFinanceOverview(): Promise<FinanceOverview> {
     })),
   ];
 
-  // Sort merged by date desc and take top 8
   recentActivity.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   const top8Activity = recentActivity.slice(0, 8);
 

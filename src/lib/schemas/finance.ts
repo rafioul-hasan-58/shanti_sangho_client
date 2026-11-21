@@ -1,5 +1,16 @@
 import { z } from "zod";
 
+export const FUND_CATEGORIES = [
+  "GPL",
+  "SPORTS",
+  "OWAJ",
+  "IFTER_MAHFIL",
+  "FOOTBALL",
+  "OTHERS",
+] as const;
+
+export type FundCategory = (typeof FUND_CATEGORIES)[number];
+
 export const PAYMENT_METHODS = [
   "CASH",
   "BANK",
@@ -8,7 +19,23 @@ export const PAYMENT_METHODS = [
   "OTHER",
 ] as const;
 
-export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
+export const RECEIVE_METHODS = PAYMENT_METHODS;
+
+export type ReceiveMethod = (typeof RECEIVE_METHODS)[number];
+export type PaymentMethod = ReceiveMethod;
+
+export const fundFormSchema = z.object({
+  name: z
+    .string()
+    .min(2, { message: "Fund name must be at least 2 characters / তহবিলের নাম দিন (কমপক্ষে ২ অক্ষর)" }),
+  category: z.enum(FUND_CATEGORIES, {
+    message: "Select a valid category / ক্যাটাগরি নির্বাচন করুন",
+  }),
+  isActive: z.boolean().default(true),
+});
+
+export type FundFormInput = z.input<typeof fundFormSchema>;
+export type FundFormValues = z.output<typeof fundFormSchema>;
 
 export const contributionFormSchema = z
   .object({
