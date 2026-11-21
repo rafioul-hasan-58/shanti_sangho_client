@@ -30,8 +30,16 @@ function CustomTooltip({ active, payload, label, isBn }: any) {
       <div className="p-3 rounded-xl bg-neutral-900/95 text-white border border-neutral-800 shadow-xl text-xs space-y-1.5 backdrop-blur-md">
         <p className="font-bold text-slate-200 border-b border-neutral-800 pb-1">{label}</p>
         {payload.map((entry: any, index: number) => {
-          const isIncome = entry.dataKey === "in" || entry.dataKey === "totalIn";
-          const isExpense = entry.dataKey === "out" || entry.dataKey === "totalOut";
+          const isIncome =
+            entry.dataKey === "in" ||
+            entry.dataKey === "totalIn" ||
+            entry.dataKey === "raised";
+          const isExpense =
+            entry.dataKey === "out" ||
+            entry.dataKey === "totalOut" ||
+            entry.dataKey === "spent";
+          const isRemaining = entry.dataKey === "remaining";
+
           return (
             <div key={`item-${index}`} className="flex items-center justify-between gap-4">
               <span className="flex items-center gap-1.5 text-slate-400">
@@ -40,7 +48,13 @@ function CustomTooltip({ active, payload, label, isBn }: any) {
               </span>
               <span
                 className={`font-black tabular-nums ${
-                  isIncome ? "text-emerald-400" : isExpense ? "text-rose-400" : "text-amber-400"
+                  isExpense
+                    ? "text-rose-400"
+                    : isRemaining
+                    ? "text-[#f2b705]"
+                    : isIncome
+                    ? "text-emerald-400"
+                    : "text-amber-400"
                 }`}
               >
                 {formatMoney(entry.value)}
@@ -66,86 +80,96 @@ export function FundCharts({ funds, monthlyFlow, isBn = false }: FundChartsProps
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* 1. Spending by Fund Bar Chart */}
-      <div className="p-5 sm:p-6 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex flex-col justify-between">
-        <div className="flex items-center justify-between gap-2 mb-4">
-          <div className="flex items-center gap-2">
-            <div className="p-2 rounded-xl bg-rose-50 text-[#f42a41]">
-              <BarChart3 className="w-4 h-4 stroke-[2.4]" />
-            </div>
-            <div>
-              <h3 className="font-bold text-sm sm:text-base text-slate-900 leading-tight">
-                {isBn ? "তহবিল অনুযায়ী ব্যয় বণ্টন" : "Spending by Fund"}
-              </h3>
-              <p className="text-[11px] text-slate-400 font-medium">
-                {isBn
-                  ? "কোন খাতে মোট কত টাকা ব্যয় হয়েছে"
-                  : "Total expenditures distributed across funds"}
-              </p>
+      <div className="rounded-2xl bg-white border border-slate-200/80 shadow-xs flex flex-col justify-between overflow-hidden hover:shadow-md transition-all">
+        {/* Top Colorful Accent Bar in Red/Rose */}
+        <div className="h-1.5 w-full bg-gradient-to-r rounded-t-2xl from-rose-600 via-[#f42a41] to-pink-500" />
+
+        <div className="p-5 sm:p-6 flex flex-col justify-between flex-1">
+          <div className="flex items-center justify-between gap-2 mb-4">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2.5 rounded-xl bg-rose-50 text-[#f42a41] ring-1 ring-rose-200/60">
+                <BarChart3 className="w-4 h-4 stroke-[2.4]" />
+              </div>
+              <div>
+                <h3 className="font-bold text-sm sm:text-base text-slate-900 leading-tight">
+                  {isBn ? "তহবিল অনুযায়ী ব্যয় বণ্টন" : "Spending by Fund"}
+                </h3>
+                <p className="text-[11px] text-slate-400 font-medium">
+                  {isBn
+                    ? "কোন খাতে মোট কত টাকা ব্যয় ও অবশিষ্ট তহবিল আছে"
+                    : "Expenditures and remaining balances across funds"}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="w-full h-[280px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={spendingData}
-              margin={{ top: 10, right: 10, left: -15, bottom: 0 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-              <XAxis
-                dataKey="name"
-                axisLine={false}
-                tickLine={false}
-                tick={{ fontSize: 11, fill: "#64748b", fontWeight: 600 }}
-              />
-              <YAxis
-                axisLine={false}
-                tickLine={false}
-                tick={{ fontSize: 10, fill: "#94a3b8" }}
-                tickFormatter={(val) => `৳${(val / 1000).toFixed(0)}k`}
-              />
-              <Tooltip content={<CustomTooltip isBn={isBn} />} />
-              <Legend
-                verticalAlign="top"
-                align="right"
-                iconType="circle"
-                wrapperStyle={{ paddingBottom: 10, fontSize: 11 }}
-              />
-              <Bar
-                name={isBn ? "ব্যয়িত" : "Spent"}
-                dataKey="spent"
-                fill="#f42a41"
-                radius={[6, 6, 0, 0]}
-                maxBarSize={40}
-              />
-              <Bar
-                name={isBn ? "অবশিষ্ট" : "Remaining"}
-                dataKey="remaining"
-                fill="#006a4e"
-                radius={[6, 6, 0, 0]}
-                maxBarSize={40}
-              />
-            </BarChart>
-          </ResponsiveContainer>
+          <div className="w-full h-[280px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={spendingData}
+                margin={{ top: 10, right: 10, left: -15, bottom: 0 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <XAxis
+                  dataKey="name"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 11, fill: "#64748b", fontWeight: 600 }}
+                />
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 10, fill: "#94a3b8" }}
+                  tickFormatter={(val) => `৳${(val / 1000).toFixed(0)}k`}
+                />
+                <Tooltip content={<CustomTooltip isBn={isBn} />} />
+                <Legend
+                  verticalAlign="top"
+                  align="right"
+                  iconType="circle"
+                  wrapperStyle={{ paddingBottom: 10, fontSize: 11 }}
+                />
+                <Bar
+                  name={isBn ? "ব্যয়িত" : "Spent"}
+                  dataKey="spent"
+                  fill="#f42a41"
+                  radius={[6, 6, 0, 0]}
+                  maxBarSize={36}
+                />
+                <Bar
+                  name={isBn ? "অবশিষ্ট" : "Remaining"}
+                  dataKey="remaining"
+                  fill="#f2b705"
+                  radius={[6, 6, 0, 0]}
+                  maxBarSize={36}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
 
       {/* 2. Last 6 Months In vs Out Area Chart */}
-      <div className="p-5 sm:p-6 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex flex-col justify-between">
-        <div className="flex items-center justify-between gap-2 mb-4">
-          <div className="flex items-center gap-2">
-            <div className="p-2 rounded-xl bg-emerald-50 text-[#006a4e]">
-              <TrendingUp className="w-4 h-4 stroke-[2.4]" />
-            </div>
-            <div>
-              <h3 className="font-bold text-sm sm:text-base text-slate-900 leading-tight">
-                {isBn ? "গত ৬ মাসের আয় বনাম ব্যয়" : "Last 6 Months: In vs Out"}
-              </h3>
-              <p className="text-[11px] text-slate-400 font-medium">
-                {isBn
-                  ? "তহবিলে অর্থ সংগ্রহ ও খরচের মাসিক তুলনামূলক চিত্র"
-                  : "Monthly cash inflows vs expenditures trend"}
-              </p>
+      <div className="rounded-2xl bg-white border border-slate-200/80 shadow-xs flex flex-col justify-between overflow-hidden hover:shadow-md transition-all">
+        {/* Top Colorful Accent Bar in Emerald */}
+        <div className="h-1.5 w-full bg-gradient-to-r rounded-t-2xl from-[#004d38] via-[#006a4e] to-emerald-400" />
+
+        <div className="p-5 sm:p-6 flex flex-col justify-between flex-1">
+          <div className="flex items-center justify-between gap-2 mb-4">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2.5 rounded-xl bg-emerald-50 text-[#006a4e] ring-1 ring-emerald-200/60">
+                <TrendingUp className="w-4 h-4 stroke-[2.4]" />
+              </div>
+              <div>
+                <h3 className="font-bold text-sm sm:text-base text-slate-900 leading-tight">
+                  {isBn ? "গত ৬ মাসের আয় বনাম ব্যয়" : "Last 6 Months: In vs Out"}
+                </h3>
+                <p className="text-[11px] text-slate-400 font-medium">
+                  {isBn
+                    ? "তহবিলে অর্থ সংগ্রহ ও খরচের মাসিক তুলনামূলক চিত্র"
+                    : "Monthly cash inflows vs expenditures trend"}
+                </p>
+              </div>
             </div>
           </div>
         </div>

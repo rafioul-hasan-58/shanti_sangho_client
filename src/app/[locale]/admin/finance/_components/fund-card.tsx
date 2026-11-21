@@ -248,7 +248,7 @@ export function FundCard({ fund, locale }: FundCardProps) {
                         setMenuOpen(false);
                         setIsEditDialogOpen(true);
                       }}
-                      className="w-full flex items-center gap-2 px-3 py-2 text-slate-700 hover:bg-slate-50 transition-colors text-left cursor-pointer"
+                      className="w-full flex items-center gap-2 px-3 py-2 text-slate-700 hover:bg-slate-50 transition-colors text-left cursor-pointer whitespace-nowrap"
                     >
                       <Edit3 className="w-3.5 h-3.5 text-blue-600 shrink-0" />
                       <span>{isBn ? "এডিট করুন" : "Edit Fund"}</span>
@@ -260,7 +260,7 @@ export function FundCard({ fund, locale }: FundCardProps) {
                         setMenuOpen(false);
                         handleToggleActive();
                       }}
-                      className="w-full flex items-center gap-2 px-3 py-2 text-slate-700 hover:bg-slate-50 transition-colors text-left cursor-pointer"
+                      className="w-full flex items-center gap-2 px-3 py-2 text-slate-700 hover:bg-slate-50 transition-colors text-left cursor-pointer whitespace-nowrap"
                     >
                       <Power
                         className={`w-3.5 h-3.5 shrink-0 ${
@@ -287,7 +287,7 @@ export function FundCard({ fund, locale }: FundCardProps) {
                         setDeleteError(null);
                         setIsDeleteModalOpen(true);
                       }}
-                      className="w-full flex items-center gap-2 px-3 py-2 text-rose-600 hover:bg-rose-50 transition-colors text-left cursor-pointer"
+                      className="w-full flex items-center gap-2 px-3 py-2 text-rose-600 hover:bg-rose-50 transition-colors text-left cursor-pointer whitespace-nowrap"
                     >
                       <Trash2 className="w-3.5 h-3.5 text-rose-600 shrink-0" />
                       <span>{isBn ? "ডিলিট করুন" : "Delete Fund"}</span>
