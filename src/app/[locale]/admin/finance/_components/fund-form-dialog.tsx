@@ -149,7 +149,7 @@ export function FundFormDialog({
               <h2 className="text-base sm:text-lg font-black text-slate-900 leading-tight">
                 {isEditing
                   ? isBn
-                    ? "তহবিলের তথ্য সম্পাদনা"
+                    ? "ফান্ড এডিট করুন"
                     : "Edit Fund"
                   : isBn
                   ? "নতুন তহবিল তৈরি করুন"

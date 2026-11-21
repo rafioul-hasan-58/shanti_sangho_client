@@ -221,7 +221,7 @@ export function FundDetailClient({ fundId, locale }: FundDetailClientProps) {
                     className="w-full flex items-center gap-2 px-3 py-2 text-slate-700 hover:bg-slate-50 transition-colors text-left cursor-pointer"
                   >
                     <Edit3 className="w-3.5 h-3.5 text-blue-600" />
-                    <span>{isBn ? "তহবিল সম্পাদনা করুন" : "Edit Fund"}</span>
+                    <span>{isBn ? "এডিট করুন" : "Edit Fund"}</span>
                   </button>
 
                   <button
@@ -245,10 +245,10 @@ export function FundDetailClient({ fundId, locale }: FundDetailClientProps) {
                     <span>
                       {fund.isActive
                         ? isBn
-                          ? "তহবিল নিষ্ক্রিয় করুন"
+                          ? "ডিজেবল করুন"
                           : "Deactivate Fund"
                         : isBn
-                        ? "তহবিল সক্রিয় করুন"
+                        ? "এনাবল করুন"
                         : "Activate Fund"}
                     </span>
                   </button>
@@ -265,7 +265,7 @@ export function FundDetailClient({ fundId, locale }: FundDetailClientProps) {
                     className="w-full flex items-center gap-2 px-3 py-2 text-rose-600 hover:bg-rose-50 transition-colors text-left cursor-pointer"
                   >
                     <Trash2 className="w-3.5 h-3.5 text-rose-600" />
-                    <span>{isBn ? "তহবিল মুছে ফেলুন" : "Delete Fund"}</span>
+                    <span>{isBn ? "ডিলিট করুন" : "Delete Fund"}</span>
                   </button>
                 </div>
               )}
@@ -388,10 +388,10 @@ export function FundDetailClient({ fundId, locale }: FundDetailClientProps) {
                     {(fund.summary?.contributionsCount ?? 0) > 0 ||
                     (fund.summary?.expensesCount ?? 0) > 0
                       ? isBn
-                        ? "তহবিল মুছে ফেলা নিষিদ্ধ"
+                        ? "তহবিল ডিলিট করা যাবে না"
                         : "Deletion Blocked"
                       : isBn
-                      ? "তহবিলটি স্থায়ীভাবে মুছে ফেলতে চান?"
+                      ? "তহবিলটি ডিলিট করতে চান?"
                       : "Delete Fund Permanently?"}
                   </h3>
                   <p className="text-xs text-slate-500 font-medium">
@@ -436,14 +436,14 @@ export function FundDetailClient({ fundId, locale }: FundDetailClientProps) {
                 </ul>
                 <p className="font-bold pt-1 text-amber-950">
                   {isBn
-                    ? "আর্থিক অডিট শৃঙ্খলা বজায় রাখতে এই তহবিল মুছে ফেলা যাবে না। এর পরিবর্তে তহবিলটি নিষ্ক্রিয় (Inactive) করতে পারেন।"
+                    ? "অডিট রেকর্ডের জন্য এই ফান্ডটি ডিলিট করা যাবে না। এর পরিবর্তে ফান্ডটি ডিজেবল (Disable) করে রাখতে পারেন।"
                     : "To preserve financial audit records, this fund cannot be deleted. You can deactivate it instead."}
                 </p>
               </div>
             ) : (
               <p className="text-xs text-slate-600 leading-relaxed">
                 {isBn
-                  ? `আপনি কি নিশ্চিত যে "${fund.name}" তহবিলটি মুছে ফেলতে চান? এতে কোনো লেনদেন নেই এবং এটি মুছে ফেললে তা আর ফিরিয়ে আনা যাবে না।`
+                  ? `আপনি কি নিশ্চিত যে "${fund.name}" ফান্ডটি ডিলিট করতে চান? এতে কোনো লেনদেন নেই এবং ডিলিট করলে এটি আর ফেরত পাওয়া যাবে না।`
                   : `Are you sure you want to delete "${fund.name}"? This empty fund has no transactions and this action cannot be undone.`}
               </p>
             )}
@@ -479,7 +479,7 @@ export function FundDetailClient({ fundId, locale }: FundDetailClientProps) {
                 >
                   {fund.isActive
                     ? isBn
-                      ? "তহবিলটি নিষ্ক্রিয় করুন"
+                      ? "ডিজেবল করুন"
                       : "Deactivate Fund"
                     : isBn
                     ? "বন্ধ করুন"
@@ -498,7 +498,7 @@ export function FundDetailClient({ fundId, locale }: FundDetailClientProps) {
                       setDeleteError(
                         err?.message ||
                           (isBn
-                            ? "তহবিল মুছে ফেলতে ব্যর্থ হয়েছে।"
+                            ? "তহবিল ডিলিট করা যায়নি।"
                             : "Failed to delete fund.")
                       );
                     }
@@ -509,12 +509,12 @@ export function FundDetailClient({ fundId, locale }: FundDetailClientProps) {
                   {deleteFundMutation.isPending ? (
                     <>
                       <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      <span>{isBn ? "মুছে ফেলা হচ্ছে..." : "Deleting..."}</span>
+                      <span>{isBn ? "ডিলিট হচ্ছে..." : "Deleting..."}</span>
                     </>
                   ) : (
                     <>
                       <Trash2 className="w-3.5 h-3.5" />
-                      <span>{isBn ? "হ্যাঁ, মুছে ফেলুন" : "Yes, Delete"}</span>
+                      <span>{isBn ? "হ্যাঁ, ডিলিট করুন" : "Yes, Delete"}</span>
                     </>
                   )}
                 </button>

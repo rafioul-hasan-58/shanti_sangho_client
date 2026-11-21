@@ -74,7 +74,7 @@ export function MemberCombobox({
               onClick={handleClear}
               className="text-[11px] font-semibold text-slate-400 hover:text-slate-600 transition-colors"
             >
-              {isBn ? "মুছে ফেলুন" : "Clear"}
+              {isBn ? "ক্লিয়ার" : "Clear"}
             </button>
           )}
         </label>

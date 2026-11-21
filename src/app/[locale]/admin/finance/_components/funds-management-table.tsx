@@ -328,7 +328,7 @@ export function FundsManagementTable({
                               setIsEditDialogOpen(true);
                             }}
                             className="p-1.5 rounded-lg text-slate-400 hover:text-[#006a4e] hover:bg-emerald-50 transition-colors"
-                            title={isBn ? "সম্পাদনা" : "Edit fund"}
+                            title={isBn ? "এডিট" : "Edit fund"}
                           >
                             <Edit className="w-4 h-4" />
                           </button>
@@ -341,7 +341,7 @@ export function FundsManagementTable({
                               setDeleteErrorMessage(null);
                             }}
                             className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
-                            title={isBn ? "মুছে ফেলুন" : "Delete fund"}
+                            title={isBn ? "ডিলিট করুন" : "Delete fund"}
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -385,11 +385,11 @@ export function FundsManagementTable({
 
             <div className="text-center space-y-1">
               <h3 className="text-base font-black text-slate-900">
-                {isBn ? "তহবিল মুছে ফেলতে চান?" : "Delete Fund?"}
+                {isBn ? "তহবিল ডিলিট করতে চান?" : "Delete Fund?"}
               </h3>
               <p className="text-xs text-slate-500">
                 {isBn
-                  ? `"${fundToDelete.name}" তহবিলটি স্থায়ীভাবে মুছে যাবে।`
+                  ? `"${fundToDelete.name}" তহবিলটি স্থায়ীভাবে ডিলিট হয়ে যাবে।`
                   : `Are you sure you want to permanently delete "${fundToDelete.name}"?`}
               </p>
             </div>
@@ -417,10 +417,10 @@ export function FundsManagementTable({
               >
                 {deleteFundMutation.isPending
                   ? isBn
-                    ? "মোছা হচ্ছে..."
+                    ? "ডিলিট হচ্ছে..."
                     : "Deleting..."
                   : isBn
-                  ? "মুছে ফেলুন"
+                  ? "হ্যাঁ, ডিলিট করুন"
                   : "Delete"}
               </button>
             </div>

@@ -323,7 +323,7 @@ export function FinanceOverviewClient({ locale }: FinanceOverviewClientProps) {
               </h2>
               <p className="text-xs text-slate-500">
                 {isBn
-                  ? "তহবিল তৈরি, সম্পাদনা, স্থিতি পর্যবেক্ষণ ও অ্যাক্টিভেশন পরিচালনা করুন"
+                  ? "তহবিল তৈরি, এডিট, স্থিতি পর্যবেক্ষণ ও পরিচালনা করুন"
                   : "Create, edit, archive, and monitor balances across all funds"}
               </p>
             </div>

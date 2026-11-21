@@ -5,7 +5,6 @@ import Image from "next/image";
 import { format } from "date-fns";
 import {
   Search,
-  Download,
   Filter,
   ChevronLeft,
   ChevronRight,
@@ -13,7 +12,6 @@ import {
   Plus,
   Calendar,
   X,
-  FileSpreadsheet,
   Receipt,
   AlertCircle,
   MoreVertical,
@@ -21,6 +19,9 @@ import {
   Trash2,
   AlertTriangle,
   Loader2,
+  RotateCcw,
+  Layers,
+  ChevronDown,
 } from "lucide-react";
 import { useExpenses, useFunds, useDeleteExpense } from "@/lib/hooks/use-finance";
 import type { Expense } from "@/lib/api/finance";
@@ -87,46 +88,6 @@ export function ExpensesTable({
   const total = data?.total || 0;
   const totalPages = data?.totalPages || 1;
 
-  // Export to CSV helper
-  const handleExportCSV = () => {
-    if (expenses.length === 0) return;
-
-    const headers = [
-      "ID",
-      "Fund",
-      "Date",
-      "Spent On",
-      "Amount",
-      "Handled By",
-      "Receipt URL",
-      "Note",
-    ];
-    const rows = expenses.map((e) => [
-      e.id,
-      e.fundName,
-      formatDate(e.spentAt),
-      `"${e.spentOn.replace(/"/g, '""')}"`,
-      e.amount,
-      `"${e.spentByName || "Admin"}"`,
-      `"${e.receiptUrl || ""}"`,
-      `"${(e.note || "").replace(/"/g, '""')}"`,
-    ]);
-
-    const csvContent =
-      "\uFEFF" + [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute(
-      "download",
-      `expenses-${format(new Date(), "yyyyMMdd-HHmm")}.csv`
-    );
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
   const clearFilters = () => {
     setSearch("");
     setFrom("");
@@ -139,8 +100,8 @@ export function ExpensesTable({
 
   return (
     <div className="space-y-4">
-      {/* Filter Bar */}
-      <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+      {/* Modern Filter Card */}
+      <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-2.5">
         {/* Left: Search input */}
         <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -156,41 +117,50 @@ export function ExpensesTable({
                 ? "ব্যয়ের খাত, নোট বা পরিচালনাকারীর নাম লিখে খুঁজুন..."
                 : "Search purpose, note, handled by..."
             }
-            className="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 bg-white text-xs sm:text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#006a4e] focus:ring-2 focus:ring-[#006a4e]/20 transition-all"
+            className="w-full pl-9 pr-8 py-2 rounded-xl border border-slate-200/90 bg-slate-50/50 hover:bg-white focus:bg-white text-xs sm:text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#006a4e] focus:ring-2 focus:ring-[#006a4e]/20 transition-all shadow-2xs"
           />
           {search && (
             <button
               type="button"
-              onClick={() => setSearch("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              onClick={() => {
+                setSearch("");
+                setPage(1);
+              }}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100"
             >
               <X className="w-3.5 h-3.5" />
             </button>
           )}
         </div>
 
-        {/* Right: Fund filter, Date range & Export CSV */}
+        {/* Right: Fund filter, Date range & Reset */}
         <div className="flex items-center flex-wrap gap-2">
           {/* Fund Filter (shown if not scoped to a specific fund) */}
           {!fundId && (
-            <select
-              value={fundFilter}
-              onChange={(e) => {
-                setFundFilter(e.target.value);
-                setPage(1);
-              }}
-              className="px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-700 focus:outline-none focus:border-[#006a4e] cursor-pointer"
-            >
-              <option value="ALL">{isBn ? "সকল তহবিল" : "All Funds"}</option>
-              {funds.map((f) => (
-                <option key={f.id} value={f.id}>
-                  {f.name}
-                </option>
-              ))}
-            </select>
+            <div className="relative">
+              <select
+                value={fundFilter}
+                onChange={(e) => {
+                  setFundFilter(e.target.value);
+                  setPage(1);
+                }}
+                className="appearance-none pl-8 pr-7 py-1.5 rounded-xl border border-slate-200/90 bg-slate-50 hover:bg-white hover:border-slate-300 text-xs font-bold text-slate-700 focus:outline-none focus:border-[#006a4e] cursor-pointer transition-colors shadow-2xs"
+              >
+                <option value="ALL">{isBn ? "সকল তহবিল" : "All Funds"}</option>
+                {funds.map((f) => (
+                  <option key={f.id} value={f.id}>
+                    {f.name}
+                  </option>
+                ))}
+              </select>
+              <Layers className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+            </div>
           )}
-          {/* Date Range */}
-          <div className="flex items-center gap-1.5 text-xs">
+
+          {/* Date Range Picker Pill */}
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200/90 bg-slate-50 hover:bg-white hover:border-slate-300 text-xs shadow-2xs transition-colors">
+            <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
             <input
               type="date"
               value={from}
@@ -198,10 +168,10 @@ export function ExpensesTable({
                 setFrom(e.target.value);
                 setPage(1);
               }}
-              title="From date"
-              className="px-2.5 py-1.5 rounded-xl border border-slate-200 bg-white text-xs font-medium text-slate-700 focus:outline-none focus:border-[#006a4e]"
+              title={isBn ? "শুরুর তারিখ" : "From date"}
+              className="bg-transparent text-xs font-semibold text-slate-700 outline-none cursor-pointer max-w-[105px] sm:max-w-none"
             />
-            <span className="text-slate-400 font-bold">to</span>
+            <span className="text-slate-300 font-bold px-0.5 text-xs">-</span>
             <input
               type="date"
               value={to}
@@ -209,32 +179,36 @@ export function ExpensesTable({
                 setTo(e.target.value);
                 setPage(1);
               }}
-              title="To date"
-              className="px-2.5 py-1.5 rounded-xl border border-slate-200 bg-white text-xs font-medium text-slate-700 focus:outline-none focus:border-[#006a4e]"
+              title={isBn ? "শেষ তারিখ" : "To date"}
+              className="bg-transparent text-xs font-semibold text-slate-700 outline-none cursor-pointer max-w-[105px] sm:max-w-none"
             />
+            {(from || to) && (
+              <button
+                type="button"
+                onClick={() => {
+                  setFrom("");
+                  setTo("");
+                  setPage(1);
+                }}
+                className="p-0.5 rounded text-slate-400 hover:text-rose-600 transition-colors cursor-pointer"
+                title={isBn ? "তারিখ মুছুন" : "Clear date"}
+              >
+                <X className="w-3 h-3" />
+              </button>
+            )}
           </div>
 
-          {/* Clear Filters */}
+          {/* Clear Filters Reset Button */}
           {hasActiveFilters && (
             <button
               type="button"
               onClick={clearFilters}
-              className="px-2.5 py-1.5 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors"
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold text-rose-600 bg-rose-50/70 hover:bg-rose-100/70 border border-rose-200 transition-colors cursor-pointer shrink-0"
             >
-              {isBn ? "রিসেট" : "Reset"}
+              <RotateCcw className="w-3 h-3" />
+              <span>{isBn ? "রিসেট" : "Reset"}</span>
             </button>
           )}
-
-          {/* Export CSV Button */}
-          <button
-            type="button"
-            onClick={handleExportCSV}
-            disabled={expenses.length === 0}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-50 text-slate-700 text-xs font-bold transition-all shadow-2xs cursor-pointer"
-          >
-            <Download className="w-3.5 h-3.5" />
-            <span>{isBn ? "CSV এক্সপোর্ট" : "Export CSV"}</span>
-          </button>
         </div>
       </div>
 
@@ -372,7 +346,7 @@ export function ExpensesTable({
                           </button>
 
                           {openDropdownId === e.id && (
-                            <div className="absolute right-0 top-full mt-1 w-44 rounded-xl bg-white shadow-xl border border-slate-200 py-1.5 z-30 text-xs font-semibold text-left animate-in fade-in zoom-in-95">
+                            <div className="absolute right-0 top-full mt-1 w-36 rounded-xl bg-white shadow-2xl border border-slate-200 py-1.5 z-40 text-xs font-semibold text-left animate-in fade-in zoom-in-95">
                               <button
                                 type="button"
                                 onClick={() => {
@@ -381,8 +355,8 @@ export function ExpensesTable({
                                 }}
                                 className="w-full flex items-center gap-2 px-3 py-2 text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
                               >
-                                <Eye className="w-3.5 h-3.5 text-emerald-600" />
-                                <span>{isBn ? "বিস্তারিত দেখুন" : "View Details"}</span>
+                                <Eye className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                                <span>{isBn ? "ডিটেইলস দেখুন" : "View Details"}</span>
                               </button>
 
                               <button
@@ -394,8 +368,8 @@ export function ExpensesTable({
                                 }}
                                 className="w-full flex items-center gap-2 px-3 py-2 text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
                               >
-                                <Edit3 className="w-3.5 h-3.5 text-blue-600" />
-                                <span>{isBn ? "সম্পাদনা করুন" : "Edit"}</span>
+                                <Edit3 className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                                <span>{isBn ? "এডিট করুন" : "Edit"}</span>
                               </button>
 
                               <div className="my-1 border-t border-slate-100" />
@@ -410,8 +384,8 @@ export function ExpensesTable({
                                 }}
                                 className="w-full flex items-center gap-2 px-3 py-2 text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
                               >
-                                <Trash2 className="w-3.5 h-3.5 text-rose-600" />
-                                <span>{isBn ? "মুছে ফেলুন" : "Delete"}</span>
+                                <Trash2 className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                                <span>{isBn ? "ডিলিট করুন" : "Delete"}</span>
                               </button>
                             </div>
                           )}
@@ -456,7 +430,7 @@ export function ExpensesTable({
                         </button>
 
                         {openDropdownId === e.id && (
-                          <div className="absolute right-0 top-full mt-1 w-44 rounded-xl bg-white shadow-xl border border-slate-200 py-1.5 z-30 text-xs font-semibold text-left animate-in fade-in zoom-in-95">
+                          <div className="absolute right-0 top-full mt-1 w-36 rounded-xl bg-white shadow-2xl border border-slate-200 py-1.5 z-40 text-xs font-semibold text-left animate-in fade-in zoom-in-95">
                             <button
                               type="button"
                               onClick={() => {
@@ -465,8 +439,8 @@ export function ExpensesTable({
                               }}
                               className="w-full flex items-center gap-2 px-3 py-2 text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
                             >
-                              <Eye className="w-3.5 h-3.5 text-emerald-600" />
-                              <span>{isBn ? "বিস্তারিত দেখুন" : "View Details"}</span>
+                              <Eye className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                              <span>{isBn ? "ডিটেইলস দেখুন" : "View Details"}</span>
                             </button>
 
                             <button
@@ -478,8 +452,8 @@ export function ExpensesTable({
                               }}
                               className="w-full flex items-center gap-2 px-3 py-2 text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
                             >
-                              <Edit3 className="w-3.5 h-3.5 text-blue-600" />
-                              <span>{isBn ? "সম্পাদনা করুন" : "Edit"}</span>
+                              <Edit3 className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                              <span>{isBn ? "এডিট করুন" : "Edit"}</span>
                             </button>
 
                             <div className="my-1 border-t border-slate-100" />
@@ -494,8 +468,8 @@ export function ExpensesTable({
                               }}
                               className="w-full flex items-center gap-2 px-3 py-2 text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
                             >
-                              <Trash2 className="w-3.5 h-3.5 text-rose-600" />
-                              <span>{isBn ? "মুছে ফেলুন" : "Delete"}</span>
+                              <Trash2 className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                              <span>{isBn ? "ডিলিট করুন" : "Delete"}</span>
                             </button>
                           </div>
                         )}
@@ -690,7 +664,7 @@ export function ExpensesTable({
                 </div>
                 <div>
                   <h3 className="font-black text-base text-slate-900">
-                    {isBn ? "ব্যয় হিসাব মুছে ফেলবেন?" : "Delete Expense?"}
+                    {isBn ? "খরচ ডিলিট করবেন?" : "Delete Expense?"}
                   </h3>
                   <p className="text-xs text-slate-500 font-medium">
                     {formatMoney(expenseToDelete.amount)} • {expenseToDelete.spentOn}
@@ -710,7 +684,7 @@ export function ExpensesTable({
               {isBn
                 ? `আপনি কি নিশ্চিতভাবে এই ${formatMoney(
                     expenseToDelete.amount
-                  )} টাকার ব্যয় রেকর্ডটি স্থায়ীভাবে মুছে ফেলতে চান? মুছে ফেলার সাথে সাথে সংশ্লিষ্ট তহবিলের ব্যালেন্স পুনর্গণনা করা হবে।`
+                  )} টাকার খরচের রেকর্ডটি ডিলিট করতে চান? ডিলিট করার পর তহবিলের ব্যালেন্স স্বয়ংক্রিয়ভাবে আপডেট হবে।`
                 : `Are you sure you want to permanently delete this expenditure of ${formatMoney(
                     expenseToDelete.amount
                   )}? The fund total and balance will be recalculated automatically.`}
@@ -742,7 +716,7 @@ export function ExpensesTable({
                   } catch (err: any) {
                     setDeleteError(
                       err?.message ||
-                        (isBn ? "মুছে ফেলতে ব্যর্থ হয়েছে।" : "Failed to delete expense.")
+                        (isBn ? "ডিলিট করতে সমস্যা হয়েছে।" : "Failed to delete expense.")
                     );
                   }
                 }}
@@ -752,12 +726,12 @@ export function ExpensesTable({
                 {deleteExpenseMutation.isPending ? (
                   <>
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    <span>{isBn ? "মুছে ফেলা হচ্ছে..." : "Deleting..."}</span>
+                    <span>{isBn ? "ডিলিট হচ্ছে..." : "Deleting..."}</span>
                   </>
                 ) : (
                   <>
                     <Trash2 className="w-3.5 h-3.5" />
-                    <span>{isBn ? "হ্যাঁ, মুছে ফেলুন" : "Yes, Delete"}</span>
+                    <span>{isBn ? "হ্যাঁ, ডিলিট করুন" : "Yes, Delete"}</span>
                   </>
                 )}
               </button>

@@ -236,7 +236,7 @@ export function ExpenseFormSheet({
               <h2 className="font-black text-base sm:text-lg text-slate-900 leading-tight">
                 {isEditing
                   ? isBn
-                    ? "ব্যয় হিসাব সম্পাদনা"
+                    ? "খরচ এডিট করুন"
                     : "Edit Expense"
                   : isBn
                   ? "নতুন ব্যয়ের হিসাব যোগ করুন"

@@ -189,7 +189,7 @@ export function ContributionFormSheet({
               <h2 className="font-black text-base sm:text-lg text-slate-900 leading-tight">
                 {isEditing
                   ? isBn
-                    ? "অনুদানের তথ্য সম্পাদনা"
+                    ? "অনুদান এডিট করুন"
                     : "Edit Contribution"
                   : isBn
                   ? "নতুন অনুদান জমা করুন"
