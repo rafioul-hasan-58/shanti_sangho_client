@@ -166,13 +166,12 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
   },
 ];
 
-/** The 5 primary mobile bottom bar tab IDs: Dashboard, Finance, User, Profile, Menu */
+/** The 4 primary mobile bottom bar tab IDs: Dashboard, Finance, User, Profile */
 export const MOBILE_BOTTOM_TAB_IDS = [
   "dashboard",
   "finance",
   "members",
   "profile",
-  "menu",
 ] as const;
 
 export const MOBILE_BOTTOM_NAV_ITEMS: NavItem[] = [
@@ -214,15 +213,6 @@ export const MOBILE_BOTTOM_NAV_ITEMS: NavItem[] = [
     shortLabelBn: "প্রোফাইল",
     icon: ShieldCheckIcon,
     href: "/admin/profile",
-    status: "ready",
-  },
-  {
-    id: "menu",
-    labelEn: "Menu",
-    labelBn: "মেনু",
-    shortLabelEn: "Menu",
-    shortLabelBn: "মেনু",
-    icon: MenuNavIcon,
     status: "ready",
   },
 ];
