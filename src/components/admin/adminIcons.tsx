@@ -169,3 +169,28 @@ export function WalletIcon({
   );
 }
 
+export function MenuNavIcon({
+  className = "w-5 h-5",
+  "aria-hidden": ariaHidden = true,
+}: {
+  className?: string;
+  "aria-hidden"?: boolean;
+}) {
+  return (
+    <svg
+      className={className}
+      aria-hidden={ariaHidden}
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M4 6h16M4 12h16M4 18h16"
+      />
+    </svg>
+  );
+}
+

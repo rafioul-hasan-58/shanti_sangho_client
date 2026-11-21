@@ -5,6 +5,7 @@ import {
   UserCheckIcon,
   UsersIcon,
   WalletIcon,
+  MenuNavIcon,
   type AdminNavIconComponent,
 } from "@/components/admin/adminIcons";
 import { locales } from "@/i18n/config";
@@ -145,10 +146,10 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
   },
   {
     id: "members",
-    labelEn: "Members",
-    labelBn: "সদস্যবৃন্দ",
-    shortLabelEn: "Members",
-    shortLabelBn: "সদস্য",
+    labelEn: "User Management",
+    labelBn: "ইউজার ম্যানেজমেন্ট",
+    shortLabelEn: "User",
+    shortLabelBn: "ইউজার",
     icon: UserCheckIcon,
     href: "/admin/members",
     status: "ready",
@@ -165,13 +166,66 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
   },
 ];
 
-/** The 4 primary mobile bottom bar tab IDs: Dashboard, Committee, Pioneers, Admin */
+/** The 5 primary mobile bottom bar tab IDs: Dashboard, Finance, User, Profile, Menu */
 export const MOBILE_BOTTOM_TAB_IDS = [
   "dashboard",
-  "committee",
-  "pioneers",
-  "admin",
+  "finance",
+  "members",
+  "profile",
+  "menu",
 ] as const;
+
+export const MOBILE_BOTTOM_NAV_ITEMS: NavItem[] = [
+  {
+    id: "dashboard",
+    labelEn: "Dashboard",
+    labelBn: "ড্যাশবোর্ড",
+    shortLabelEn: "Dashboard",
+    shortLabelBn: "ড্যাশবোর্ড",
+    icon: LayoutDashboardIcon,
+    href: "/admin/dashboard",
+    status: "ready",
+  },
+  {
+    id: "finance",
+    labelEn: "Finance",
+    labelBn: "ফাইন্যান্স",
+    shortLabelEn: "Finance",
+    shortLabelBn: "ফাইন্যান্স",
+    icon: WalletIcon,
+    href: "/admin/finance",
+    status: "ready",
+  },
+  {
+    id: "members",
+    labelEn: "User",
+    labelBn: "ইউজার",
+    shortLabelEn: "User",
+    shortLabelBn: "ইউজার",
+    icon: UserCheckIcon,
+    href: "/admin/members",
+    status: "ready",
+  },
+  {
+    id: "profile",
+    labelEn: "Profile",
+    labelBn: "প্রোফাইল",
+    shortLabelEn: "Profile",
+    shortLabelBn: "প্রোফাইল",
+    icon: ShieldCheckIcon,
+    href: "/admin/profile",
+    status: "ready",
+  },
+  {
+    id: "menu",
+    labelEn: "Menu",
+    labelBn: "মেনু",
+    shortLabelEn: "Menu",
+    shortLabelBn: "মেনু",
+    icon: MenuNavIcon,
+    status: "ready",
+  },
+];
 
 export const ADMIN_UI_COPY = {
   brandBn: "শান্তি সংঘ",
@@ -228,7 +282,8 @@ export function isAdminPathActive(pathname: string, href: string): boolean {
   if (href === "/admin/dashboard") {
     return clean === "/admin/dashboard" || clean === "/admin";
   }
-  return clean === href;
+  if (clean === href) return true;
+  return clean.startsWith(`${href}/`);
 }
 
 export function findParentNavForPath(pathname: string): NavItem | undefined {
