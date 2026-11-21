@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Camera, Sparkles, CheckCircle2, AlertCircle, Trash2 } from "lucide-react";
+import { Camera, Sparkles, CheckCircle2, AlertCircle } from "lucide-react";
 import type { Area } from "react-easy-crop";
 import { ImageCropModal } from "@/components/common/ImageCropModal";
 import { getCroppedFile } from "@/lib/image/cropImage";
@@ -451,11 +451,6 @@ export default function DashboardShell({
   const displayEmail = user?.email || "rafioulhasan2@gmail.com";
   const currentPhoto = localProfilePicture || user?.profileImage || user?.picture || null;
 
-  const isGoogleConnected =
-    user?.provider === "google" ||
-    Boolean(user?.authProvider?.toUpperCase().includes("GOOGLE")) ||
-    Boolean(user?.googleId);
-
   // Mock pending members for Admin
   const [pendingMembers, setPendingMembers] = useState([
     { id: "1", name: "তানভীর আহমেদ", email: "tanvir.ahmed@example.com", phone: "+880 1712-345678", date: "Nov 9, 2026", status: "pending" },
@@ -667,30 +662,6 @@ export default function DashboardShell({
                     </div>
 
                     <div className="min-w-0 flex flex-col items-center sm:items-start w-full">
-                      {/* Mobile quick actions for photo */}
-                      <div className="flex sm:hidden items-center gap-2 mb-2">
-                        <button
-                          type="button"
-                          onClick={() => profilePhotoInputRef.current?.click()}
-                          disabled={isPhotoProcessing}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-[#006a4e] border border-[#006a4e]/20 text-xs font-bold transition-colors cursor-pointer"
-                        >
-                          <Camera className="w-3.5 h-3.5" />
-                          <span>{isBn ? "ছবি পরিবর্তন করুন" : "Change Photo"}</span>
-                        </button>
-                        {currentPhoto && (
-                          <button
-                            type="button"
-                            onClick={handleRemoveProfilePhoto}
-                            disabled={isPhotoProcessing}
-                            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-red-50 hover:bg-red-100 text-[#f42a41] border border-red-200 text-xs font-semibold transition-colors cursor-pointer"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                            <span>{isBn ? "মুছুন" : "Remove"}</span>
-                          </button>
-                        )}
-                      </div>
-
                       {/* Optimization Badge */}
                       {photoOptimizationNote && (
                         <div className="mb-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-semibold animate-fadeIn">
@@ -744,26 +715,6 @@ export default function DashboardShell({
                               : "⭐ Club Member"}
                         </span>
 
-                        {/* Google or Email Icon/Badge */}
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white border border-slate-200 text-slate-700 shadow-2xs text-[11px] font-bold">
-                          {isGoogleConnected ? (
-                            <>
-                              <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 shrink-0" aria-hidden="true">
-                                <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.15z" />
-                                <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.27v3.15C3.3 21.45 7.36 24 12 24z" />
-                                <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.27C.46 8.2.01 10.04.01 12s.45 3.8 1.26 5.42l4.01-3.15z" />
-                                <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.36 0 3.3 2.55 1.27 6.58l4.01 3.15c.95-2.83 3.6-4.98 6.72-4.98z" />
-                              </svg>
-                              <span>Google</span>
-                            </>
-                          ) : (
-                            <>
-                              <span className="font-extrabold text-xs text-slate-700">@</span>
-                              <span>{isBn ? "ইমেইল" : "Email"}</span>
-                            </>
-                          )}
-                        </span>
-
                         {/* Blood Group Badge */}
                         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 font-bold">
                           <span>🩸</span>
@@ -776,22 +727,6 @@ export default function DashboardShell({
                             })()}
                           </span>
                         </span>
-
-                        {/* Village Badge */}
-                        {profileForm.village && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-[#006a4e] border border-[#006a4e]/20 font-bold">
-                            <span>🏡</span>
-                            <span>{profileForm.village}</span>
-                          </span>
-                        )}
-
-                        {/* Profession Badge */}
-                        {profileForm.profession && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 font-semibold">
-                            <span>💼</span>
-                            <span>{profileForm.profession}</span>
-                          </span>
-                        )}
                       </div>
                     </div>
                   </div>
