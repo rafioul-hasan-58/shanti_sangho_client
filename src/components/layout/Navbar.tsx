@@ -200,7 +200,7 @@ export default function Navbar({
             <div className="pt-2 border-t border-white/10 space-y-2.5">
               <div className="flex items-center gap-3 p-2.5 rounded-xl bg-white/10 border border-white/15">
                 <UserAvatar
-                  src={user.picture}
+                  src={user.profileImage || user.picture}
                   name={user.name}
                   className="w-10 h-10 border border-white/40 shrink-0"
                 />

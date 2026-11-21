@@ -449,7 +449,7 @@ export default function DashboardShell({
 
   const displayName = profileForm.name || user?.name || (isBn ? "রাফিউল হাসান" : "Rafioul Hasan");
   const displayEmail = user?.email || "rafioulhasan2@gmail.com";
-  const currentPhoto = localProfilePicture || user?.picture || null;
+  const currentPhoto = localProfilePicture || user?.profileImage || user?.picture || null;
 
   const isGoogleConnected =
     user?.provider === "google" ||

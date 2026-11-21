@@ -651,7 +651,7 @@ export default function DashboardSidebar({
             <div className="flex items-center gap-3 min-w-0">
               <div className="relative shrink-0">
                 <UserAvatar
-                  src={user?.picture}
+                  src={user?.profileImage || user?.picture}
                   name={displayName}
                   className="h-10 w-10 ring-1 ring-slate-200"
                 />

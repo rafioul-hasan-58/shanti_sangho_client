@@ -21,7 +21,11 @@ import {
   refreshAccessToken,
   subscribeAuthState,
 } from "@/lib/api";
-import { updateUserProfile, type UpdateProfilePayload } from "@/lib/api/users";
+import {
+  fetchUserById,
+  updateUserProfile,
+  type UpdateProfilePayload,
+} from "@/lib/api/users";
 import {
   decodeJwtPayload,
   extractTokensFromAuthPayload,
@@ -164,35 +168,58 @@ function buildAuthUser(params: {
   } = params;
   const meta = resolveAuthMeta({ user: backendUser, data, token });
 
+  const resolvedPicture =
+    asString(backendUser?.profileImage) ||
+    asString(backendUser?.picture) ||
+    asString(backendUser?.avatar) ||
+    asString(backendUser?.image) ||
+    asString(data?.profileImage) ||
+    asString(data?.picture) ||
+    asString(data?.avatar) ||
+    fallbackPicture;
+
+  const resolvedFullName =
+    asString(backendUser?.fullName) ||
+    asString(data?.fullName) ||
+    meta.name ||
+    fallbackName ||
+    "Club Member";
+
   return {
     id: meta.id || fallbackId || String(Date.now()),
-    name: meta.name || fallbackName || "Club Member",
+    name: resolvedFullName,
+    fullName: resolvedFullName,
     email: meta.email || fallbackEmail || "",
-    picture:
-      asString(backendUser?.avatar) ||
-      asString(backendUser?.picture) ||
-      fallbackPicture,
+    picture: resolvedPicture,
+    profileImage: resolvedPicture || null,
     accessToken,
     token,
     refreshToken,
     provider,
+    authProvider: asString(backendUser?.authProvider) || asString(data?.authProvider) || provider,
+    googleId: asString(backendUser?.googleId) || asString(data?.googleId),
     role: meta.role,
     status: meta.status,
     emailVerified:
       typeof backendUser?.emailVerified === "boolean"
         ? backendUser.emailVerified
-        : null,
+        : typeof data?.emailVerified === "boolean"
+          ? data.emailVerified
+          : null,
     adminVerified: meta.adminVerified ?? null,
-    fatherName: asString(backendUser?.fatherName),
-    motherName: asString(backendUser?.motherName),
-    bloodGroup: asString(backendUser?.bloodGroup),
-    bio: asString(backendUser?.bio),
-    summary: asString(backendUser?.summary),
-    profession: asString(backendUser?.profession),
-    village: asString(backendUser?.village),
-    currentLocation: asString(backendUser?.currentLocation),
-    whatsappNumber: asString(backendUser?.whatsappNumber),
-    facebookProfile: asString(backendUser?.facebookProfile),
+    fatherName: asString(backendUser?.fatherName) || asString(data?.fatherName),
+    motherName: asString(backendUser?.motherName) || asString(data?.motherName),
+    phoneNumber: asString(backendUser?.phoneNumber) || asString(backendUser?.phone) || asString(data?.phoneNumber) || asString(data?.phone),
+    phone: asString(backendUser?.phoneNumber) || asString(backendUser?.phone) || asString(data?.phoneNumber) || asString(data?.phone),
+    bloodGroup: asString(backendUser?.bloodGroup) || asString(data?.bloodGroup),
+    membershipType: (backendUser?.membershipType as any) || (data?.membershipType as any) || "PERMANENT",
+    bio: asString(backendUser?.bio) || asString(data?.bio),
+    summary: asString(backendUser?.summary) || asString(data?.summary),
+    profession: asString(backendUser?.profession) || asString(data?.profession),
+    village: asString(backendUser?.village) || asString(data?.village),
+    currentLocation: asString(backendUser?.currentLocation) || asString(data?.currentLocation),
+    whatsappNumber: asString(backendUser?.whatsappNumber) || asString(data?.whatsappNumber),
+    facebookProfile: asString(backendUser?.facebookProfile) || asString(data?.facebookProfile),
   };
 }
 
@@ -201,6 +228,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const { setRole } = useRole();
+
+  const syncFreshProfile = useCallback(async (userId: string) => {
+    if (!userId || typeof window === "undefined") return;
+    try {
+      const fresh = await fetchUserById(userId);
+      if (fresh) {
+        setUser((prev) => {
+          if (!prev || prev.id !== fresh.id) return prev;
+          const resolvedPic =
+            fresh.profileImage ||
+            fresh.picture ||
+            prev.profileImage ||
+            prev.picture;
+
+          const merged: AuthUser = {
+            ...prev,
+            name: fresh.fullName || prev.name,
+            fullName: fresh.fullName || prev.fullName || prev.name,
+            picture: resolvedPic || undefined,
+            profileImage: resolvedPic || null,
+            fatherName: fresh.fatherName ?? prev.fatherName,
+            motherName: fresh.motherName ?? prev.motherName,
+            phoneNumber: fresh.phoneNumber ?? prev.phoneNumber,
+            phone: fresh.phoneNumber ?? prev.phone,
+            bloodGroup: fresh.bloodGroup ?? prev.bloodGroup,
+            membershipType: fresh.membershipType ?? prev.membershipType,
+            bio: fresh.bio ?? prev.bio,
+            summary: fresh.summary ?? prev.summary,
+            profession: fresh.profession ?? prev.profession,
+            village: fresh.village ?? prev.village,
+            currentLocation: fresh.currentLocation ?? prev.currentLocation,
+            whatsappNumber: fresh.whatsappNumber ?? prev.whatsappNumber,
+            facebookProfile: fresh.facebookProfile ?? prev.facebookProfile,
+            adminVerified: fresh.adminVerified ?? prev.adminVerified,
+          };
+          persistStoredSession(merged);
+          return merged;
+        });
+      }
+    } catch {
+      // Silently catch background sync if offline or unauthenticated
+    }
+  }, []);
 
   const persistSession = useCallback(
     (authUser: AuthUser, token?: string, refreshToken?: string) => {
@@ -214,8 +284,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(nextUser);
       setRole(toViewRole(nextUser.role));
       persistStoredSession(nextUser, resolvedAccess, resolvedRefresh);
+
+      if (nextUser.id) {
+        void syncFreshProfile(nextUser.id);
+      }
     },
-    [setRole]
+    [setRole, syncFreshProfile]
   );
 
   // Load saved user session on mount and subscribe to token refresh/expiration events
@@ -238,8 +312,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (storedToken) parsed.token = storedToken;
         if (storedRefresh) parsed.refreshToken = storedRefresh;
 
+        // Ensure picture and profileImage are normalized if one is present
+        const resolvedPic = parsed.profileImage || parsed.picture;
+        if (resolvedPic) {
+          parsed.picture = resolvedPic;
+          parsed.profileImage = resolvedPic;
+        }
+
         setUser(parsed);
         setRole(toViewRole(parsed.role));
+
+        if (parsed.id) {
+          void syncFreshProfile(parsed.id);
+        }
 
         if (storedRefresh && (!storedToken || isJwtExpiringSoon(storedToken))) {
           void refreshAccessToken();

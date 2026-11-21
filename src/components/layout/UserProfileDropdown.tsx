@@ -131,7 +131,7 @@ export default function UserProfileDropdown({
       >
         {/* Profile picture with round circle (falls back to club placeholder avatar) */}
         <UserAvatar
-          src={user.picture}
+          src={user.profileImage || user.picture}
           name={user.name}
           className="h-9 w-9 sm:h-10 sm:w-10 ring-2 ring-white/90 shadow-xs bg-white"
         />
@@ -166,7 +166,7 @@ export default function UserProfileDropdown({
               {/* Profile Avatar */}
               <div className="relative shrink-0">
                 <UserAvatar
-                  src={user.picture}
+                  src={user.profileImage || user.picture}
                   name={user.name}
                   className="h-12 w-12 ring-2 ring-[#006a4e]/15 shadow-xs"
                 />

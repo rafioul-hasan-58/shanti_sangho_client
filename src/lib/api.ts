@@ -193,12 +193,19 @@ export async function refreshAccessToken(): Promise<string | null> {
       });
 
       const updatedPicture =
+        (typeof backendUser?.profileImage === "string" && backendUser.profileImage.trim()
+          ? backendUser.profileImage
+          : undefined) ||
         (typeof backendUser?.avatar === "string" && backendUser.avatar.trim()
           ? backendUser.avatar
           : undefined) ||
         (typeof backendUser?.picture === "string" && backendUser.picture.trim()
           ? backendUser.picture
           : undefined) ||
+        (typeof backendUser?.image === "string" && backendUser.image.trim()
+          ? backendUser.image
+          : undefined) ||
+        currentUser?.profileImage ||
         currentUser?.picture;
 
       const updatedUser: AuthUser | null = currentUser
@@ -207,8 +214,10 @@ export async function refreshAccessToken(): Promise<string | null> {
             ...(backendUser || {}),
             id: resolved.id || currentUser.id,
             name: resolved.name || currentUser.name,
+            fullName: (backendUser?.fullName as string) || resolved.name || currentUser.fullName || currentUser.name,
             email: resolved.email || currentUser.email,
             picture: updatedPicture,
+            profileImage: updatedPicture || null,
             role: resolved.role,
             status: resolved.status ?? currentUser.status,
             token: nextAccessToken,
