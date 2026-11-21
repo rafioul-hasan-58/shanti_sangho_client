@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useCallback, useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 import Cropper, { type Area, type Point } from "react-easy-crop";
 import { X, Plus, Minus, Check, RotateCcw } from "lucide-react";
 import { DEFAULT_ASPECT_RATIO } from "@/lib/image/compress";
@@ -9,6 +10,7 @@ export interface ImageCropModalProps {
   isOpen: boolean;
   imageSrc: string | null;
   aspectRatio?: number;
+  locale?: string;
   onClose: () => void;
   onConfirm: (croppedAreaPixels: Area) => void;
   isProcessing?: boolean;
@@ -18,10 +20,14 @@ export function ImageCropModal({
   isOpen,
   imageSrc,
   aspectRatio = DEFAULT_ASPECT_RATIO,
+  locale,
   onClose,
   onConfirm,
   isProcessing = false,
 }: ImageCropModalProps) {
+  const pathname = usePathname();
+  const isBn = locale ? locale === "bn" : !pathname?.startsWith("/en");
+
   const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
   const [zoom, setZoom] = useState<number>(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
@@ -162,26 +168,26 @@ export function ImageCropModal({
         ref={modalRef}
         className="w-full h-full sm:h-auto sm:max-h-[94vh] sm:max-w-xl sm:rounded-2xl bg-neutral-900 border border-neutral-800 text-neutral-100 flex flex-col shadow-2xl overflow-hidden motion-reduce:transition-none transition-all duration-200"
       >
-        {/* Header: Close (X) on left, Title in the center */}
-        <header className="relative flex items-center justify-between px-4 py-3.5 border-b border-neutral-800 bg-neutral-900/90 z-20">
+        {/* Header: Close (X) on left, clean localized Title in the center, spacer on right */}
+        <header className="flex items-center justify-between px-3 sm:px-4 py-3 sm:py-3.5 border-b border-neutral-800 bg-neutral-900/95 z-20">
           <button
             type="button"
             onClick={onClose}
             disabled={isProcessing}
-            aria-label="Close modal / বন্ধ করুন"
-            className="p-2 rounded-lg text-neutral-400 hover:text-white hover:bg-neutral-800 disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f2b705]"
+            aria-label={isBn ? "বন্ধ করুন" : "Close"}
+            className="p-1.5 sm:p-2 rounded-lg text-neutral-400 hover:text-white hover:bg-neutral-800 disabled:opacity-50 transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f2b705]"
           >
             <X className="w-5 h-5" />
           </button>
 
           <h2
             id="crop-modal-title"
-            className="absolute left-1/2 -translate-x-1/2 text-center text-sm sm:text-base font-semibold text-neutral-100 select-none leading-relaxed px-12"
+            className="flex-1 min-w-0 text-center text-xs sm:text-sm md:text-base font-bold text-neutral-100 select-none truncate px-2"
           >
-            Drag the image to adjust / ছবি সরিয়ে ঠিক করুন
+            {isBn ? "ছবি সরিয়ে ঠিক করুন" : "Drag image to adjust"}
           </h2>
 
-          <div className="w-9" aria-hidden="true" />
+          <div className="w-8 sm:w-9 shrink-0" aria-hidden="true" />
         </header>
 
         {/* Crop Area */}
@@ -253,37 +259,37 @@ export function ImageCropModal({
         </div>
 
         {/* Footer Actions: Reset on left, Cancel and Round Confirm on right */}
-        <footer className="px-4 py-3 bg-neutral-900 border-t border-neutral-800 flex items-center justify-between gap-3">
+        <footer className="px-3 sm:px-4 py-2.5 sm:py-3 bg-neutral-900 border-t border-neutral-800 flex items-center justify-between gap-2 sm:gap-3">
           <button
             type="button"
             onClick={handleReset}
             disabled={isProcessing}
-            aria-label="Reset position and zoom / অবস্থান রিসেট করুন"
-            className="inline-flex items-center gap-1.5 px-3 py-2 text-xs sm:text-sm font-medium text-neutral-300 hover:text-white hover:bg-neutral-800 rounded-lg transition-colors leading-relaxed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f2b705]"
+            aria-label={isBn ? "অবস্থান রিসেট করুন" : "Reset position and zoom"}
+            className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-neutral-300 hover:text-white hover:bg-neutral-800 rounded-lg transition-colors leading-relaxed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f2b705]"
           >
-            <RotateCcw className="w-4 h-4 text-[#f2b705]" />
-            <span>Reset / রিসেট</span>
+            <RotateCcw className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#f2b705]" />
+            <span>{isBn ? "রিসেট" : "Reset"}</span>
           </button>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <button
               type="button"
               onClick={onClose}
               disabled={isProcessing}
-              className="px-4 py-2 text-xs sm:text-sm font-medium text-neutral-300 hover:text-white hover:bg-neutral-800 rounded-lg transition-colors leading-relaxed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f2b705]"
+              className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-neutral-300 hover:text-white hover:bg-neutral-800 rounded-lg transition-colors leading-relaxed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f2b705]"
             >
-              Cancel / বাতিল
+              {isBn ? "বাতিল" : "Cancel"}
             </button>
 
             <button
               type="button"
               onClick={handleConfirm}
               disabled={!croppedAreaPixels || isProcessing}
-              aria-label="Confirm crop and proceed / ক্রপ নিশ্চিত করুন"
+              aria-label={isBn ? "ক্রপ নিশ্চিত করুন" : "Confirm crop"}
               title="Confirm (Enter)"
-              className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#006a4e] hover:bg-[#004d38] active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed text-white flex items-center justify-center shadow-lg transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f2b705]"
+              className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#006a4e] hover:bg-[#004d38] active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed text-white flex items-center justify-center shadow-lg transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f2b705]"
             >
-              <Check className="w-6 h-6 stroke-[2.5]" />
+              <Check className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.5]" />
             </button>
           </div>
         </footer>

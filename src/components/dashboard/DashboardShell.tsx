@@ -1256,6 +1256,7 @@ export default function DashboardShell({
                 isOpen={cropModalOpen}
                 imageSrc={rawPhotoSrc}
                 aspectRatio={1 / 1}
+                locale={locale}
                 onClose={handleCloseCropModal}
                 onConfirm={handleCropConfirm}
                 isProcessing={isPhotoProcessing}
