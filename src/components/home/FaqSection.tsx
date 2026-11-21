@@ -342,20 +342,20 @@ export default function FaqSection({ locale }: Props) {
   ];
 
   return (
-    <section id="faq" className="mx-auto max-w-6xl px-4 pt-16 pb-12 scroll-mt-20">
+    <section id="faq" className="mx-auto max-w-6xl px-3 sm:px-4 pt-12 pb-10 sm:pt-16 sm:pb-12 scroll-mt-20">
       {/* Distinctive Container Frame Matching Brand Theme */}
-      <div className="rounded-3xl bg-gradient-to-b from-[#eaf6f0] via-[#f3f9f5] to-[#e5f4ec] border border-[#006a4e]/25 p-5 sm:p-8 md:p-10 shadow-sm relative overflow-hidden">
+      <div className="rounded-2xl sm:rounded-3xl bg-gradient-to-b from-[#eaf6f0] via-[#f3f9f5] to-[#e5f4ec] border border-[#006a4e]/25 p-3.5 sm:p-8 md:p-10 shadow-sm relative overflow-hidden">
         {/* Decorative Ambient Lighting */}
         <div className="absolute -top-24 -right-24 w-72 h-72 bg-emerald-400/15 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-[#f2b705]/12 rounded-full blur-3xl pointer-events-none" />
 
         {/* Section Header */}
-        <div className="mb-8 relative z-10">
-          <div className="inline-flex items-center gap-2 bg-[#006a4e]/10 text-[#006a4e] text-xs font-extrabold uppercase px-3.5 py-1 rounded-full tracking-widest border border-[#006a4e]/25">
-            <span className="w-2 h-2 rounded-full bg-[#006a4e] animate-pulse" />
+        <div className="mb-6 sm:mb-8 relative z-10">
+          <div className="inline-flex items-center gap-2 bg-[#006a4e]/10 text-[#006a4e] text-[11px] sm:text-xs font-extrabold uppercase px-3 py-0.5 sm:px-3.5 sm:py-1 rounded-full tracking-widest border border-[#006a4e]/25">
+            <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[#006a4e] animate-pulse" />
             <span>{isBn ? "সাধারণ জিজ্ঞাসা" : "FREQUENTLY ASKED QUESTIONS"}</span>
           </div>
-          <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-pitch mt-2 flex items-center gap-2">
+          <h2 className="font-display text-xl sm:text-3xl font-extrabold text-pitch mt-1.5 sm:mt-2 flex items-center gap-2">
             <span>{isBn ? "সাধারণ প্রশ্নোত্তর (FAQ)" : "Frequently Asked Questions"}</span>
           </h2>
           <p className="text-xs sm:text-sm text-brand-700 font-medium mt-1 max-w-2xl">
@@ -366,7 +366,7 @@ export default function FaqSection({ locale }: Props) {
         </div>
 
         {/* Accordion FAQ List: Just questions, clicking reveals answers */}
-        <div className="space-y-3.5 relative z-10">
+        <div className="space-y-2.5 sm:space-y-3.5 relative z-10">
           {faqItems.map((item) => {
             const isOpen = openId === item.id;
             const question = isBn ? item.questionBn : item.questionEn;
@@ -381,21 +381,21 @@ export default function FaqSection({ locale }: Props) {
             return (
               <div
                 key={item.id}
-                className={`rounded-2xl border transition-all duration-200 overflow-hidden ${
+                className={`rounded-xl sm:rounded-2xl border transition-all duration-200 overflow-hidden ${
                   isOpen
                     ? "bg-white border-[#006a4e]/35 shadow-md"
-                    : "bg-white/85 hover:bg-white border-[#006a4e]/15 hover:border-[#006a4e]/30 shadow-2xs"
+                    : "bg-white/90 hover:bg-white border-[#006a4e]/15 hover:border-[#006a4e]/30 shadow-2xs"
                 }`}
               >
-                {/* Accordion Trigger Header: Clean question title + toggle arrow */}
+                {/* Accordion Trigger Header: Compact balanced mobile padding */}
                 <button
                   type="button"
                   onClick={() => toggleItem(item.id)}
                   aria-expanded={isOpen}
-                  className="w-full px-5 sm:px-6 py-4.5 sm:py-5 flex items-center justify-between gap-4 text-left transition-colors cursor-pointer select-none group"
+                  className="w-full px-3.5 sm:px-6 py-3 sm:py-4.5 flex items-center justify-between gap-2.5 sm:gap-4 text-left transition-colors cursor-pointer select-none group"
                 >
                   <h3
-                    className={`font-bold text-sm sm:text-base leading-snug transition-colors pr-2 flex-1 ${
+                    className={`font-bold text-[13px] sm:text-base leading-snug transition-colors pr-1 sm:pr-2 flex-1 ${
                       isOpen ? "text-[#006a4e]" : "text-pitch group-hover:text-[#006a4e]"
                     }`}
                   >
@@ -404,13 +404,13 @@ export default function FaqSection({ locale }: Props) {
 
                   {/* Toggle Arrow Pill */}
                   <span
-                    className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center shrink-0 border transition-transform duration-200 ${
+                    className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center shrink-0 border transition-transform duration-200 ${
                       isOpen
                         ? "bg-[#006a4e] text-white border-[#006a4e] rotate-180"
                         : "bg-slate-100 text-slate-600 border-slate-200 group-hover:bg-[#006a4e]/10 group-hover:text-[#006a4e]"
                     }`}
                   >
-                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
                     </svg>
                   </span>
@@ -418,7 +418,7 @@ export default function FaqSection({ locale }: Props) {
 
                 {/* Accordion Expandable Content: Shown only after clicking */}
                 {isOpen && (
-                  <div className="px-5 sm:px-6 pb-5 pt-1 border-t border-slate-100 animate-in fade-in duration-200">
+                  <div className="px-3.5 sm:px-6 pb-4 sm:pb-5 pt-1 border-t border-slate-100 animate-in fade-in duration-200">
                     <div className="pt-2">{answer}</div>
 
                     {/* Action link if available */}
