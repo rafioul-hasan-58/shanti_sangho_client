@@ -468,8 +468,15 @@ export default function DashboardShell({
   };
 
   return (
-    <div className="min-h-screen bg-[#f7f4ea] flex flex-col md:flex-row font-sans text-slate-800">
-      {/* MODULAR DASHBOARD SIDEBAR (Skipped when rendered inside AdminLayout) */}
+    <>
+      <div
+        className={`${
+          embeddedInAdminLayout
+            ? "w-full"
+            : "min-h-screen bg-[#f7f4ea] flex flex-col md:flex-row"
+        } font-sans text-slate-800`}
+      >
+        {/* MODULAR DASHBOARD SIDEBAR (Skipped when rendered inside AdminLayout) */}
       {!embeddedInAdminLayout && (
         <DashboardSidebar
           activeTab={activeTab}
@@ -532,7 +539,7 @@ export default function DashboardShell({
 
         {/* Dashboard Main Body */}
         <main className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto w-full">
-          {embeddedInAdminLayout && (
+          {embeddedInAdminLayout && activeTab !== "profile" && (
             <div className="inline-flex items-center gap-1.5 p-1 rounded-2xl bg-white border border-[#006a4e]/15 shadow-2xs">
               <button
                 type="button"
@@ -1376,9 +1383,10 @@ export default function DashboardShell({
           )}
         </main>
       </div>
-
-      {/* Mobile Fixed Bottom Navigation when directly on user dashboard */}
-      {!embeddedInAdminLayout && <MobileBottomNav locale={locale} />}
     </div>
-  );
+
+    {/* Mobile Fixed Bottom Navigation when directly on user dashboard */}
+    {!embeddedInAdminLayout && <MobileBottomNav locale={locale} />}
+  </>
+);
 }
