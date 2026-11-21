@@ -7,6 +7,7 @@ import AboutSection from "@/components/home/AboutSection";
 import PioneersSection from "@/components/home/PioneersSection";
 import CommitteeSection from "@/components/home/CommitteeSection";
 import AdminSection from "@/components/home/AdminSection";
+import FaqSection from "@/components/home/FaqSection";
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -169,6 +170,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
       {/* Facebook & Website Admin Panel */}
       <AdminSection locale={locale} />
+
+      {/* Frequently Asked Questions (FAQ) Section */}
+      <FaqSection locale={locale} />
     </>
   );
 }
