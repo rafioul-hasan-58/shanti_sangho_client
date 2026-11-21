@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
-import AdminPlaceholderPage from "@/components/admin/AdminPlaceholderPage";
 import { isLocale } from "@/i18n/config";
+import { getDictionary } from "@/i18n/getDictionary";
+import DashboardShell from "@/components/dashboard/DashboardShell";
 
 export default async function AdminProfilePage({
   params,
@@ -9,6 +10,16 @@ export default async function AdminProfilePage({
 }) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
-  return <AdminPlaceholderPage routeHref="/admin/profile" locale={locale} />;
-}
+  const dict = await getDictionary(locale);
 
+  return (
+    <DashboardShell
+      title={dict.dashboard.adminTitle}
+      stats={dict.dashboard.adminStats}
+      dict={dict}
+      locale={locale}
+      embeddedInAdminLayout
+      initialTab="profile"
+    />
+  );
+}

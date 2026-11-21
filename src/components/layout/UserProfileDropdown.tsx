@@ -9,7 +9,7 @@ import { useRole } from "@/context/RoleContext";
 import UserAvatar from "./UserAvatar";
 import RoleBadge from "./RoleBadge";
 import VerifiedTick from "@/components/common/VerifiedTick";
-import { isAdminVerified, normalizeRole } from "@/lib/authRole";
+import { isAdminVerified, normalizeRole, hasDashboardAccess } from "@/lib/authRole";
 
 interface UserProfileDropdownProps {
   user: AuthUser;
@@ -33,6 +33,9 @@ export default function UserProfileDropdown({
   const { role } = useRole();
   const isBn = locale === "bn";
   const resolvedRole = normalizeRole(user.role ?? role);
+  const isAdmin = hasDashboardAccess(resolvedRole);
+  const dashboardHref = isAdmin ? `/${locale}/admin/dashboard` : `/${locale}/dashboard`;
+  const profileHref = isAdmin ? `/${locale}/admin/profile` : `/${locale}/dashboard?tab=profile`;
   const statusDotClass =
     user.status === "SUSPENDED" ? "bg-rose-500" : "bg-emerald-500";
 
@@ -214,7 +217,7 @@ export default function UserProfileDropdown({
             {/* Menu Items List */}
             <div className="space-y-1 text-left">
               <Link
-                href={`/${locale}/dashboard`}
+                href={dashboardHref}
                 role="menuitem"
                 tabIndex={0}
                 onClick={closeDropdown}
@@ -225,7 +228,7 @@ export default function UserProfileDropdown({
               </Link>
 
               <Link
-                href={`/${locale}/dashboard?tab=profile`}
+                href={profileHref}
                 role="menuitem"
                 tabIndex={0}
                 onClick={closeDropdown}

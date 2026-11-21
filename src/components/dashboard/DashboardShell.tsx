@@ -23,6 +23,7 @@ import { useRole } from "@/context/RoleContext";
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
 import FeatureCooking from "@/components/common/FeatureCooking";
 import VerifiedTick from "@/components/common/VerifiedTick";
+import MobileBottomNav from "@/components/admin/MobileBottomNav";
 import { FinanceOverviewClient } from "@/app/[locale]/admin/finance/_components/finance-overview-client";
 import DashboardSidebar from "./DashboardSidebar";
 import AdminOverviewView from "./AdminOverviewView";
@@ -44,6 +45,7 @@ interface Props {
   dict: Dictionary;
   locale?: string;
   embeddedInAdminLayout?: boolean;
+  initialTab?: TabType;
 }
 
 type TabType =
@@ -96,6 +98,7 @@ export default function DashboardShell({
   dict,
   locale = "bn",
   embeddedInAdminLayout = false,
+  initialTab,
 }: Props) {
   const router = useRouter();
   const pathname = usePathname();
@@ -115,6 +118,7 @@ export default function DashboardShell({
   const isAdmin = hasDashboardAccess(resolvedRole);
 
   const [activeTab, setActiveTab] = useState<TabType>(() => {
+    if (initialTab) return initialTab;
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       const tab = params.get("tab") as TabType | null;
@@ -484,7 +488,7 @@ export default function DashboardShell({
       {/* ======================================================== */}
       {/* MAIN CONTENT AREA                                         */}
       {/* ======================================================== */}
-      <div className="flex-1 min-w-0 flex flex-col">
+      <div className={`flex-1 min-w-0 flex flex-col ${!embeddedInAdminLayout ? "pb-24 md:pb-6" : ""}`}>
         {/* Mobile Top Header (Skipped when rendered inside AdminLayout) */}
         {!embeddedInAdminLayout && (
           <header className="md:hidden sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-4 py-2.5 flex items-center justify-between gap-4 shadow-2xs">
@@ -1372,6 +1376,9 @@ export default function DashboardShell({
           )}
         </main>
       </div>
+
+      {/* Mobile Fixed Bottom Navigation when directly on user dashboard */}
+      {!embeddedInAdminLayout && <MobileBottomNav locale={locale} />}
     </div>
   );
 }

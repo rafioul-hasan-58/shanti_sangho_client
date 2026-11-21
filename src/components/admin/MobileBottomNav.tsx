@@ -24,6 +24,33 @@ export default function MobileBottomNav({ locale }: MobileBottomNavProps) {
   const isBn = locale === "bn";
   const primaryTabs = MOBILE_BOTTOM_NAV_ITEMS;
 
+  const isProfileActive =
+    isAdminPathActive(pathname, "/admin/profile") ||
+    (pathname.includes("/dashboard") &&
+      typeof window !== "undefined" &&
+      window.location.search.includes("tab=profile"));
+
+  const isUserActive =
+    isAdminPathActive(pathname, "/admin/members") ||
+    (pathname.includes("/dashboard") &&
+      typeof window !== "undefined" &&
+      (window.location.search.includes("tab=admin_users") ||
+        window.location.search.includes("tab=members")));
+
+  const isFinanceActive =
+    isAdminPathActive(pathname, "/admin/finance") ||
+    (pathname.includes("/dashboard") &&
+      typeof window !== "undefined" &&
+      window.location.search.includes("tab=admin_finance"));
+
+  const isDashboardActive =
+    (isAdminPathActive(pathname, "/admin/dashboard") ||
+      pathname.endsWith("/dashboard") ||
+      pathname.endsWith("/admin")) &&
+    !isProfileActive &&
+    !isUserActive &&
+    !isFinanceActive;
+
   return (
     <nav
       aria-label="Mobile admin navigation"
@@ -31,7 +58,7 @@ export default function MobileBottomNav({ locale }: MobileBottomNavProps) {
         background:
           "linear-gradient(90deg, #004d38 0%, #006a4e 50%, #004d38 100%)",
       }}
-      className="md:hidden fixed bottom-0 inset-x-0 z-40 border-t border-[#f2b705]/30 shadow-2xl"
+      className="md:hidden fixed bottom-0 inset-x-0 z-50 border-t border-[#f2b705]/30 shadow-2xl"
     >
       <div className="grid grid-cols-4 h-16 px-1">
         {primaryTabs.map((item) => {
@@ -40,9 +67,12 @@ export default function MobileBottomNav({ locale }: MobileBottomNavProps) {
             ? item.shortLabelBn || item.labelBn
             : item.shortLabelEn || item.labelEn;
 
-          const isTabActive = item.href
-            ? isAdminPathActive(pathname, item.href)
-            : false;
+          let isTabActive = false;
+          if (item.id === "dashboard") isTabActive = isDashboardActive;
+          else if (item.id === "finance") isTabActive = isFinanceActive;
+          else if (item.id === "members") isTabActive = isUserActive;
+          else if (item.id === "profile") isTabActive = isProfileActive;
+          else if (item.href) isTabActive = isAdminPathActive(pathname, item.href);
 
           return (
             <Link
