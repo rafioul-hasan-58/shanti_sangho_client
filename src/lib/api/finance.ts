@@ -21,6 +21,8 @@ import type { PaymentMethod } from "@/lib/schemas/finance";
 export interface Fund {
   id: string;
   name: string;
+  category: string;
+  description?: string;
   isActive: boolean;
   totalIn: number;
   totalOut: number;
@@ -159,12 +161,66 @@ export interface FinanceOverview {
 // Default In-Memory / LocalStorage Mock Seed Data (TODO: Replace with NestJS)
 // --------------------------------------------------------------------------
 const INITIAL_FUNDS: Fund[] = [
-  { id: "fund-gpl", name: "GPL", isActive: true, totalIn: 450000, totalOut: 380000, remaining: 70000 },
-  { id: "fund-owag", name: "OWAG", isActive: true, totalIn: 320000, totalOut: 210000, remaining: 110000 },
-  { id: "fund-sports", name: "SPORTS", isActive: true, totalIn: 185000, totalOut: 145000, remaining: 40000 },
-  { id: "fund-football", name: "FOOTBALL", isActive: true, totalIn: 220000, totalOut: 215000, remaining: 5000 }, // Low balance (<10%)
-  { id: "fund-maintenance", name: "MAINTENANCE", isActive: true, totalIn: 95000, totalOut: 62000, remaining: 33000 },
-  { id: "fund-other", name: "OTHER", isActive: true, totalIn: 65000, totalOut: 30000, remaining: 35000 },
+  {
+    id: "fund-gpl",
+    name: "গোরান প্রিমিয়ার লীগ ২০২৬ (GPL Season 5)",
+    category: "GPL",
+    description: "ক্লাব প্রিমিয়ার ক্রিকেট ও শর্টপিচ টুর্নামেন্ট",
+    isActive: true,
+    totalIn: 450000,
+    totalOut: 380000,
+    remaining: 70000,
+  },
+  {
+    id: "fund-owag",
+    name: "শীতবস্ত্র ও জরুরি চিকিৎসা সহায়তা",
+    category: "OWAG",
+    description: "ওয়ান ওয়ার্ল্ড এইড গ্রুপ দুস্থ ও সামাজিক কল্যাণ তহবিল",
+    isActive: true,
+    totalIn: 320000,
+    totalOut: 210000,
+    remaining: 110000,
+  },
+  {
+    id: "fund-sports",
+    name: "বার্ষিক ক্রীড়া সরঞ্জাম ও টুর্নামেন্ট",
+    category: "SPORTS",
+    description: "ক্লাবের সামগ্রিক খেলাধুলা, ব্যাডমিন্টন ও ক্রীড়া সামগ্রী",
+    isActive: true,
+    totalIn: 185000,
+    totalOut: 145000,
+    remaining: 40000,
+  },
+  {
+    id: "fund-football",
+    name: "ক্লাব ফুটবল টিম ও অফিশিয়াল জার্সি",
+    category: "FOOTBALL",
+    description: "স্থানীয় ফুটবল লীগ দল ও প্র্যাকটিস কিটস",
+    isActive: true,
+    totalIn: 220000,
+    totalOut: 215000,
+    remaining: 5000, // Low balance (<10%)
+  },
+  {
+    id: "fund-maintenance",
+    name: "ক্লাব ভবন সংস্কার ও বৈদ্যুতিক কাজ",
+    category: "MAINTENANCE",
+    description: "ক্লাব ঘর মেরামত, পেইন্টিং ও পানি-বিদ্যুৎ ব্যবস্থাপনা",
+    isActive: true,
+    totalIn: 95000,
+    totalOut: 62000,
+    remaining: 33000,
+  },
+  {
+    id: "fund-other",
+    name: "সাধারণ আপৎকালীন ও বিবিধ তহবিল",
+    category: "OTHER",
+    description: "জরুরি ক্লাব ফান্ড ও অন্যান্য আকস্মিক খরচ",
+    isActive: true,
+    totalIn: 65000,
+    totalOut: 30000,
+    remaining: 35000,
+  },
 ];
 
 const INITIAL_MEMBERS: FinanceMember[] = [
@@ -331,6 +387,30 @@ const STORAGE_KEY_FUNDS = "shanti_finance_funds";
 const STORAGE_KEY_CONTRIBUTIONS = "shanti_finance_contributions";
 const STORAGE_KEY_EXPENSES = "shanti_finance_expenses";
 
+function normalizeStoredFund(raw: any): Fund {
+  const defaultPresets: Record<string, { name: string; category: string }> = {
+    GPL: { name: "গোরান প্রিমিয়ার লীগ ২০২৬ (GPL Season 5)", category: "GPL" },
+    OWAG: { name: "শীতবস্ত্র ও জরুরি চিকিৎসা সহায়তা", category: "OWAG" },
+    SPORTS: { name: "বার্ষিক ক্রীড়া সরঞ্জাম ও টুর্নামেন্ট", category: "SPORTS" },
+    FOOTBALL: { name: "ক্লাব ফুটবল টিম ও অফিশিয়াল জার্সি", category: "FOOTBALL" },
+    MAINTENANCE: { name: "ক্লাব ভবন সংস্কার ও বৈদ্যুতিক কাজ", category: "MAINTENANCE" },
+    OTHER: { name: "সাধারণ আপৎকালীন ও বিবিধ তহবিল", category: "OTHER" },
+  };
+
+  const rawName = String(raw.name || "").trim();
+  const upper = rawName.toUpperCase();
+  const preset = defaultPresets[upper];
+
+  const category = (raw.category || preset?.category || "OTHER").toUpperCase();
+  const name = preset ? preset.name : (raw.name || "Club Fund");
+
+  return {
+    ...raw,
+    name,
+    category,
+  };
+}
+
 function getMockStore(): {
   funds: Fund[];
   contributions: Contribution[];
@@ -350,7 +430,12 @@ function getMockStore(): {
 
   try {
     const storedFunds = localStorage.getItem(STORAGE_KEY_FUNDS);
-    if (storedFunds) funds = JSON.parse(storedFunds);
+    if (storedFunds) {
+      const parsed = JSON.parse(storedFunds);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        funds = parsed.map(normalizeStoredFund);
+      }
+    }
   } catch {}
 
   try {
@@ -407,12 +492,12 @@ export async function getFunds(): Promise<Fund[]> {
  * POST /finance/funds
  * Create a new fund.
  */
-export async function createFund(name: string): Promise<Fund> {
+export async function createFund(name: string, category: string = "OTHER"): Promise<Fund> {
   // TODO: Real backend integration at POST /api/v1/finance/funds
   try {
     const res = await fetchWithAuth("/finance/funds", {
       method: "POST",
-      body: JSON.stringify({ name }),
+      body: JSON.stringify({ name, category }),
     });
     if (res.ok) {
       const json = await res.json();
@@ -424,7 +509,8 @@ export async function createFund(name: string): Promise<Fund> {
   const id = `fund-${name.toLowerCase().replace(/[^a-z0-9]/g, "-")}-${Date.now()}`;
   const newFund: Fund = {
     id,
-    name: name.toUpperCase().trim(),
+    name: name.trim(),
+    category: (category || "OTHER").toUpperCase().trim(),
     isActive: true,
     totalIn: 0,
     totalOut: 0,

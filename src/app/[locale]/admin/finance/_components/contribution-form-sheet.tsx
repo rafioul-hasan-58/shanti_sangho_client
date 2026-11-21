@@ -191,7 +191,7 @@ export function ContributionFormSheet({
               </option>
               {funds.map((f) => (
                 <option key={f.id} value={f.id}>
-                  {f.name} (Balance: {formatMoney(f.remaining)})
+                  {f.name} [{f.category || "OTHER"}] (Balance: {formatMoney(f.remaining)})
                 </option>
               ))}
             </select>

@@ -87,8 +87,11 @@ export function FundDetailClient({ fundId, locale }: FundDetailClientProps) {
         {/* Left: Fund Info & Remaining */}
         <div className="space-y-2">
           <div className="flex items-center gap-2.5 flex-wrap">
-            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-              {fund.name} {isBn ? "তহবিল" : "Fund"}
+            <span className="px-2.5 py-0.5 rounded-lg bg-[#006a4e] text-white font-black text-xs uppercase tracking-wider shadow-xs">
+              {fund.category || "OTHER"}
+            </span>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-slate-900 tracking-tight">
+              {fund.name}
             </h1>
             {isLowBalance && (
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200/80 text-xs font-bold">

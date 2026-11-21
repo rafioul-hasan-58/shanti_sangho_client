@@ -72,11 +72,16 @@ const PALETTES: Record<string, FundPalette> = {
 
 const PALETTE_KEYS = ["GPL", "OWAG", "SPORTS", "FOOTBALL", "MAINTENANCE", "OTHER"];
 
-function getFundPalette(name: string): FundPalette {
-  const upper = name.toUpperCase().trim();
+function getFundPalette(categoryOrName: string): FundPalette {
+  const upper = categoryOrName.toUpperCase().trim();
   if (PALETTES[upper]) return PALETTES[upper];
 
-  // Hash fallback for any new dynamic fund
+  // Try partial match
+  for (const key of PALETTE_KEYS) {
+    if (upper.includes(key)) return PALETTES[key];
+  }
+
+  // Hash fallback
   let hash = 0;
   for (let i = 0; i < upper.length; i++) {
     hash = (hash << 5) - hash + upper.charCodeAt(i);
@@ -88,7 +93,8 @@ function getFundPalette(name: string): FundPalette {
 
 export function FundCard({ fund, locale }: FundCardProps) {
   const isBn = locale === "bn";
-  const palette = getFundPalette(fund.name);
+  const category = (fund.category || "OTHER").toUpperCase();
+  const palette = getFundPalette(category);
 
   const isLowBalance = fund.totalIn > 0 && fund.remaining < fund.totalIn * 0.1;
   const spentRatio = fund.totalIn > 0 ? (fund.totalOut / fund.totalIn) * 100 : 0;
@@ -102,12 +108,12 @@ export function FundCard({ fund, locale }: FundCardProps) {
 
       <div className="p-3.5 sm:p-5 flex flex-col justify-between flex-1">
         <div>
-          {/* Top: Fund Name Badge & Warning Badge */}
-          <div className="flex items-center justify-between gap-1.5 mb-2 sm:mb-3">
+          {/* Top: Category Badge & Low Balance Warning */}
+          <div className="flex items-center justify-between gap-1.5 mb-2">
             <span
-              className={`inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-black tracking-wide uppercase ${palette.badge}`}
+              className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-black tracking-wider uppercase ${palette.badge}`}
             >
-              {fund.name}
+              {category}
             </span>
 
             {isLowBalance && (
@@ -121,8 +127,16 @@ export function FundCard({ fund, locale }: FundCardProps) {
             )}
           </div>
 
+          {/* Fund Name (Descriptive Title) */}
+          <h3
+            className="text-xs sm:text-sm font-black text-slate-900 leading-snug line-clamp-2 min-h-[32px] sm:min-h-[38px] mb-2 group-hover:text-[#006a4e] transition-colors"
+            title={fund.name}
+          >
+            {fund.name}
+          </h3>
+
           {/* Large Remaining Balance */}
-          <div className="mb-2.5 sm:mb-4">
+          <div className="mb-2.5 sm:mb-3">
             <span className="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider block">
               {isBn ? "অবশিষ্ট তহবিল" : "Remaining Balance"}
             </span>
