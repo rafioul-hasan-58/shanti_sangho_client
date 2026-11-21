@@ -6,6 +6,7 @@ import { isLocale, locales } from "@/i18n/config";
 import { getDictionary } from "@/i18n/getDictionary";
 import { RoleProvider } from "@/context/RoleContext";
 import { AuthProvider } from "@/context/AuthContext";
+import QueryProvider from "@/providers/QueryProvider";
 import Script from "next/script";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -57,14 +58,16 @@ export default async function LocaleLayout({
       </head>
       <body className="font-sans">
         <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" />
-        <RoleProvider>
-          <AuthProvider>
-            <Navbar locale={locale} dict={dict} />
-            {children}
-            <Footer dict={dict} locale={locale} />
-            <ChatBot locale={locale} />
-          </AuthProvider>
-        </RoleProvider>
+        <QueryProvider>
+          <RoleProvider>
+            <AuthProvider>
+              <Navbar locale={locale} dict={dict} />
+              {children}
+              <Footer dict={dict} locale={locale} />
+              <ChatBot locale={locale} />
+            </AuthProvider>
+          </RoleProvider>
+        </QueryProvider>
       </body>
     </html>
   );

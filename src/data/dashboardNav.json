@@ -108,11 +108,11 @@
         },
         {
           "id": "admin_finance",
-          "labelBn": "ফাইন্যান্স ও হিসাব",
+          "labelBn": "ফাইন্যান্স ও তহবিল",
           "labelEn": "Club Finance",
           "icon": "finance",
           "type": "tab",
-          "status": "cooking"
+          "status": "ready"
         }
       ]
     }

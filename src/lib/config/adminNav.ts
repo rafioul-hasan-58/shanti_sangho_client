@@ -152,12 +152,14 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
     status: "cooking",
   },
   {
-    id: "expenses",
-    labelEn: "Expenses",
-    labelBn: "ব্যয় হিসাব",
+    id: "finance",
+    labelEn: "Finance",
+    labelBn: "ফাইন্যান্স ও তহবিল",
+    shortLabelEn: "Finance",
+    shortLabelBn: "ফাইন্যান্স",
     icon: WalletIcon,
-    href: "/admin/expenses",
-    status: "cooking",
+    href: "/admin/finance",
+    status: "ready",
   },
 ];
 

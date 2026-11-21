@@ -23,6 +23,7 @@ import { useRole } from "@/context/RoleContext";
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
 import FeatureCooking from "@/components/common/FeatureCooking";
 import VerifiedTick from "@/components/common/VerifiedTick";
+import { FinanceOverviewClient } from "@/app/[locale]/admin/finance/_components/finance-overview-client";
 import DashboardSidebar from "./DashboardSidebar";
 import AdminOverviewView from "./AdminOverviewView";
 import AdminUsersView from "./AdminUsersView";
@@ -1305,15 +1306,12 @@ export default function DashboardShell({
           )}
 
           {/* ===================================================== */}
-          {/* TAB 6: ADMIN: CLUB FINANCE (Cooking)                  */}
+          {/* TAB 6: ADMIN: CLUB FINANCE                           */}
           {/* ===================================================== */}
           {activeTab === "admin_finance" && isAdmin && (
-            <FeatureCooking
-              featureNameEn="Club Finance"
-              featureNameBn="তহবিল ও হিসাব"
-              locale={locale}
-              onDashboardClick={() => setActiveTab(isAdmin ? "overview" : "members")}
-            />
+            <div className="py-2">
+              <FinanceOverviewClient locale={locale} />
+            </div>
           )}
 
           {/* ===================================================== */}
