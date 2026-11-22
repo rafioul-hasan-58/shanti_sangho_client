@@ -539,36 +539,6 @@ export default function DashboardShell({
 
         {/* Dashboard Main Body */}
         <main className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto w-full">
-          {embeddedInAdminLayout && activeTab !== "profile" && (
-            <div className="inline-flex items-center gap-1.5 p-1 rounded-2xl bg-white border border-[#006a4e]/15 shadow-2xs">
-              <button
-                type="button"
-                onClick={() => setActiveTab("overview")}
-                className={`px-4 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
-                  activeTab === "overview"
-                    ? "bg-[#006a4e] text-white shadow-xs"
-                    : "text-[#12231d] hover:text-[#006a4e]"
-                }`}
-              >
-                {isBn ? "ওভারভিউ" : "Overview"}
-              </button>
-              {isAdmin && (
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("admin_users")}
-                  className={`px-4 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
-                    activeTab === "admin_users" ||
-                    activeTab === "admin_users_all" ||
-                    activeTab === "admin_users_pending"
-                      ? "bg-[#006a4e] text-white shadow-xs"
-                      : "text-[#12231d] hover:text-[#006a4e]"
-                  }`}
-                >
-                  {isBn ? "ইউজার ম্যানেজমেন্ট" : "User Management"}
-                </button>
-              )}
-            </div>
-          )}
           {/* ===================================================== */}
           {/* TAB 1: OVERVIEW (Admin Only)                          */}
           {/* ===================================================== */}

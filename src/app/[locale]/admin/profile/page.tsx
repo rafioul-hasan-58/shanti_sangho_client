@@ -1,7 +1,6 @@
+import { redirect } from "next/navigation";
 import { notFound } from "next/navigation";
 import { isLocale } from "@/i18n/config";
-import { getDictionary } from "@/i18n/getDictionary";
-import DashboardShell from "@/components/dashboard/DashboardShell";
 
 export default async function AdminProfilePage({
   params,
@@ -10,16 +9,5 @@ export default async function AdminProfilePage({
 }) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
-  const dict = await getDictionary(locale);
-
-  return (
-    <DashboardShell
-      title={dict.dashboard.adminTitle}
-      stats={dict.dashboard.adminStats}
-      dict={dict}
-      locale={locale}
-      embeddedInAdminLayout
-      initialTab="profile"
-    />
-  );
+  redirect(`/${locale}/dashboard?tab=profile`);
 }

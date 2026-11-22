@@ -25,8 +25,8 @@
         },
         {
           "id": "committee",
-          "labelBn": "কার্যনির্বাহী পরিষদ",
-          "labelEn": "Executives",
+          "labelBn": "কমিটি",
+          "labelEn": "Committees",
           "icon": "users",
           "type": "tab",
           "status": "cooking",
@@ -59,16 +59,16 @@
       "items": [
         {
           "id": "admin_users",
-          "labelBn": "সদস্য ম্যানেজমেন্ট",
-          "labelEn": "Member Management",
+          "labelBn": "ইউজার ম্যানেজমেন্ট",
+          "labelEn": "User Management",
           "icon": "users_cog",
           "type": "tab",
           "status": "ready"
         },
         {
           "id": "leadership",
-          "labelBn": "নেতৃত্ব ও পরিষদ",
-          "labelEn": "Leadership & Executives",
+          "labelBn": "নেতৃত্ব",
+          "labelEn": "Leadership",
           "icon": "crown",
           "type": "group",
           "children": [
@@ -82,8 +82,8 @@
             },
             {
               "id": "leadership_committee",
-              "labelBn": "কার্যনির্বাহী পরিষদ",
-              "labelEn": "Executives",
+              "labelBn": "কমিটি",
+              "labelEn": "Committee",
               "icon": "users",
               "type": "tab",
               "status": "cooking"

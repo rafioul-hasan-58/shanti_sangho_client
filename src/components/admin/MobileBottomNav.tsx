@@ -81,16 +81,16 @@ export default function MobileBottomNav({ locale }: MobileBottomNavProps) {
 
           if (item.id === "dashboard") {
             isTabActive = isDashboardActive;
-            targetHref = isAdmin ? "/admin/dashboard" : "/dashboard";
+            targetHref = "/dashboard";
           } else if (item.id === "finance") {
             isTabActive = isFinanceActive;
             targetHref = "/admin/finance";
           } else if (item.id === "members") {
             isTabActive = isUserActive;
-            targetHref = "/admin/members";
+            targetHref = "/dashboard?tab=admin_users";
           } else if (item.id === "profile") {
             isTabActive = isProfileActive;
-            targetHref = isAdmin ? "/admin/profile" : "/dashboard?tab=profile";
+            targetHref = "/dashboard?tab=profile";
           } else if (item.href) {
             isTabActive = isAdminPathActive(pathname, item.href);
           }

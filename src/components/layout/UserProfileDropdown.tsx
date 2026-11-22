@@ -34,8 +34,8 @@ export default function UserProfileDropdown({
   const isBn = locale === "bn";
   const resolvedRole = normalizeRole(user.role ?? role);
   const isAdmin = hasDashboardAccess(resolvedRole);
-  const dashboardHref = isAdmin ? `/${locale}/admin/dashboard` : `/${locale}/dashboard`;
-  const profileHref = isAdmin ? `/${locale}/admin/profile` : `/${locale}/dashboard?tab=profile`;
+  const dashboardHref = `/${locale}/dashboard`;
+  const profileHref = `/${locale}/dashboard?tab=profile`;
   const statusDotClass =
     user.status === "SUSPENDED" ? "bg-rose-500" : "bg-emerald-500";
 
