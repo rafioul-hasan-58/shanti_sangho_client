@@ -238,17 +238,17 @@ export function ContributionsTable({
           </div>
 
           {/* Right Controls: Fund Filter, Method Dropdown, Date Range, Presets & Reset */}
-          <div className="flex items-center flex-wrap gap-2">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center flex-wrap gap-2">
             {/* Fund Filter (shown if not scoped to a specific fund) */}
             {!fundId && (
-              <div className="relative">
+              <div className="relative w-full sm:w-auto">
                 <select
                   value={fundFilter}
                   onChange={(e) => {
                     setFundFilter(e.target.value);
                     setPage(1);
                   }}
-                  className="appearance-none pl-8 pr-7 py-2 rounded-xl border border-slate-200/90 bg-slate-50 hover:bg-white hover:border-slate-300 text-xs font-bold text-slate-700 focus:outline-none focus:border-[#006a4e] cursor-pointer transition-colors shadow-2xs"
+                  className="w-full sm:w-auto appearance-none pl-8 pr-7 py-2 rounded-xl border border-slate-200/90 bg-slate-50 hover:bg-white hover:border-slate-300 text-xs font-bold text-slate-700 focus:outline-none focus:border-[#006a4e] cursor-pointer transition-colors shadow-2xs h-[38px]"
                 >
                   <option value="ALL">{isBn ? "সকল তহবিল" : "All Funds"}</option>
                   {funds.map((f) => (
@@ -262,13 +262,15 @@ export function ContributionsTable({
               </div>
             )}
 
-            {/* Method Filter Dropdown */}
-            <div className="relative" ref={methodDropdownRef}>
-              <button
-                type="button"
-                onClick={() => setIsMethodDropdownOpen((prev) => !prev)}
-                className="inline-flex items-center justify-between gap-2 px-3 py-2 rounded-xl border border-slate-200/90 bg-slate-50 hover:bg-white hover:border-slate-300 text-xs font-bold text-slate-700 transition-all shadow-2xs cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#006a4e]/20 min-w-[130px]"
-              >
+            {/* Line 1 (on mobile): Method Filter (50%) & Quick Date Presets (50%) */}
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              {/* Method Filter Dropdown */}
+              <div className="flex-1 w-1/2 sm:w-auto sm:flex-initial relative" ref={methodDropdownRef}>
+                <button
+                  type="button"
+                  onClick={() => setIsMethodDropdownOpen((prev) => !prev)}
+                  className="w-full inline-flex items-center justify-between gap-2 px-3 py-2 rounded-xl border border-slate-200/90 bg-slate-50 hover:bg-white hover:border-slate-300 text-xs font-bold text-slate-700 transition-all shadow-2xs cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#006a4e]/20 min-w-0 sm:min-w-[130px] h-[38px]"
+                >
                 <div className="flex items-center gap-2 min-w-0">
                   <PaymentMethodLogo
                     method={selectedMethodOption.id}
@@ -328,37 +330,39 @@ export function ContributionsTable({
               )}
             </div>
 
-            {/* Quick Date Presets (Moved to first line right after Method Filter) */}
-            <div className="inline-flex items-center gap-1 bg-slate-100 p-0.5 rounded-xl border border-slate-200/60 text-[11px] font-bold">
-              <button
-                type="button"
-                onClick={() => handleDatePreset("TODAY")}
-                className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${
-                  isTodayActive
-                    ? "bg-white text-[#006a4e] shadow-2xs font-black"
-                    : "text-slate-600 hover:text-slate-900"
-                }`}
-              >
-                {isBn ? "আজ" : "Today"}
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDatePreset("THIS_MONTH")}
-                className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${
-                  isMonthActive
-                    ? "bg-white text-[#006a4e] shadow-2xs font-black"
-                    : "text-slate-600 hover:text-slate-900"
-                }`}
-              >
-                {isBn ? "এই মাস" : "This Month"}
-              </button>
+              {/* Quick Date Presets */}
+              <div className="flex-1 w-1/2 sm:w-auto sm:flex-initial inline-flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200/60 text-[11px] font-bold h-[38px]">
+                <button
+                  type="button"
+                  onClick={() => handleDatePreset("TODAY")}
+                  className={`flex-1 sm:flex-initial px-2 py-1.5 rounded-lg transition-all cursor-pointer text-center ${
+                    isTodayActive
+                      ? "bg-white text-[#006a4e] shadow-2xs font-black"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  {isBn ? "আজ" : "Today"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDatePreset("THIS_MONTH")}
+                  className={`flex-1 sm:flex-initial px-2 py-1.5 rounded-lg transition-all cursor-pointer text-center ${
+                    isMonthActive
+                      ? "bg-white text-[#006a4e] shadow-2xs font-black"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  {isBn ? "এই মাস" : "This Month"}
+                </button>
+              </div>
             </div>
 
-            {/* Date Range Picker with Branded From/To inputs */}
-            <div className="inline-flex items-center gap-1.5 p-1 rounded-xl border border-slate-200/90 bg-slate-50 hover:bg-white text-xs shadow-2xs transition-colors">
-              <Calendar className="w-3.5 h-3.5 text-[#006a4e] ml-1.5 shrink-0" />
-              <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-lg bg-white sm:bg-transparent">
-                <span className="text-[10px] uppercase font-bold text-slate-400">
+            {/* Line 2 (on mobile): Soro (From: 50%) & Shes (To: 50%) with space like first line */}
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              {/* Soro (From Date) */}
+              <div className="flex-1 w-1/2 sm:w-auto sm:flex-initial inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-slate-200/90 bg-slate-50 hover:bg-white text-xs shadow-2xs transition-colors min-w-0 h-[38px]">
+                <Calendar className="w-3.5 h-3.5 text-[#006a4e] shrink-0" />
+                <span className="text-[10px] uppercase font-bold text-slate-400 shrink-0">
                   {isBn ? "শুরু" : "From"}:
                 </span>
                 <input
@@ -369,12 +373,27 @@ export function ContributionsTable({
                     setPage(1);
                   }}
                   title={isBn ? "শুরুর তারিখ" : "From date"}
-                  className="bg-transparent text-xs font-bold text-slate-700 outline-none cursor-pointer max-w-[105px] sm:max-w-none"
+                  className="w-full min-w-0 bg-transparent text-[11px] sm:text-xs font-bold text-slate-700 outline-none cursor-pointer p-0"
                 />
+                {from && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFrom("");
+                      setPage(1);
+                    }}
+                    className="p-0.5 rounded-md text-slate-400 hover:text-rose-600 shrink-0 cursor-pointer"
+                    title={isBn ? "তারিখ মুছুন" : "Clear date"}
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                )}
               </div>
-              <span className="text-slate-300 font-bold px-0.5 text-xs">→</span>
-              <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-lg bg-white sm:bg-transparent">
-                <span className="text-[10px] uppercase font-bold text-slate-400">
+
+              {/* Shes (To Date) */}
+              <div className="flex-1 w-1/2 sm:w-auto sm:flex-initial inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-slate-200/90 bg-slate-50 hover:bg-white text-xs shadow-2xs transition-colors min-w-0 h-[38px]">
+                <Calendar className="w-3.5 h-3.5 text-[#006a4e] shrink-0" />
+                <span className="text-[10px] uppercase font-bold text-slate-400 shrink-0">
                   {isBn ? "শেষ" : "To"}:
                 </span>
                 <input
@@ -385,23 +404,22 @@ export function ContributionsTable({
                     setPage(1);
                   }}
                   title={isBn ? "শেষ তারিখ" : "To date"}
-                  className="bg-transparent text-xs font-bold text-slate-700 outline-none cursor-pointer max-w-[105px] sm:max-w-none"
+                  className="w-full min-w-0 bg-transparent text-[11px] sm:text-xs font-bold text-slate-700 outline-none cursor-pointer p-0"
                 />
+                {to && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTo("");
+                      setPage(1);
+                    }}
+                    className="p-0.5 rounded-md text-slate-400 hover:text-rose-600 shrink-0 cursor-pointer"
+                    title={isBn ? "তারিখ মুছুন" : "Clear date"}
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                )}
               </div>
-              {(from || to) && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setFrom("");
-                    setTo("");
-                    setPage(1);
-                  }}
-                  className="p-1 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
-                  title={isBn ? "তারিখ মুছুন" : "Clear date"}
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              )}
             </div>
 
             {/* Clear Filters Reset Button */}
@@ -409,9 +427,9 @@ export function ContributionsTable({
               <button
                 type="button"
                 onClick={clearFilters}
-                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold text-rose-600 bg-rose-50/70 hover:bg-rose-100/70 border border-rose-200 transition-colors cursor-pointer shrink-0"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-rose-600 bg-rose-50/70 hover:bg-rose-100/70 border border-rose-200 transition-colors cursor-pointer shrink-0 h-[38px]"
               >
-                <RotateCcw className="w-3 h-3" />
+                <RotateCcw className="w-3.5 h-3.5" />
                 <span>{isBn ? "রিসেট" : "Reset"}</span>
               </button>
             )}
