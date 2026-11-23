@@ -108,7 +108,7 @@
         },
         {
           "id": "admin_finance",
-          "labelBn": "ফাইন্যান্স ও তহবিল",
+          "labelBn": "ফাইন্যান্স ও ফান্ড",
           "labelEn": "Club Finance",
           "icon": "finance",
           "type": "tab",

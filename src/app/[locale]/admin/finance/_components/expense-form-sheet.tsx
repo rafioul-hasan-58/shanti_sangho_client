@@ -30,6 +30,7 @@ import {
   type ExpenseFormValues,
 } from "@/lib/schemas/finance";
 import { MemberCombobox } from "./member-combobox";
+import { FundSelectDropdown } from "./fund-select-dropdown";
 import { formatMoney, formatFundCategory } from "@/lib/format";
 
 interface ExpenseFormSheetProps {
@@ -253,7 +254,7 @@ export function ExpenseFormSheet({
                     ? "ব্যয়ের বিবরণ, পরিমাণ বা রসিদ সংশোধন করুন"
                     : "Update details of recorded expenditure"
                   : isBn
-                  ? "ক্লাবের তহবিল থেকে খরচের বিবরণ রেকর্ড করুন"
+                  ? "ক্লাবের ফান্ড থেকে খরচের বিবরণ রেকর্ড করুন"
                   : "Record an expenditure from a club fund"}
               </p>
             </div>
@@ -282,31 +283,17 @@ export function ExpenseFormSheet({
           onSubmit={handleSubmit(onSubmit)}
           className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-5"
         >
-          {/* Fund Selection */}
-          <div>
-            <label className="text-xs font-bold text-slate-700 block mb-1.5">
-              {isBn ? "যে তহবিল থেকে খরচ হবে" : "Fund Source"}{" "}
-              <span className="text-[#f42a41]">*</span>
-            </label>
-            <select
-              {...register("fundId")}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-800 focus:outline-none focus:border-[#006a4e] focus:ring-2 focus:ring-[#006a4e]/20 transition-all cursor-pointer"
-            >
-              <option value="" disabled>
-                {isBn ? "-- তহবিল নির্বাচন করুন --" : "-- Select Fund --"}
-              </option>
-              {funds.map((f) => (
-                <option key={f.id} value={f.id}>
-                  {f.name} [{formatFundCategory(f.category, isBn)}] (Remaining: {formatMoney(f.remaining)})
-                </option>
-              ))}
-            </select>
-            {errors.fundId && (
-              <p className="text-[11px] font-semibold text-[#f42a41] mt-1">
-                {errors.fundId.message}
-              </p>
-            )}
-          </div>
+          {/* Fund Selection - Colorful Custom Dropdown */}
+          <FundSelectDropdown
+            funds={funds}
+            value={selectedFundId}
+            onChange={(id) => setValue("fundId", id, { shouldValidate: true, shouldDirty: true })}
+            label={isBn ? "যে ফান্ড থেকে খরচ হবে" : "Fund Source"}
+            placeholder={isBn ? "-- ফান্ড সিলেক্ট করুন --" : "-- Select Fund --"}
+            isBn={isBn}
+            required
+            error={errors.fundId?.message}
+          />
 
           {/* Amount (Taka) + Live Remaining Balance + Overbalance Warning */}
           <div>
@@ -354,7 +341,7 @@ export function ExpenseFormSheet({
                   {isBn
                     ? `সতর্কতা: খরচের পরিমাণ (${formatMoney(
                         numEnteredAmount
-                      )}) এই তহবিলের বর্তমান উদ্বৃত্তের (${formatMoney(
+                      )}) এই ফান্ডের বর্তমান উদ্বৃত্তের (${formatMoney(
                         currentRemaining
                       )}) চেয়ে বেশি।`
                     : `Warning: Expense amount (${formatMoney(
@@ -420,7 +407,7 @@ export function ExpenseFormSheet({
               label={isBn ? "ব্যয় পরিচালনাকারী (Handled By)" : "Handled By (Optional)"}
               value={selectedSpentById}
               onChange={(id) => setValue("spentById", id, { shouldDirty: true })}
-              placeholder={isBn ? "সদস্য নির্বাচন করুন (ঐচ্ছিক)..." : "Select member (optional)..."}
+              placeholder={isBn ? "সদস্য সিলেক্ট করুন (ঐচ্ছিক)..." : "Select member (optional)..."}
               isBn={isBn}
             />
           </div>

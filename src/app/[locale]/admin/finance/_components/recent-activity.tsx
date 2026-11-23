@@ -38,7 +38,7 @@ export function RecentActivity({ activity, locale }: RecentActivityProps) {
             </h3>
             <p className="text-[11px] text-slate-400 font-medium">
               {isBn
-                ? "সর্বশেষ অনুদান ও ব্যয়ের সমন্বিত তালিকা (৮টি)"
+                ? "সর্বশেষ ডোনেশন ও ব্যয়ের সমন্বিত তালিকা (৮টি)"
                 : "Latest 8 contributions and expenses sorted by date"}
             </p>
           </div>

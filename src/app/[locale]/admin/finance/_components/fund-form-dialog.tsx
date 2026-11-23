@@ -89,7 +89,7 @@ export function FundFormDialog({
         });
         setSuccessToast(
           isBn
-            ? "তহবিলের তথ্য সফলভাবে আপডেট করা হয়েছে!"
+            ? "ফান্ডের তথ্য সফলভাবে আপডেট করা হয়েছে!"
             : "Fund updated successfully!"
         );
       } else {
@@ -100,7 +100,7 @@ export function FundFormDialog({
         });
         setSuccessToast(
           isBn
-            ? "নতুন তহবিল সফলভাবে তৈরি করা হয়েছে!"
+            ? "নতুন ফান্ড সফলভাবে তৈরি করা হয়েছে!"
             : "New fund created successfully!"
         );
       }
@@ -113,7 +113,7 @@ export function FundFormDialog({
         err instanceof Error
           ? err.message
           : isBn
-          ? "তহবিল সংরক্ষণে সমস্যা হয়েছে।"
+          ? "ফান্ড সংরক্ষণে সমস্যা হয়েছে।"
           : "Failed to save fund.";
       setErrorMessage(msg);
     }
@@ -152,12 +152,12 @@ export function FundFormDialog({
                     ? "ফান্ড এডিট করুন"
                     : "Edit Fund"
                   : isBn
-                  ? "নতুন তহবিল তৈরি করুন"
+                  ? "নতুন ফান্ড তৈরি করুন"
                   : "Create New Fund"}
               </h2>
               <p className="text-xs text-slate-500 font-medium">
                 {isBn
-                  ? "ক্লাবের বাজেট ও অনুদান সংগ্রহের খাত"
+                  ? "ক্লাবের বাজেট ও ডোনেশন সংগ্রহের খাত"
                   : "Manage club treasury fund category"}
               </p>
             </div>
@@ -193,7 +193,7 @@ export function FundFormDialog({
           {/* Fund Name */}
           <div className="space-y-1.5">
             <label className="block text-xs font-black text-slate-700 uppercase tracking-wider">
-              {isBn ? "তহবিলের নাম *" : "Fund Name *"}
+              {isBn ? "ফান্ডের নাম *" : "Fund Name *"}
             </label>
             <input
               type="text"
@@ -243,11 +243,11 @@ export function FundFormDialog({
           <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
             <div>
               <span className="block text-xs font-black text-slate-800">
-                {isBn ? "সক্রিয় তহবিল (Active Status)" : "Active Fund Status"}
+                {isBn ? "সক্রিয় ফান্ড (Active Status)" : "Active Fund Status"}
               </span>
               <span className="text-[11px] text-slate-400 font-medium">
                 {isBn
-                  ? "নিষ্ক্রিয় করলে নতুন অনুদান বা খরচ যোগ বন্ধ থাকবে"
+                  ? "নিষ্ক্রিয় করলে নতুন ডোনেশন বা খরচ যোগ বন্ধ থাকবে"
                   : "Deactivate to archive and prevent new transactions"}
               </span>
             </div>
@@ -284,7 +284,7 @@ export function FundFormDialog({
                     ? "আপডেট করুন"
                     : "Save Changes"
                   : isBn
-                  ? "তহবিল তৈরি করুন"
+                  ? "ফান্ড তৈরি করুন"
                   : "Create Fund"}
               </span>
             </button>

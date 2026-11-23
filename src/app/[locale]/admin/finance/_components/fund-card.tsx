@@ -166,7 +166,7 @@ export function FundCard({ fund, locale }: FundCardProps) {
     if (hasTransactions) {
       setDeleteError(
         isBn
-          ? "এই তহবিলে লেনদেনের রেকর্ড রয়েছে, তাই এটি মুছে ফেলা সম্ভব নয়। রেকর্ড অক্ষুণ্ণ রাখতে নিষ্ক্রিয় (Inactive) করুন।"
+          ? "এই ফান্ডে লেনদেনের রেকর্ড রয়েছে, তাই এটি মুছে ফেলা সম্ভব নয়। রেকর্ড অক্ষুণ্ণ রাখতে নিষ্ক্রিয় (Inactive) করুন।"
           : "Deletion blocked: This fund has active financial records. Please deactivate it instead."
       );
       return;
@@ -178,7 +178,7 @@ export function FundCard({ fund, locale }: FundCardProps) {
     } catch (err: any) {
       setDeleteError(
         err?.message ||
-          (isBn ? "তহবিল ডিলিট করা যায়নি।" : "Failed to delete fund.")
+          (isBn ? "ফান্ড ডিলিট করা যায়নি।" : "Failed to delete fund.")
       );
     }
   };
@@ -308,7 +308,7 @@ export function FundCard({ fund, locale }: FundCardProps) {
             {/* Large Remaining Balance */}
             <div className="mb-2.5 sm:mb-3">
               <span className="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider block">
-                {isBn ? "অবশিষ্ট তহবিল" : "Remaining Balance"}
+                {isBn ? "অবশিষ্ট ফান্ড" : "Remaining Balance"}
               </span>
               <span className="text-base sm:text-2xl md:text-3xl font-black text-slate-900 tracking-tight tabular-nums block mt-0.5 truncate">
                 {formatMoney(fund.remaining)}
@@ -401,10 +401,10 @@ export function FundCard({ fund, locale }: FundCardProps) {
                   <h3 className="font-black text-base text-slate-900">
                     {hasTransactions
                       ? isBn
-                        ? "তহবিল ডিলিট করা যাবে না"
+                        ? "ফান্ড ডিলিট করা যাবে না"
                         : "Deletion Blocked"
                       : isBn
-                      ? "তহবিলটি ডিলিট করতে চান?"
+                      ? "ফান্ডটি ডিলিট করতে চান?"
                       : "Delete Fund Permanently?"}
                   </h3>
                   <p className="text-xs text-slate-500 font-medium">
@@ -426,13 +426,13 @@ export function FundCard({ fund, locale }: FundCardProps) {
               <div className="p-4 rounded-2xl bg-amber-50/80 border border-amber-200/80 text-xs text-amber-900 space-y-2">
                 <p className="font-bold">
                   {isBn
-                    ? "এই তহবিলে আর্থিক লেনদেন সংরক্ষিত আছে:"
+                    ? "এই ফান্ডে আর্থিক লেনদেন সংরক্ষিত আছে:"
                     : "This fund contains recorded financial transactions:"}
                 </p>
                 <ul className="list-disc pl-5 space-y-1 font-medium">
                   <li>
                     {isBn
-                      ? `মোট অনুদান: ${fund.summary?.contributionsCount ?? 0} টি`
+                      ? `মোট ডোনেশন: ${fund.summary?.contributionsCount ?? 0} টি`
                       : `Total contributions: ${fund.summary?.contributionsCount ?? 0}`}
                   </li>
                   <li>

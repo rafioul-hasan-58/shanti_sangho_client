@@ -85,14 +85,14 @@ export function FundDetailClient({ fundId, locale }: FundDetailClientProps) {
       <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
         <div className="p-8 bg-white rounded-2xl border border-slate-200/80 text-center space-y-4">
           <p className="text-sm font-bold text-rose-600">
-            {isBn ? "তহবিলের তথ্য পাওয়া যায়নি।" : "Fund not found."}
+            {isBn ? "ফান্ডের তথ্য পাওয়া যায়নি।" : "Fund not found."}
           </p>
           <Link
             href={withLocaleHref("/admin/finance", locale)}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#006a4e] text-white text-xs font-bold"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>{isBn ? "ফাইন্যান্স ও তহবিলে ফিরুন" : "Back to Finance"}</span>
+            <span>{isBn ? "ফাইন্যান্স ও ফান্ডে ফিরুন" : "Back to Finance"}</span>
           </Link>
         </div>
       </div>
@@ -135,7 +135,7 @@ export function FundDetailClient({ fundId, locale }: FundDetailClientProps) {
           </div>
           <p className="text-xs text-slate-400 font-medium">
             {isBn
-              ? "এই তহবিলের সকল সংগ্রহ ও খরচের সার্বিক বিবরণী"
+              ? "এই ফান্ডের সকল সংগ্রহ ও খরচের সার্বিক বিবরণী"
               : "Complete ledger of contributions and expenditures for this fund"}
           </p>
 
@@ -180,7 +180,7 @@ export function FundDetailClient({ fundId, locale }: FundDetailClientProps) {
               className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#006a4e] hover:bg-[#004d38] active:scale-95 text-white text-xs sm:text-sm font-bold shadow-xs transition-all cursor-pointer"
             >
               <Plus className="w-4 h-4" />
-              <span>{isBn ? "অনুদান জমা" : "Add Contribution"}</span>
+              <span>{isBn ? "ডোনেশন জমা" : "Add Contribution"}</span>
             </button>
 
             <button
@@ -304,7 +304,7 @@ export function FundDetailClient({ fundId, locale }: FundDetailClientProps) {
                 : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
             }`}
           >
-            {isBn ? "অনুদানের তালিকা (Contributions)" : "Contributions"}
+            {isBn ? "ডোনেশনের তালিকা (Donations)" : "Donations"}
           </button>
 
           <button
@@ -388,10 +388,10 @@ export function FundDetailClient({ fundId, locale }: FundDetailClientProps) {
                     {(fund.summary?.contributionsCount ?? 0) > 0 ||
                     (fund.summary?.expensesCount ?? 0) > 0
                       ? isBn
-                        ? "তহবিল ডিলিট করা যাবে না"
+                        ? "ফান্ড ডিলিট করা যাবে না"
                         : "Deletion Blocked"
                       : isBn
-                      ? "তহবিলটি ডিলিট করতে চান?"
+                      ? "ফান্ডটি ডিলিট করতে চান?"
                       : "Delete Fund Permanently?"}
                   </h3>
                   <p className="text-xs text-slate-500 font-medium">
@@ -413,13 +413,13 @@ export function FundDetailClient({ fundId, locale }: FundDetailClientProps) {
               <div className="p-4 rounded-2xl bg-amber-50/80 border border-amber-200/80 text-xs text-amber-900 space-y-2">
                 <p className="font-bold">
                   {isBn
-                    ? "এই তহবিলে আর্থিক লেনদেন সংরক্ষিত আছে:"
+                    ? "এই ফান্ডে আর্থিক লেনদেন সংরক্ষিত আছে:"
                     : "This fund contains recorded financial transactions:"}
                 </p>
                 <ul className="list-disc pl-5 space-y-1 font-medium">
                   <li>
                     {isBn
-                      ? `মোট অনুদান: ${
+                      ? `মোট ডোনেশন: ${
                           fund.summary?.contributionsCount ?? 0
                         } টি`
                       : `Total contributions: ${
@@ -498,7 +498,7 @@ export function FundDetailClient({ fundId, locale }: FundDetailClientProps) {
                       setDeleteError(
                         err?.message ||
                           (isBn
-                            ? "তহবিল ডিলিট করা যায়নি।"
+                            ? "ফান্ড ডিলিট করা যায়নি।"
                             : "Failed to delete fund.")
                       );
                     }

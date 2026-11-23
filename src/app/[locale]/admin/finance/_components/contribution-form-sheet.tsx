@@ -18,6 +18,7 @@ import {
 } from "@/lib/schemas/finance";
 import { MemberCombobox } from "./member-combobox";
 import { PaymentMethodLogo } from "./payment-method-logo";
+import { FundSelectDropdown } from "./fund-select-dropdown";
 import { formatMoney, formatFundCategory } from "@/lib/format";
 
 interface ContributionFormSheetProps {
@@ -140,7 +141,7 @@ export function ContributionFormSheet({
 
         setSuccessToast(
           isBn
-            ? "অনুদানের তথ্য সফলভাবে আপডেট করা হয়েছে!"
+            ? "ডোনেশনের তথ্য সফলভাবে আপডেট করা হয়েছে!"
             : "Contribution successfully updated!"
         );
       } else {
@@ -158,7 +159,7 @@ export function ContributionFormSheet({
 
         setSuccessToast(
           isBn
-            ? "অনুদানের টাকা সফলভাবে জমা হয়েছে!"
+            ? "ডোনেশনের টাকা সফলভাবে জমা হয়েছে!"
             : "Contribution successfully recorded!"
         );
       }
@@ -195,19 +196,19 @@ export function ContributionFormSheet({
               <h2 className="font-black text-base sm:text-lg text-white leading-tight">
                 {isEditing
                   ? isBn
-                    ? "অনুদান এডিট করুন"
+                    ? "ডোনেশন এডিট করুন"
                     : "Edit Contribution"
                   : isBn
-                  ? "নতুন অনুদান জমা করুন"
+                  ? "নতুন ডোনেশন জমা করুন"
                   : "Add Contribution"}
               </h2>
               <p className="text-xs text-emerald-100 font-medium">
                 {isEditing
                   ? isBn
-                    ? "অনুদানের বিবরণ ও রেফারেন্স সংশোধন করুন"
+                    ? "ডোনেশনের বিবরণ ও রেফারেন্স সংশোধন করুন"
                     : "Update details of recorded contribution"
                   : isBn
-                  ? "তহবিলে অর্থ সংগ্রহের বিবরণ রেকর্ড করুন"
+                  ? "ফান্ডে অর্থ সংগ্রহের বিবরণ রেকর্ড করুন"
                   : "Record new incoming money to a fund"}
               </p>
             </div>
@@ -236,31 +237,17 @@ export function ContributionFormSheet({
           onSubmit={handleSubmit(onSubmit)}
           className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-5"
         >
-          {/* Fund Selection */}
-          <div>
-            <label className="text-xs font-bold text-slate-700 block mb-1.5">
-              {isBn ? "তহবিল (Fund)" : "Fund"}{" "}
-              <span className="text-[#f42a41]">*</span>
-            </label>
-            <select
-              {...register("fundId")}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-800 focus:outline-none focus:border-[#006a4e] focus:ring-2 focus:ring-[#006a4e]/20 transition-all cursor-pointer"
-            >
-              <option value="" disabled>
-                {isBn ? "-- তহবিল নির্বাচন করুন --" : "-- Select Fund --"}
-              </option>
-              {funds.map((f) => (
-                <option key={f.id} value={f.id}>
-                  {f.name} [{formatFundCategory(f.category, isBn)}] (Balance: {formatMoney(f.remaining)})
-                </option>
-              ))}
-            </select>
-            {errors.fundId && (
-              <p className="text-[11px] font-semibold text-[#f42a41] mt-1">
-                {errors.fundId.message}
-              </p>
-            )}
-          </div>
+          {/* Fund Selection - Colorful Custom Dropdown */}
+          <FundSelectDropdown
+            funds={funds}
+            value={selectedFundId}
+            onChange={(id) => setValue("fundId", id, { shouldValidate: true, shouldDirty: true })}
+            label={isBn ? "ফান্ড (Fund)" : "Fund"}
+            placeholder={isBn ? "-- ফান্ড সিলেক্ট করুন --" : "-- Select Fund --"}
+            isBn={isBn}
+            required
+            error={errors.fundId?.message}
+          />
 
           {/* Amount (Taka) - Colorful Branded Highlight Card */}
           <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-br from-emerald-500/10 via-teal-500/5 to-transparent border border-emerald-200/90 space-y-2">
@@ -413,7 +400,7 @@ export function ContributionFormSheet({
               <MemberCombobox
                 value={selectedGiverMemberId}
                 onChange={(id) => setValue("giverMemberId", id, { shouldValidate: true })}
-                placeholder={isBn ? "সদস্য নির্বাচন করুন..." : "Select club member..."}
+                placeholder={isBn ? "সদস্য সিলেক্ট করুন..." : "Select club member..."}
                 isBn={isBn}
                 error={errors.giverMemberId?.message}
               />
@@ -445,7 +432,7 @@ export function ContributionFormSheet({
               required
               value={selectedReceiverId}
               onChange={(id) => setValue("receivedById", id || defaultReceiverId, { shouldValidate: true })}
-              placeholder={isBn ? "প্রতিনিধি নির্বাচন করুন..." : "Select receiver admin..."}
+              placeholder={isBn ? "প্রতিনিধি সিলেক্ট করুন..." : "Select receiver admin..."}
               isBn={isBn}
               error={errors.receivedById?.message}
             />
@@ -479,7 +466,7 @@ export function ContributionFormSheet({
               rows={2}
               placeholder={
                 isBn
-                  ? "অনুদানের উদ্দেশ্য বা অতিরিক্ত কোনো তথ্য..."
+                  ? "ডোনেশনের উদ্দেশ্য বা অতিরিক্ত কোনো তথ্য..."
                   : "Purpose of contribution or any extra note..."
               }
               {...register("note")}
@@ -531,7 +518,7 @@ export function ContributionFormSheet({
                     ? "আপডেট সংরক্ষণ করুন"
                     : "Update Contribution"
                   : isBn
-                  ? "অনুদান সংরক্ষণ করুন"
+                  ? "ডোনেশন সংরক্ষণ করুন"
                   : "Save Contribution"}
               </span>
             )}

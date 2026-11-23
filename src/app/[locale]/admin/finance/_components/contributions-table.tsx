@@ -250,7 +250,7 @@ export function ContributionsTable({
                   }}
                   className="w-full sm:w-auto appearance-none pl-8 pr-7 py-2 rounded-xl border border-slate-200/90 bg-slate-50 hover:bg-white hover:border-slate-300 text-xs font-bold text-slate-700 focus:outline-none focus:border-[#006a4e] cursor-pointer transition-colors shadow-2xs h-[38px]"
                 >
-                  <option value="ALL">{isBn ? "সকল তহবিল" : "All Funds"}</option>
+                  <option value="ALL">{isBn ? "সকল ফান্ড" : "All Funds"}</option>
                   {funds.map((f) => (
                     <option key={f.id} value={f.id}>
                       {f.name}
@@ -453,7 +453,7 @@ export function ContributionsTable({
           <div className="p-8 text-center space-y-3">
             <p className="text-xs sm:text-sm font-semibold text-rose-600">
               {isBn
-                ? "অনুদানের তথ্য লোড করতে ব্যর্থ হয়েছে।"
+                ? "ডোনেশনের তথ্য লোড করতে ব্যর্থ হয়েছে।"
                 : "Failed to load contributions."}
             </p>
             <button
@@ -471,7 +471,7 @@ export function ContributionsTable({
               <FileSpreadsheet className="w-6 h-6" />
             </div>
             <h4 className="font-bold text-sm sm:text-base text-slate-800">
-              {isBn ? "কোনো অনুদানের রেকর্ড পাওয়া যায়নি" : "No contributions found"}
+              {isBn ? "কোনো ডোনেশনের রেকর্ড পাওয়া যায়নি" : "No contributions found"}
             </h4>
             <p className="text-xs text-slate-400 max-w-sm mx-auto">
               {hasActiveFilters
@@ -479,7 +479,7 @@ export function ContributionsTable({
                   ? "ফিল্টার পরিবর্তন করে আবার চেষ্টা করুন।"
                   : "Try clearing or adjusting your search filters."
                 : isBn
-                ? "এখনো এই তহবিলে কোনো অনুদান যোগ করা হয়নি।"
+                ? "এখনো এই ফান্ডে কোনো ডোনেশন যোগ করা হয়নি।"
                 : "No contributions have been recorded in this view yet."}
             </p>
             {onAddClick && (
@@ -489,7 +489,7 @@ export function ContributionsTable({
                 className="mt-2 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#006a4e] hover:bg-[#004d38] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
-                <span>{isBn ? "নতুন অনুদান যোগ করুন" : "Add Contribution"}</span>
+                <span>{isBn ? "নতুন ডোনেশন যোগ করুন" : "Add Contribution"}</span>
               </button>
             )}
           </div>
@@ -824,7 +824,7 @@ export function ContributionsTable({
           >
             <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
               <h3 className="font-bold text-base text-slate-900">
-                {isBn ? "অনুদানের বিস্তারিত তথ্য" : "Contribution Details"}
+                {isBn ? "ডোনেশনের বিস্তারিত তথ্য" : "Contribution Details"}
               </h3>
               <button
                 type="button"
@@ -850,7 +850,7 @@ export function ContributionsTable({
 
               <div className="space-y-3 divide-y divide-slate-100 text-xs sm:text-sm">
                 <div className="pt-2 flex justify-between">
-                  <span className="text-slate-500 font-medium">{isBn ? "তহবিল:" : "Fund:"}</span>
+                  <span className="text-slate-500 font-medium">{isBn ? "ফান্ড:" : "Fund:"}</span>
                   <span className="font-bold text-slate-800">{selectedContribution.fundName}</span>
                 </div>
                 <div className="pt-2 flex justify-between">
@@ -939,7 +939,7 @@ export function ContributionsTable({
                 </div>
                 <div>
                   <h3 className="font-black text-base text-slate-900">
-                    {isBn ? "অনুদান ডিলিট করবেন?" : "Delete Contribution?"}
+                    {isBn ? "ডোনেশন ডিলিট করবেন?" : "Delete Contribution?"}
                   </h3>
                   <p className="text-xs text-slate-500 font-medium">
                     {formatMoney(contributionToDelete.amount)} • {contributionToDelete.giverName || "Member"}
@@ -959,7 +959,7 @@ export function ContributionsTable({
               {isBn
                 ? `আপনি কি নিশ্চিতভাবে এই ${formatMoney(
                     contributionToDelete.amount
-                  )} টাকার অনুদানের রেকর্ডটি ডিলিট করতে চান? ডিলিট করার পর তহবিলের ব্যালেন্স স্বয়ংক্রিয়ভাবে আপডেট হবে।`
+                  )} টাকার ডোনেশনের রেকর্ডটি ডিলিট করতে চান? ডিলিট করার পর ফান্ডের ব্যালেন্স স্বয়ংক্রিয়ভাবে আপডেট হবে।`
                 : `Are you sure you want to permanently delete this contribution of ${formatMoney(
                     contributionToDelete.amount
                   )}? The fund total and balance will be recalculated automatically.`}

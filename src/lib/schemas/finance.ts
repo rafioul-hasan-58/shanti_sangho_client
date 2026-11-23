@@ -27,9 +27,9 @@ export type PaymentMethod = ReceiveMethod;
 export const fundFormSchema = z.object({
   name: z
     .string()
-    .min(2, { message: "Fund name must be at least 2 characters / তহবিলের নাম দিন (কমপক্ষে ২ অক্ষর)" }),
+    .min(2, { message: "Fund name must be at least 2 characters / ফান্ডের নাম দিন (কমপক্ষে ২ অক্ষর)" }),
   category: z.enum(FUND_CATEGORIES, {
-    message: "Select a valid category / ক্যাটাগরি নির্বাচন করুন",
+    message: "Select a valid category / ক্যাটাগরি সিলেক্ট করুন",
   }),
   isActive: z.boolean().default(true),
 });
@@ -39,13 +39,13 @@ export type FundFormValues = z.output<typeof fundFormSchema>;
 
 export const contributionFormSchema = z
   .object({
-    fundId: z.string().min(1, { message: "Please select a fund / অনুগ্রহ করে একটি তহবিল নির্বাচন করুন" }),
+    fundId: z.string().min(1, { message: "Please select a fund / অনুগ্রহ করে একটি ফান্ড সিলেক্ট করুন" }),
     amount: z.coerce
       .number({ message: "Amount must be a valid number" })
       .int("Amount must be a whole number / টাকা পূর্ণ সংখ্যা হতে হবে")
       .positive("Amount must be greater than 0 / টাকার পরিমাণ ০-এর বেশি হতে হবে"),
     method: z.enum(PAYMENT_METHODS, {
-      message: "Select a payment method / পেমেন্ট মেথড নির্বাচন করুন",
+      message: "Select a payment method / পেমেন্ট মেথড সিলেক্ট করুন",
     }),
     receivedAt: z.string().min(1, { message: "Received date is required" }),
     giverType: z.enum(["MEMBER", "OUTSIDER"]),
@@ -60,7 +60,7 @@ export const contributionFormSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["giverMemberId"],
-        message: "Please select a club member / অনুগ্রহ করে ক্লাব সদস্য নির্বাচন করুন",
+        message: "Please select a club member / অনুগ্রহ করে ক্লাব সদস্য সিলেক্ট করুন",
       });
     }
     if (
@@ -79,7 +79,7 @@ export type ContributionFormInput = z.input<typeof contributionFormSchema>;
 export type ContributionFormValues = z.output<typeof contributionFormSchema>;
 
 export const expenseFormSchema = z.object({
-  fundId: z.string().min(1, { message: "Please select a fund / অনুগ্রহ করে একটি তহবিল নির্বাচন করুন" }),
+  fundId: z.string().min(1, { message: "Please select a fund / অনুগ্রহ করে একটি ফান্ড সিলেক্ট করুন" }),
   amount: z.coerce
     .number({ message: "Amount must be a valid number" })
     .int("Amount must be a whole number / টাকা পূর্ণ সংখ্যা হতে হবে")

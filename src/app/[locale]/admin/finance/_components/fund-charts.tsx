@@ -92,11 +92,11 @@ export function FundCharts({ funds, monthlyFlow, isBn = false }: FundChartsProps
               </div>
               <div>
                 <h3 className="font-bold text-sm sm:text-base text-slate-900 leading-tight">
-                  {isBn ? "তহবিল অনুযায়ী ব্যয় বণ্টন" : "Spending by Fund"}
+                  {isBn ? "ফান্ড অনুযায়ী ব্যয় বণ্টন" : "Spending by Fund"}
                 </h3>
                 <p className="text-[11px] text-slate-400 font-medium">
                   {isBn
-                    ? "কোন খাতে মোট কত টাকা ব্যয় ও অবশিষ্ট তহবিল আছে"
+                    ? "কোন খাতে মোট কত টাকা ব্যয় ও অবশিষ্ট ফান্ড আছে"
                     : "Expenditures and remaining balances across funds"}
                 </p>
               </div>
@@ -166,7 +166,7 @@ export function FundCharts({ funds, monthlyFlow, isBn = false }: FundChartsProps
                 </h3>
                 <p className="text-[11px] text-slate-400 font-medium">
                   {isBn
-                    ? "তহবিলে অর্থ সংগ্রহ ও খরচের মাসিক তুলনামূলক চিত্র"
+                    ? "ফান্ডে অর্থ সংগ্রহ ও খরচের মাসিক তুলনামূলক চিত্র"
                     : "Monthly cash inflows vs expenditures trend"}
                 </p>
               </div>

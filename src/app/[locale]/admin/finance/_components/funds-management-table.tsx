@@ -99,7 +99,7 @@ export function FundsManagementTable({
     if (hasTransactions) {
       setDeleteErrorMessage(
         isBn
-          ? "এই তহবিলে ইতিমধ্যে জমা বা খরচের হিসাব বিদ্যমান। লেনদেনযুক্ত তহবিল মোছা যাবে না; আপনি এটি নিষ্ক্রিয় বা আর্কাইভ করতে পারেন।"
+          ? "এই ফান্ডে ইতিমধ্যে জমা বা খরচের হিসাব বিদ্যমান। লেনদেনযুক্ত ফান্ড মোছা যাবে না; আপনি এটি নিষ্ক্রিয় বা আর্কাইভ করতে পারেন।"
           : "Cannot delete a fund with existing contributions or expenses. Please deactivate/archive it instead."
       );
       return;
@@ -113,7 +113,7 @@ export function FundsManagementTable({
         err instanceof Error
           ? err.message
           : isBn
-          ? "তহবিল মুছতে ব্যর্থ হয়েছে।"
+          ? "ফান্ড মুছতে ব্যর্থ হয়েছে।"
           : "Failed to delete fund.";
       setDeleteErrorMessage(msg);
     }
@@ -131,7 +131,7 @@ export function FundsManagementTable({
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder={isBn ? "তহবিলের নাম দিয়ে খুঁজুন..." : "Search funds by name..."}
+              placeholder={isBn ? "ফান্ডের নাম দিয়ে খুঁজুন..." : "Search funds by name..."}
               className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm font-semibold text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#006a4e]/20 focus:border-[#006a4e]"
             />
           </div>
@@ -170,7 +170,7 @@ export function FundsManagementTable({
             className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-[#006a4e] hover:bg-[#004d38] active:scale-95 text-white text-xs sm:text-sm font-bold shadow-xs transition-all cursor-pointer shrink-0"
           >
             <Plus className="w-4 h-4 stroke-[2.5]" />
-            <span>{isBn ? "নতুন তহবিল" : "New Fund"}</span>
+            <span>{isBn ? "নতুন ফান্ড" : "New Fund"}</span>
           </button>
         )}
       </div>
@@ -186,7 +186,7 @@ export function FundsManagementTable({
         ) : isError ? (
           <div className="p-8 text-center space-y-3">
             <p className="text-sm font-bold text-rose-600">
-              {isBn ? "তহবিল তালিকা লোড করতে সমস্যা হয়েছে।" : "Failed to load funds list."}
+              {isBn ? "ফান্ড তালিকা লোড করতে সমস্যা হয়েছে।" : "Failed to load funds list."}
             </p>
             <button
               type="button"
@@ -203,11 +203,11 @@ export function FundsManagementTable({
               <Layers className="w-6 h-6" />
             </div>
             <p className="text-sm font-bold text-slate-700">
-              {isBn ? "কোন তহবিল পাওয়া যায়নি" : "No funds match your filter"}
+              {isBn ? "কোন ফান্ড পাওয়া যায়নি" : "No funds match your filter"}
             </p>
             <p className="text-xs text-slate-400">
               {isBn
-                ? "নতুন তহবিল তৈরি করুন অথবা ফিল্টার পরিবর্তন করুন"
+                ? "নতুন ফান্ড তৈরি করুন অথবা ফিল্টার পরিবর্তন করুন"
                 : "Create a new fund or adjust your search filter"}
             </p>
           </div>
@@ -216,7 +216,7 @@ export function FundsManagementTable({
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-slate-100 bg-slate-50/70 text-[11px] font-black uppercase tracking-wider text-slate-500">
-                  <th className="py-3 px-4">{isBn ? "তহবিলের নাম ও ক্যাটাগরি" : "Fund & Category"}</th>
+                  <th className="py-3 px-4">{isBn ? "ফান্ডের নাম ও ক্যাটাগরি" : "Fund & Category"}</th>
                   <th className="py-3 px-4">{isBn ? "মোট সংগৃহীত" : "Total Raised"}</th>
                   <th className="py-3 px-4">{isBn ? "মোট ব্যয়িত" : "Total Spent"}</th>
                   <th className="py-3 px-4">{isBn ? "বর্তমান স্থিতি" : "Net Balance"}</th>
@@ -315,7 +315,7 @@ export function FundsManagementTable({
                           <Link
                             href={withLocaleHref(`/admin/finance/funds/${fund.id}`, locale)}
                             className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
-                            title={isBn ? "তহবিলের খতিয়ান দেখুন" : "View fund ledger"}
+                            title={isBn ? "ফান্ডের খতিয়ান দেখুন" : "View fund ledger"}
                           >
                             <Eye className="w-4 h-4" />
                           </Link>
@@ -385,11 +385,11 @@ export function FundsManagementTable({
 
             <div className="text-center space-y-1">
               <h3 className="text-base font-black text-slate-900">
-                {isBn ? "তহবিল ডিলিট করতে চান?" : "Delete Fund?"}
+                {isBn ? "ফান্ড ডিলিট করতে চান?" : "Delete Fund?"}
               </h3>
               <p className="text-xs text-slate-500">
                 {isBn
-                  ? `"${fundToDelete.name}" তহবিলটি স্থায়ীভাবে ডিলিট হয়ে যাবে।`
+                  ? `"${fundToDelete.name}" ফান্ডটি স্থায়ীভাবে ডিলিট হয়ে যাবে।`
                   : `Are you sure you want to permanently delete "${fundToDelete.name}"?`}
               </p>
             </div>

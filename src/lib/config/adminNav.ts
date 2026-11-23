@@ -157,7 +157,7 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
   {
     id: "finance",
     labelEn: "Finance",
-    labelBn: "ফাইন্যান্স ও তহবিল",
+    labelBn: "ফাইন্যান্স ও ফান্ড",
     shortLabelEn: "Finance",
     shortLabelBn: "ফাইন্যান্স",
     icon: WalletIcon,
