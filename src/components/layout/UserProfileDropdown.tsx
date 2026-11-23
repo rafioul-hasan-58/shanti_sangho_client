@@ -10,6 +10,7 @@ import UserAvatar from "./UserAvatar";
 import RoleBadge from "./RoleBadge";
 import VerifiedTick from "@/components/common/VerifiedTick";
 import { isAdminVerified, normalizeRole, hasDashboardAccess } from "@/lib/authRole";
+import { formatBloodGroupDisplay } from "@/lib/bloodGroup";
 
 interface UserProfileDropdownProps {
   user: AuthUser;
@@ -199,12 +200,7 @@ export default function UserProfileDropdown({
 
                   {user.bloodGroup && user.bloodGroup !== "UNKNOWN" && (
                     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 leading-relaxed">
-                      🩸 {user.bloodGroup}
-                    </span>
-                  )}
-                  {user.profession && (
-                    <span className="text-[10px] text-slate-500 font-medium truncate max-w-[120px] leading-relaxed">
-                      {user.profession}
+                      🩸 {formatBloodGroupDisplay(user.bloodGroup)}
                     </span>
                   )}
                 </div>

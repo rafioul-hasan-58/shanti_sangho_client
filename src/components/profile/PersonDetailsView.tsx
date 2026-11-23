@@ -7,6 +7,7 @@ import type { Locale } from "@/i18n/config";
 import type { PersonDetail } from "@/data/people";
 import { allPeople } from "@/data/people";
 import { BRAND_NAME_EN, FULL_BRAND_NAME_EN } from "@/lib/constants/site";
+import { formatBloodGroupDisplay } from "@/lib/bloodGroup";
 
 interface Props {
   person: PersonDetail;
@@ -215,7 +216,7 @@ export default function PersonDetailsView({ person, locale }: Props) {
                 {isBn ? "রক্তের গ্রুপ" : "Blood Group"}
               </p>
               <p className="text-xs sm:text-sm font-extrabold text-pitch leading-snug mt-0.5 break-words">
-                {person.bloodGroup}
+                {formatBloodGroupDisplay(person.bloodGroup)}
               </p>
             </div>
           </div>
