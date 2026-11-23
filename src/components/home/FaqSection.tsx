@@ -126,45 +126,22 @@ export default function FaqSection({ locale }: Props) {
       answerBn: (
         <div className="space-y-2.5 text-xs sm:text-sm text-slate-700 leading-relaxed font-sans">
           <p>
-            সাভারচালা শান্তি সংঘের আধুনিক অফিশিয়াল ওয়েবসাইট, ক্লাউড আর্কিটেকচার ও ডিজিটাল মেম্বার সিস্টেমের প্রধান রূপকার ও
-            লিড ইঞ্জিনিয়ার হলেন <strong>সৌরভ প্রধান (Sourav Prodhan / Rafioul Hasan)</strong>।
+            সৌরভ প্রধান সাভারচালা শান্তি সংঘের ওয়েবসাইটের Lead Engineer, Creator এবং মূল রক্ষণাবেক্ষণকারী। ওয়েবসাইটটির পরিকল্পনা, ডিজাইন, ডেভেলপমেন্ট থেকে শুরু করে যাবতীয় প্রযুক্তিগত কার্যক্রম ও রক্ষণাবেক্ষণের দায়িত্ব তিনি নিজেই পালন করেছেন।
           </p>
-          <div className="p-3 rounded-xl bg-white/80 border border-[#006a4e]/20 space-y-1.5 text-xs text-slate-600">
-            <p>
-              • <strong>ক্লাব দায়িত্ব:</strong> ক্লাবের যুগ্ম সাধারণ সম্পাদক (Joint Secretary), ওয়েবসাইট লিড ইঞ্জিনিয়ার
-              ও অফিশিয়াল ফেসবুক পেজের অ্যাডমিনিস্ট্রেটর।
-            </p>
-            <p>
-              • <strong>শিক্ষাজীবন:</strong> ময়মনসিংহ পলিটেকনিক ইনস্টিটিউট থেকে কম্পিউটার সায়েন্স অ্যান্ড টেকনোলজি (CST)
-              বিষয়ে ডিপ্লোমা ইন ইঞ্জিনিয়ারিং সম্পন্ন।
-            </p>
-            <p>
-              • <strong>পেশাগত ক্যারিয়ার:</strong> পূর্বে Betopia Group-এ ব্যাকএন্ড ইঞ্জিনিয়ার হিসেবে অভিজ্ঞতা অর্জনের পর
-              বর্তমানে <strong>MaxValid</strong>-এ রিমোট সফটওয়্যার ইঞ্জিনিয়ার হিসেবে কর্মরত রয়েছেন।
-            </p>
-          </div>
+          <p>
+            তিনি ময়মনসিংহ পলিটেকনিক ইনস্টিটিউট থেকে কম্পিউটার সায়েন্স অ্যান্ড টেকনোলজি (CST) বিভাগে ডিপ্লোমা ইন ইঞ্জিনিয়ারিং সম্পন্ন করেছেন। বর্তমানে তিনি একজন সফটওয়্যার ইঞ্জিনিয়ার হিসেবে কর্মরত রয়েছেন।
+          </p>
         </div>
       ),
+
       answerEn: (
         <div className="space-y-2.5 text-xs sm:text-sm text-slate-700 leading-relaxed font-sans">
           <p>
-            The Lead Software Engineer and platform architect behind Shavarchala Shanti Sangho&apos;s digital system and
-            official web platform is <strong>Sourav Prodhan (Rafioul Hasan)</strong>.
+            Sourav Prodhan is the Lead Engineer, Creator, and primary maintainer of the Shavarchala Shanti Sangha website. He has independently handled the website's planning, design, development, and all technical operations and maintenance.
           </p>
-          <div className="p-3 rounded-xl bg-white/80 border border-[#006a4e]/20 space-y-1.5 text-xs text-slate-600">
-            <p>
-              • <strong>Club Responsibilities:</strong> Joint General Secretary, Lead Software Engineer, and official
-              Facebook Administrator.
-            </p>
-            <p>
-              • <strong>Education:</strong> Diploma in Engineering in Computer Science &amp; Technology (CST) from
-              Mymensingh Polytechnic Institute.
-            </p>
-            <p>
-              • <strong>Professional Career:</strong> Following backend engineering experience at Betopia Group, he
-              currently works remotely as a Software Engineer at <strong>MaxValid</strong>.
-            </p>
-          </div>
+          <p>
+            He completed his Diploma in Engineering in Computer Science & Technology (CST) from Mymensingh Polytechnic Institute. He is currently working as a Software Engineer.
+          </p>
         </div>
       ),
     },
@@ -174,65 +151,28 @@ export default function FaqSection({ locale }: Props) {
       categoryEn: "Technology Stack",
       badgeBn: "Next.js 15 & Node.js",
       badgeEn: "Next.js 15 & Node.js",
-      questionBn: "এই ওয়েবসাইটটিতে কী কী আধুনিক প্রযুক্তি ব্যবহার করা হয়েছে?",
+      questionBn: "এই ওয়েবসাইটটিতে কী কী প্রযুক্তি ব্যবহার করা হয়েছে?",
       questionEn: "What technologies are used to build this website?",
+
       answerBn: (
-        <div className="space-y-3 text-xs sm:text-sm text-slate-700 leading-relaxed font-sans">
-          <p>
-            ওয়েবসাইটটি অত্যন্ত দ্রুতগতির, নিরাপদ ও সম্পূর্ণ আধুনিক ফুল-স্ট্যাক এন্টারপ্রাইজ প্রযুক্তি ব্যবহার করে
-            তৈরি করা হয়েছে:
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-            <div className="p-3 rounded-xl bg-white/80 border border-slate-200/90 shadow-2xs">
-              <span className="font-extrabold text-[#006a4e] block mb-1">ফ্রন্টএন্ড ও ইউআই</span>
-              <p className="text-slate-600">Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS, Lucide Icons</p>
-            </div>
-            <div className="p-3 rounded-xl bg-white/80 border border-slate-200/90 shadow-2xs">
-              <span className="font-extrabold text-[#006a4e] block mb-1">ব্যাকএন্ড ও এপিআই</span>
-              <p className="text-slate-600">Node.js, NestJS RESTful Architecture, JWT Auth, Token Rotation</p>
-            </div>
-            <div className="p-3 rounded-xl bg-white/80 border border-slate-200/90 shadow-2xs">
-              <span className="font-extrabold text-[#006a4e] block mb-1">ডাটাবেস ও ওআরএম</span>
-              <p className="text-slate-600">MongoDB Database, Prisma ORM (Type-safe client)</p>
-            </div>
-            <div className="p-3 rounded-xl bg-white/80 border border-slate-200/90 shadow-2xs">
-              <span className="font-extrabold text-[#006a4e] block mb-1">ক্লাউড ও নিরাপত্তা</span>
-              <p className="text-slate-600">Cloudinary CDN (1:1 WebP Crop), Google OAuth 2.0 Single Sign-On</p>
-            </div>
-          </div>
-          <p className="text-[11px] text-slate-500">
-            ফিচারসমূহের মধ্যে রয়েছে পূর্ণাঙ্গ দ্বিভাষিক (বাংলা ও ইংরেজি) সাপোর্ট, লাইভ ম্যাচ ও মেম্বার ডিরেক্টরি,
-            ইন্টারেক্টিভ ক্রপ ও রিয়েল-টাইম অ্যাডমিন ম্যানেজমেন্ট।
-          </p>
+        <div className="space-y-2.5 text-xs sm:text-sm text-slate-700 leading-relaxed font-sans">
+          <p>ওয়েবসাইটটি তৈরিতে ব্যবহৃত প্রধান প্রযুক্তিগুলো হলো:</p>
+          <p><strong>Frontend:</strong> Next.js 15, React 19, TypeScript, Tailwind CSS</p>
+          <p><strong>Backend:</strong> Node.js, NestJS, REST API, JWT Authentication</p>
+          <p><strong>Database:</strong> MongoDB, Prisma ORM</p>
+          <p><strong>Cloud & Authentication:</strong> Cloudinary, Google OAuth 2.0</p>
+          <p><strong>অন্যান্য:</strong> বাংলা ও ইংরেজি ভাষা সাপোর্ট, অ্যাডমিন ড্যাশবোর্ড ও মেম্বার ম্যানেজমেন্ট।</p>
         </div>
       ),
+
       answerEn: (
-        <div className="space-y-3 text-xs sm:text-sm text-slate-700 leading-relaxed font-sans">
-          <p>
-            The website is engineered with a high-performance, responsive, and secure full-stack architecture:
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-            <div className="p-3 rounded-xl bg-white/80 border border-slate-200/90 shadow-2xs">
-              <span className="font-extrabold text-[#006a4e] block mb-1">Frontend &amp; UI</span>
-              <p className="text-slate-600">Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS, Lucide Icons</p>
-            </div>
-            <div className="p-3 rounded-xl bg-white/80 border border-slate-200/90 shadow-2xs">
-              <span className="font-extrabold text-[#006a4e] block mb-1">Backend &amp; APIs</span>
-              <p className="text-slate-600">Node.js, NestJS RESTful Architecture, JWT Auth, Token Rotation</p>
-            </div>
-            <div className="p-3 rounded-xl bg-white/80 border border-slate-200/90 shadow-2xs">
-              <span className="font-extrabold text-[#006a4e] block mb-1">Database &amp; ORM</span>
-              <p className="text-slate-600">MongoDB Database, Prisma ORM with strict schema models</p>
-            </div>
-            <div className="p-3 rounded-xl bg-white/80 border border-slate-200/90 shadow-2xs">
-              <span className="font-extrabold text-[#006a4e] block mb-1">Cloud &amp; Media</span>
-              <p className="text-slate-600">Cloudinary CDN (1:1 WebP image optimization), Google OAuth 2.0 SSO</p>
-            </div>
-          </div>
-          <p className="text-[11px] text-slate-500">
-            Key capabilities include seamless English/Bangla bilingual localization, role-based admin dashboard,
-            interactive photo cropper, and live streaming match hubs.
-          </p>
+        <div className="space-y-2.5 text-xs sm:text-sm text-slate-700 leading-relaxed font-sans">
+          <p>The website is built using the following technologies:</p>
+          <p><strong>Frontend:</strong> Next.js 15, React 19, TypeScript, Tailwind CSS</p>
+          <p><strong>Backend:</strong> Node.js, NestJS, REST API, JWT Authentication</p>
+          <p><strong>Database:</strong> MongoDB, Prisma ORM</p>
+          <p><strong>Cloud & Authentication:</strong> Cloudinary, Google OAuth 2.0</p>
+          <p><strong>Other Features:</strong> Bangla and English support, admin dashboard, and member management.</p>
         </div>
       ),
     },
@@ -373,19 +313,18 @@ export default function FaqSection({ locale }: Props) {
             const answer = isBn ? item.answerBn : item.answerEn;
             const action = item.actionLink
               ? {
-                  href: item.actionLink.href,
-                  label: isBn ? item.actionLink.labelBn : item.actionLink.labelEn,
-                }
+                href: item.actionLink.href,
+                label: isBn ? item.actionLink.labelBn : item.actionLink.labelEn,
+              }
               : null;
 
             return (
               <div
                 key={item.id}
-                className={`rounded-xl sm:rounded-2xl border transition-all duration-200 overflow-hidden ${
-                  isOpen
-                    ? "bg-white border-[#006a4e]/35 shadow-md"
-                    : "bg-white/90 hover:bg-white border-[#006a4e]/15 hover:border-[#006a4e]/30 shadow-2xs"
-                }`}
+                className={`rounded-xl sm:rounded-2xl border transition-all duration-200 overflow-hidden ${isOpen
+                  ? "bg-white border-[#006a4e]/35 shadow-md"
+                  : "bg-white/90 hover:bg-white border-[#006a4e]/15 hover:border-[#006a4e]/30 shadow-2xs"
+                  }`}
               >
                 {/* Accordion Trigger Header: Compact balanced mobile padding */}
                 <button
@@ -395,20 +334,18 @@ export default function FaqSection({ locale }: Props) {
                   className="w-full px-3.5 sm:px-6 py-3 sm:py-4.5 flex items-center justify-between gap-2.5 sm:gap-4 text-left transition-colors cursor-pointer select-none group"
                 >
                   <h3
-                    className={`font-bold text-[13px] sm:text-base leading-snug transition-colors pr-1 sm:pr-2 flex-1 ${
-                      isOpen ? "text-[#006a4e]" : "text-pitch group-hover:text-[#006a4e]"
-                    }`}
+                    className={`font-bold text-[13px] sm:text-base leading-snug transition-colors pr-1 sm:pr-2 flex-1 ${isOpen ? "text-[#006a4e]" : "text-pitch group-hover:text-[#006a4e]"
+                      }`}
                   >
                     {question}
                   </h3>
 
                   {/* Toggle Arrow Pill */}
                   <span
-                    className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center shrink-0 border transition-transform duration-200 ${
-                      isOpen
-                        ? "bg-[#006a4e] text-white border-[#006a4e] rotate-180"
-                        : "bg-slate-100 text-slate-600 border-slate-200 group-hover:bg-[#006a4e]/10 group-hover:text-[#006a4e]"
-                    }`}
+                    className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center shrink-0 border transition-transform duration-200 ${isOpen
+                      ? "bg-[#006a4e] text-white border-[#006a4e] rotate-180"
+                      : "bg-slate-100 text-slate-600 border-slate-200 group-hover:bg-[#006a4e]/10 group-hover:text-[#006a4e]"
+                      }`}
                   >
                     <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
