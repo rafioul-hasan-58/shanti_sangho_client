@@ -20,7 +20,7 @@ import {
 import { useFunds, useUpdateFund, useDeleteFund } from "@/lib/hooks/use-finance";
 import type { Fund } from "@/lib/api/finance";
 import { FUND_CATEGORIES, type FundCategory } from "@/lib/schemas/finance";
-import { formatMoney } from "@/lib/format";
+import { formatMoney, formatFundCategory } from "@/lib/format";
 import { withLocaleHref } from "@/lib/config/adminNav";
 import { FundFormDialog } from "./fund-form-dialog";
 
@@ -246,8 +246,8 @@ export function FundsManagementTable({
                             {fund.name}
                           </Link>
                           <div className="flex items-center gap-1.5">
-                            <span className="inline-block px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-slate-100 text-slate-600 uppercase tracking-wider">
-                              {fund.category}
+                            <span className="inline-block px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600 tracking-wide">
+                              {formatFundCategory(fund.category, isBn)}
                             </span>
                             {isLow && (
                               <span className="inline-flex items-center gap-0.5 px-1 py-0.5 rounded text-[9px] font-black bg-amber-50 text-amber-700 border border-amber-200">

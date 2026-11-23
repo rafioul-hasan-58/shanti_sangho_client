@@ -21,7 +21,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { useFund, useUpdateFund, useDeleteFund } from "@/lib/hooks/use-finance";
-import { formatMoney } from "@/lib/format";
+import { formatMoney, formatFundCategory } from "@/lib/format";
 import { ContributionsTable } from "./contributions-table";
 import { ExpensesTable } from "./expenses-table";
 import { ContributionFormSheet } from "./contribution-form-sheet";
@@ -120,8 +120,8 @@ export function FundDetailClient({ fundId, locale }: FundDetailClientProps) {
         {/* Left: Fund Info & Remaining */}
         <div className="space-y-2">
           <div className="flex items-center gap-2.5 flex-wrap">
-            <span className="px-2.5 py-0.5 rounded-lg bg-[#006a4e] text-white font-black text-xs uppercase tracking-wider shadow-xs">
-              {fund.category || "OTHER"}
+            <span className="px-2.5 py-0.5 rounded-lg bg-[#006a4e] text-white font-bold text-xs tracking-wide shadow-xs">
+              {formatFundCategory(fund.category, isBn)}
             </span>
             <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-slate-900 tracking-tight">
               {fund.name}
@@ -151,9 +151,9 @@ export function FundDetailClient({ fundId, locale }: FundDetailClientProps) {
 
         {/* Right: Raised vs Spent Mini-stats & Action Buttons */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-          {/* Mini stats box */}
-          <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 flex items-center gap-4 sm:gap-6">
-            <div className="space-y-0.5">
+          {/* Mini stats box: 50-50 width on mobile */}
+          <div className="w-full sm:w-auto p-3.5 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between sm:justify-start gap-4 sm:gap-6">
+            <div className="flex-1 text-center sm:text-left space-y-0.5">
               <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
                 {isBn ? "মোট সংগ্রহ" : "Total Raised"}
               </span>
@@ -161,8 +161,8 @@ export function FundDetailClient({ fundId, locale }: FundDetailClientProps) {
                 + {formatMoney(fund.totalIn)}
               </span>
             </div>
-            <div className="w-px h-8 bg-slate-200" />
-            <div className="space-y-0.5">
+            <div className="w-px h-8 bg-slate-200 shrink-0" />
+            <div className="flex-1 text-center sm:text-left space-y-0.5">
               <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
                 {isBn ? "মোট ব্যয়" : "Total Spent"}
               </span>

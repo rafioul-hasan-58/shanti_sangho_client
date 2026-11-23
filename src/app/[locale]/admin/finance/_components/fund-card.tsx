@@ -15,7 +15,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import type { Fund } from "@/lib/api/finance";
-import { formatMoney } from "@/lib/format";
+import { formatMoney, formatFundCategory } from "@/lib/format";
 import { withLocaleHref } from "@/lib/config/adminNav";
 import { useUpdateFund, useDeleteFund } from "@/lib/hooks/use-finance";
 import { FundFormDialog } from "./fund-form-dialog";
@@ -199,9 +199,9 @@ export function FundCard({ fund, locale }: FundCardProps) {
             <div className="flex items-center justify-between gap-1.5 mb-2 relative">
               <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
                 <span
-                  className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-black tracking-wider uppercase ${palette.badge}`}
+                  className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-bold tracking-wide ${palette.badge}`}
                 >
-                  {category}
+                  {formatFundCategory(category, isBn)}
                 </span>
 
                 {!fund.isActive && (

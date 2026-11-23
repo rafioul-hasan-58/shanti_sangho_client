@@ -59,3 +59,34 @@ export function formatDate(
 export function formatMonthYear(date: string | Date | null | undefined): string {
   return formatDate(date, "MMM yyyy");
 }
+
+/**
+ * Format a fund category enum (e.g. "IFTER_MAHFIL", "OWAJ", "SPORTS") into a user-friendly label.
+ */
+export function formatFundCategory(
+  category: string | null | undefined,
+  isBn: boolean = false
+): string {
+  if (!category) return isBn ? "অন্যান্য" : "Other";
+  const norm = category.toUpperCase().trim();
+  switch (norm) {
+    case "IFTER_MAHFIL":
+      return isBn ? "ইফতার মাহফিল" : "Iftar Mahfil";
+    case "OWAJ":
+      return isBn ? "ওয়াজ মাহফিল" : "Owaj Mahfil";
+    case "SPORTS":
+      return isBn ? "খেলাধুলা" : "Sports";
+    case "FOOTBALL":
+      return isBn ? "ফুটবল" : "Football";
+    case "GPL":
+      return isBn ? "জিপিএল" : "GPL";
+    case "OTHERS":
+    case "OTHER":
+      return isBn ? "অন্যান্য" : "Others";
+    default:
+      return norm
+        .split("_")
+        .map((w) => w.charAt(0) + w.slice(1).toLowerCase())
+        .join(" ");
+  }
+}

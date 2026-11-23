@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
@@ -29,7 +30,7 @@ import {
   type ExpenseFormValues,
 } from "@/lib/schemas/finance";
 import { MemberCombobox } from "./member-combobox";
-import { formatMoney } from "@/lib/format";
+import { formatMoney, formatFundCategory } from "@/lib/format";
 
 interface ExpenseFormSheetProps {
   isOpen: boolean;
@@ -46,6 +47,10 @@ export function ExpenseFormSheet({
   expenseToEdit,
   isBn = false,
 }: ExpenseFormSheetProps) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   const isEditing = Boolean(expenseToEdit);
   const { user } = useAuth();
   const { data: funds = [], isLoading: isLoadingFunds } = useFunds();
@@ -213,27 +218,27 @@ export function ExpenseFormSheet({
     }
   };
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
-  return (
+  return createPortal(
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 overflow-hidden bg-black/60 backdrop-blur-xs flex justify-end animate-fadeIn"
+      className="fixed inset-0 z-[100] overflow-hidden bg-black/60 backdrop-blur-xs flex justify-end animate-fadeIn"
       onClick={handleAttemptClose}
     >
       <div
-        className="w-full max-w-lg h-full bg-white shadow-2xl flex flex-col border-l border-slate-200 animate-slideInRight"
+        className="w-full max-w-lg h-[100dvh] max-h-[100dvh] bg-white shadow-2xl flex flex-col border-l border-slate-200 animate-slideInRight"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
-        <header className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-rose-100/70 text-[#f42a41]">
+        {/* Header - Colorful Crimson Gradient */}
+        <header className="px-5 py-4 border-b border-rose-800/20 flex items-center justify-between bg-gradient-to-r from-rose-700 via-[#f42a41] to-red-800 text-white shrink-0 shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-2xl bg-white/15 text-white border border-white/20 shadow-xs">
               {isEditing ? <Edit3 className="w-5 h-5 stroke-[2.5]" /> : <Receipt className="w-5 h-5 stroke-[2.5]" />}
             </div>
             <div>
-              <h2 className="font-black text-base sm:text-lg text-slate-900 leading-tight">
+              <h2 className="font-black text-base sm:text-lg text-white leading-tight">
                 {isEditing
                   ? isBn
                     ? "খরচ এডিট করুন"
@@ -242,7 +247,7 @@ export function ExpenseFormSheet({
                   ? "নতুন ব্যয়ের হিসাব যোগ করুন"
                   : "Add Expense"}
               </h2>
-              <p className="text-xs text-slate-500 font-medium">
+              <p className="text-xs text-rose-100 font-medium">
                 {isEditing
                   ? isBn
                     ? "ব্যয়ের বিবরণ, পরিমাণ বা রসিদ সংশোধন করুন"
@@ -257,7 +262,7 @@ export function ExpenseFormSheet({
             type="button"
             onClick={handleAttemptClose}
             aria-label="Close"
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors"
+            className="p-2 rounded-xl text-white/80 hover:text-white hover:bg-white/15 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -292,7 +297,7 @@ export function ExpenseFormSheet({
               </option>
               {funds.map((f) => (
                 <option key={f.id} value={f.id}>
-                  {f.name} [{f.category || "OTHER"}] (Remaining: {formatMoney(f.remaining)})
+                  {f.name} [{formatFundCategory(f.category, isBn)}] (Remaining: {formatMoney(f.remaining)})
                 </option>
               ))}
             </select>
@@ -515,8 +520,8 @@ export function ExpenseFormSheet({
           </div>
         </form>
 
-        {/* Sticky Footer Actions */}
-        <footer className="p-4 sm:p-5 border-t border-slate-100 bg-slate-50/90 flex items-center justify-between gap-3">
+        {/* Sticky Footer Actions with Safe Mobile Padding */}
+        <footer className="p-4 sm:p-5 pb-6 sm:pb-5 border-t border-slate-200 bg-white/95 backdrop-blur-xs flex items-center justify-between gap-3 shrink-0 shadow-lg">
           <button
             type="button"
             onClick={handleAttemptClose}
@@ -534,7 +539,7 @@ export function ExpenseFormSheet({
                 ? updateExpenseMutation.isPending
                 : addExpenseMutation.isPending
             }
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-[#006a4e] hover:bg-[#004d38] active:scale-95 disabled:opacity-50 text-white text-xs sm:text-sm font-bold shadow-md transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f2b705]"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 via-[#f42a41] to-red-700 hover:from-rose-700 hover:to-red-800 active:scale-95 disabled:opacity-50 text-white text-xs sm:text-sm font-black shadow-lg shadow-rose-900/20 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f2b705]"
           >
             {(isEditing
               ? updateExpenseMutation.isPending
@@ -597,6 +602,7 @@ export function ExpenseFormSheet({
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

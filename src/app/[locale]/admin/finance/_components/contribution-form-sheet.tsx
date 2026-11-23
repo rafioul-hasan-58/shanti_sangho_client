@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
@@ -16,7 +17,8 @@ import {
   type PaymentMethod,
 } from "@/lib/schemas/finance";
 import { MemberCombobox } from "./member-combobox";
-import { formatMoney } from "@/lib/format";
+import { PaymentMethodLogo } from "./payment-method-logo";
+import { formatMoney, formatFundCategory } from "@/lib/format";
 
 interface ContributionFormSheetProps {
   isOpen: boolean;
@@ -33,6 +35,10 @@ export function ContributionFormSheet({
   contributionToEdit,
   isBn = false,
 }: ContributionFormSheetProps) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   const isEditing = Boolean(contributionToEdit);
   const { user } = useAuth();
   const { data: funds = [], isLoading: isLoadingFunds } = useFunds();
@@ -166,27 +172,27 @@ export function ContributionFormSheet({
     }
   };
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
-  return (
+  return createPortal(
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 overflow-hidden bg-black/60 backdrop-blur-xs flex justify-end animate-fadeIn"
+      className="fixed inset-0 z-[100] overflow-hidden bg-black/60 backdrop-blur-xs flex justify-end animate-fadeIn"
       onClick={handleAttemptClose}
     >
       <div
-        className="w-full max-w-lg h-full bg-white shadow-2xl flex flex-col border-l border-slate-200 animate-slideInRight"
+        className="w-full max-w-lg h-[100dvh] max-h-[100dvh] bg-white shadow-2xl flex flex-col border-l border-slate-200 animate-slideInRight"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
-        <header className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-emerald-100/70 text-[#006a4e]">
+        {/* Header - Colorful Branded Emerald Gradient */}
+        <header className="px-5 py-4 border-b border-emerald-800/20 flex items-center justify-between bg-gradient-to-r from-emerald-700 via-[#006a4e] to-teal-800 text-white shrink-0 shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-2xl bg-white/15 text-white border border-white/20 shadow-xs">
               {isEditing ? <Edit3 className="w-5 h-5 stroke-[2.5]" /> : <Plus className="w-5 h-5 stroke-[2.5]" />}
             </div>
             <div>
-              <h2 className="font-black text-base sm:text-lg text-slate-900 leading-tight">
+              <h2 className="font-black text-base sm:text-lg text-white leading-tight">
                 {isEditing
                   ? isBn
                     ? "অনুদান এডিট করুন"
@@ -195,7 +201,7 @@ export function ContributionFormSheet({
                   ? "নতুন অনুদান জমা করুন"
                   : "Add Contribution"}
               </h2>
-              <p className="text-xs text-slate-500 font-medium">
+              <p className="text-xs text-emerald-100 font-medium">
                 {isEditing
                   ? isBn
                     ? "অনুদানের বিবরণ ও রেফারেন্স সংশোধন করুন"
@@ -210,7 +216,7 @@ export function ContributionFormSheet({
             type="button"
             onClick={handleAttemptClose}
             aria-label="Close"
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors"
+            className="p-2 rounded-xl text-white/80 hover:text-white hover:bg-white/15 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -245,7 +251,7 @@ export function ContributionFormSheet({
               </option>
               {funds.map((f) => (
                 <option key={f.id} value={f.id}>
-                  {f.name} [{f.category || "OTHER"}] (Balance: {formatMoney(f.remaining)})
+                  {f.name} [{formatFundCategory(f.category, isBn)}] (Balance: {formatMoney(f.remaining)})
                 </option>
               ))}
             </select>
@@ -256,14 +262,14 @@ export function ContributionFormSheet({
             )}
           </div>
 
-          {/* Amount (Taka) */}
-          <div>
-            <label className="text-xs font-bold text-slate-700 block mb-1.5">
+          {/* Amount (Taka) - Colorful Branded Highlight Card */}
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-br from-emerald-500/10 via-teal-500/5 to-transparent border border-emerald-200/90 space-y-2">
+            <label className="text-xs font-black text-emerald-900 uppercase tracking-wider block">
               {isBn ? "টাকার পরিমাণ (টাকা)" : "Amount (Taka)"}{" "}
               <span className="text-[#f42a41]">*</span>
             </label>
             <div className="relative">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-black text-slate-400 text-sm">
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-black text-emerald-700 text-lg">
                 ৳
               </span>
               <input
@@ -271,37 +277,69 @@ export function ContributionFormSheet({
                 step="1"
                 placeholder="0"
                 {...register("amount")}
-                className="w-full pl-8 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-base font-black text-slate-900 tracking-tight tabular-nums placeholder:text-slate-300 focus:outline-none focus:border-[#006a4e] focus:ring-2 focus:ring-[#006a4e]/20 transition-all"
+                className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-emerald-300/80 bg-white text-base font-black text-slate-900 tracking-tight tabular-nums placeholder:text-slate-300 focus:outline-none focus:border-[#006a4e] focus:ring-2 focus:ring-[#006a4e]/20 transition-all shadow-xs"
               />
             </div>
+            {/* Quick Amount Suggestion Chips */}
+            <div className="flex items-center gap-1.5 flex-wrap pt-0.5">
+              {[500, 1000, 2000, 5000].map((amt) => (
+                <button
+                  key={amt}
+                  type="button"
+                  onClick={() => {
+                    const current = Number(watch("amount")) || 0;
+                    setValue("amount", (current + amt) as unknown as number, { shouldValidate: true, shouldDirty: true });
+                  }}
+                  className="px-2.5 py-1 rounded-lg bg-white border border-emerald-200 text-[11px] font-bold text-emerald-800 hover:bg-emerald-50 active:scale-95 shadow-2xs transition-all cursor-pointer"
+                >
+                  +{formatMoney(amt)}
+                </button>
+              ))}
+            </div>
             {errors.amount && (
-              <p className="text-[11px] font-semibold text-[#f42a41] mt-1">
+              <p className="text-[11px] font-semibold text-[#f42a41]">
                 {errors.amount.message}
               </p>
             )}
           </div>
 
-          {/* Payment Method Segmented Control */}
+          {/* Payment Method Selector with Crisp Brand Logos */}
           <div>
-            <label className="text-xs font-bold text-slate-700 block mb-1.5">
+            <label className="text-xs font-bold text-slate-700 block mb-2">
               {isBn ? "পেমেন্ট মেথড" : "Payment Method"}{" "}
               <span className="text-[#f42a41]">*</span>
             </label>
-            <div className="grid grid-cols-5 gap-1.5 p-1 rounded-xl bg-slate-100 border border-slate-200">
+            <div className="grid grid-cols-5 gap-1.5 sm:gap-2">
               {PAYMENT_METHODS.map((m) => {
                 const isSelected = selectedMethod === m;
+                const getMethodName = () => {
+                  switch (m) {
+                    case "BKASH":
+                      return isBn ? "বিকাশ" : "bKash";
+                    case "NAGAD":
+                      return isBn ? "নগদ" : "Nagad";
+                    case "CASH":
+                      return isBn ? "ক্যাশ" : "Cash";
+                    case "BANK":
+                      return isBn ? "ব্যাংক" : "Bank";
+                    default:
+                      return isBn ? "অন্যান্য" : "Other";
+                  }
+                };
+
                 return (
                   <button
                     key={m}
                     type="button"
-                    onClick={() => setValue("method", m, { shouldValidate: true })}
-                    className={`py-1.5 px-1 rounded-lg text-xs font-bold text-center transition-all cursor-pointer ${
+                    onClick={() => setValue("method", m, { shouldValidate: true, shouldDirty: true })}
+                    className={`flex flex-col items-center justify-center gap-1.5 p-2 rounded-xl border transition-all cursor-pointer ${
                       isSelected
-                        ? "bg-white text-[#006a4e] shadow-xs"
-                        : "text-slate-600 hover:text-slate-900"
+                        ? "bg-[#006a4e]/10 border-[#006a4e] text-[#006a4e] shadow-xs font-black ring-2 ring-[#006a4e]/20"
+                        : "bg-slate-50/80 hover:bg-white border-slate-200 text-slate-600 hover:border-slate-300 font-bold"
                     }`}
                   >
-                    {m === "BKASH" ? "bKash" : m === "NAGAD" ? "Nagad" : m}
+                    <PaymentMethodLogo method={m} className="w-5 h-5 shrink-0" />
+                    <span className="text-[11px] truncate">{getMethodName()}</span>
                   </button>
                 );
               })}
@@ -450,8 +488,8 @@ export function ContributionFormSheet({
           </div>
         </form>
 
-        {/* Sticky Footer Actions */}
-        <footer className="p-4 sm:p-5 border-t border-slate-100 bg-slate-50/90 flex items-center justify-between gap-3">
+        {/* Sticky Footer Actions with Safe Mobile Padding */}
+        <footer className="p-4 sm:p-5 pb-6 sm:pb-5 border-t border-slate-200 bg-white/95 backdrop-blur-xs flex items-center justify-between gap-3 shrink-0 shadow-lg">
           <button
             type="button"
             onClick={handleAttemptClose}
@@ -469,7 +507,7 @@ export function ContributionFormSheet({
                 ? updateContributionMutation.isPending
                 : addContributionMutation.isPending
             }
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-[#006a4e] hover:bg-[#004d38] active:scale-95 disabled:opacity-50 text-white text-xs sm:text-sm font-bold shadow-md transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f2b705]"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#006a4e] via-emerald-600 to-teal-600 hover:from-[#00523c] hover:to-teal-700 active:scale-95 disabled:opacity-50 text-white text-xs sm:text-sm font-black shadow-lg shadow-emerald-900/20 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f2b705]"
           >
             {(isEditing
               ? updateContributionMutation.isPending
@@ -532,6 +570,7 @@ export function ContributionFormSheet({
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
