@@ -1,5 +1,6 @@
 import React from "react";
 import type { PaymentMethod } from "@/lib/schemas/finance";
+import { PaymentMethodLogo } from "./payment-method-logo";
 
 interface MethodBadgeProps {
   method: PaymentMethod | string;
@@ -12,47 +13,41 @@ export function MethodBadge({ method, className = "", isBn = false }: MethodBadg
 
   let labelEn = "Other";
   let labelBn = "অন্যান্য";
-  let colorClasses = "bg-slate-100 text-slate-700 border-slate-200";
-  let dotColor = "bg-slate-400";
+  let colorClasses = "bg-slate-100/90 text-slate-700 border-slate-200";
 
   switch (normalized) {
     case "CASH":
       labelEn = "Cash";
-      labelBn = "নগদ ক্যাশ";
-      colorClasses = "bg-emerald-50 text-emerald-800 border-emerald-200";
-      dotColor = "bg-emerald-600";
+      labelBn = "ক্যাশ";
+      colorClasses = "bg-emerald-50 text-emerald-800 border-emerald-200/80";
       break;
     case "BANK":
       labelEn = "Bank";
       labelBn = "ব্যাংক";
-      colorClasses = "bg-blue-50 text-blue-800 border-blue-200";
-      dotColor = "bg-blue-600";
+      colorClasses = "bg-blue-50 text-blue-800 border-blue-200/80";
       break;
     case "BKASH":
       labelEn = "bKash";
       labelBn = "বিকাশ";
-      colorClasses = "bg-pink-50 text-[#e2136e] border-pink-200";
-      dotColor = "bg-[#e2136e]";
+      colorClasses = "bg-pink-50 text-[#e2136e] border-pink-200/80";
       break;
     case "NAGAD":
       labelEn = "Nagad";
       labelBn = "নগদ";
-      colorClasses = "bg-amber-50 text-amber-800 border-amber-200";
-      dotColor = "bg-amber-600";
+      colorClasses = "bg-amber-50 text-amber-900 border-amber-200/80";
       break;
     default:
       labelEn = "Other";
       labelBn = "অন্যান্য";
-      colorClasses = "bg-slate-100 text-slate-700 border-slate-200";
-      dotColor = "bg-slate-400";
+      colorClasses = "bg-purple-50 text-purple-800 border-purple-200/80";
       break;
   }
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${colorClasses} ${className}`}
+      className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg text-[11px] font-bold border ${colorClasses} ${className}`}
     >
-      <span className={`w-1.5 h-1.5 rounded-full ${dotColor}`} aria-hidden="true" />
+      <PaymentMethodLogo method={normalized} className="w-3.5 h-3.5" />
       <span>{isBn ? labelBn : labelEn}</span>
     </span>
   );

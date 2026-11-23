@@ -181,6 +181,32 @@ export function ExpensesTable({
             </div>
           )}
 
+          {/* Quick Date Presets (Moved to first line next to fund filter) */}
+          <div className="inline-flex items-center gap-1 bg-slate-100 p-0.5 rounded-xl border border-slate-200/60 text-[11px] font-bold">
+            <button
+              type="button"
+              onClick={() => handleDatePreset("TODAY")}
+              className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${
+                isTodayActive
+                  ? "bg-white text-[#006a4e] shadow-2xs font-black"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              {isBn ? "আজ" : "Today"}
+            </button>
+            <button
+              type="button"
+              onClick={() => handleDatePreset("THIS_MONTH")}
+              className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${
+                isMonthActive
+                  ? "bg-white text-[#006a4e] shadow-2xs font-black"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              {isBn ? "এই মাস" : "This Month"}
+            </button>
+          </div>
+
           {/* Date Range Picker Pill with Branded From/To inputs */}
           <div className="inline-flex items-center gap-1.5 p-1 rounded-xl border border-slate-200/90 bg-slate-50 hover:bg-white text-xs shadow-2xs transition-colors">
             <Calendar className="w-3.5 h-3.5 text-[#006a4e] ml-1.5 shrink-0" />
@@ -229,32 +255,6 @@ export function ExpensesTable({
                 <X className="w-3 h-3" />
               </button>
             )}
-          </div>
-
-          {/* Quick Date Presets */}
-          <div className="inline-flex items-center gap-1 bg-slate-100 p-0.5 rounded-xl border border-slate-200/60 text-[11px] font-bold">
-            <button
-              type="button"
-              onClick={() => handleDatePreset("TODAY")}
-              className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${
-                isTodayActive
-                  ? "bg-white text-[#006a4e] shadow-2xs font-black"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
-            >
-              {isBn ? "আজ" : "Today"}
-            </button>
-            <button
-              type="button"
-              onClick={() => handleDatePreset("THIS_MONTH")}
-              className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${
-                isMonthActive
-                  ? "bg-white text-[#006a4e] shadow-2xs font-black"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
-            >
-              {isBn ? "এই মাস" : "This Month"}
-            </button>
           </div>
 
           {/* Clear Filters Reset Button */}
