@@ -7,6 +7,8 @@ import {
   FolderTree,
   ArrowLeft,
   FolderPlus,
+  ArrowUpRight,
+  Wallet,
 } from "lucide-react";
 import { useFunds } from "@/lib/hooks/use-finance";
 import { useAuth } from "@/context/AuthContext";
@@ -66,7 +68,7 @@ export function AllFundsPageClient({ locale }: AllFundsPageClientProps) {
               <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 tracking-tight">
                 {isBn ? "ক্লাবের সকল ফান্ড" : "All Club Funds"}
               </h1>
-              <span className="px-2 py-0.5 rounded-full text-xs font-extrabold bg-emerald-100/80 text-[#006a4e]">
+              <span className="px-2 py-0.5 rounded-full text-xs font-extrabold bg-emerald-100/90 text-[#006a4e]">
                 {funds.length}
               </span>
             </div>
@@ -91,37 +93,82 @@ export function AllFundsPageClient({ locale }: AllFundsPageClientProps) {
         </div>
       </div>
 
-      {/* 3. Quick Stats Summary Ribbon */}
-      <div className="grid grid-cols-3 gap-2.5 sm:gap-4">
-        <div className="p-3 sm:p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs">
-          <p className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-400">
-            {isBn ? "মোট ফান্ড" : "Total Funds"}
-          </p>
-          <p className="text-sm sm:text-lg font-black text-slate-900 mt-0.5">
-            {funds.length} <span className="text-[11px] sm:text-xs font-semibold text-slate-400">({activeCount} {isBn ? "সক্রিয়" : "active"})</span>
-          </p>
+      {/* 3. Colorful Quick Stats Summary Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+        {/* Card 1: Total Funds (Teal/Emerald Gradient) */}
+        <div className="rounded-2xl border border-teal-200/90 bg-gradient-to-br from-teal-50/95 via-white to-emerald-50/70 shadow-xs hover:shadow-md transition-all overflow-hidden flex flex-col justify-between">
+          <div className="h-1.5 w-full bg-gradient-to-r from-teal-600 via-[#006a4e] to-emerald-400" />
+          <div className="p-4 sm:p-5 flex flex-col justify-between flex-1">
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <span className="text-[11px] sm:text-xs font-black uppercase tracking-wider text-teal-800">
+                {isBn ? "মোট ফান্ড" : "Total Funds"}
+              </span>
+              <div className="p-2 rounded-xl bg-gradient-to-tr from-teal-600 to-emerald-500 text-white shadow-md shadow-teal-700/20 flex items-center justify-center shrink-0">
+                <FolderTree className="w-4 h-4 stroke-[2.4]" />
+              </div>
+            </div>
+            <div className="flex items-baseline gap-2 my-1">
+              <span className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                {funds.length}
+              </span>
+              <span className="text-xs font-bold text-teal-700">
+                ({activeCount} {isBn ? "সক্রিয়" : "active"})
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-500 font-medium mt-1">
+              {isBn ? "ক্লাবের সকল সংরক্ষিত ফান্ড ও প্রজেক্ট" : "All registered club funds & projects"}
+            </p>
+          </div>
         </div>
 
-        <div className="p-3 sm:p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs">
-          <p className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-400">
-            {isBn ? "মোট সংগৃহীত" : "Total Raised"}
-          </p>
-          <p className="text-sm sm:text-lg font-black text-emerald-700 mt-0.5">
-            + {formatMoney(totalRaised)}
-          </p>
+        {/* Card 2: Total Raised (Emerald Gradient) */}
+        <div className="rounded-2xl border border-emerald-300 bg-gradient-to-br from-emerald-50/95 via-white to-emerald-100/50 shadow-xs hover:shadow-md transition-all overflow-hidden flex flex-col justify-between">
+          <div className="h-1.5 w-full bg-gradient-to-r from-[#004d38] via-[#006a4e] to-emerald-400" />
+          <div className="p-4 sm:p-5 flex flex-col justify-between flex-1">
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <span className="text-[11px] sm:text-xs font-black uppercase tracking-wider text-[#004d38]">
+                {isBn ? "মোট সংগৃহীত" : "Total Raised"}
+              </span>
+              <div className="p-2 rounded-xl bg-gradient-to-tr from-[#006a4e] to-emerald-500 text-white shadow-md shadow-emerald-700/20 flex items-center justify-center shrink-0">
+                <ArrowUpRight className="w-4 h-4 stroke-[2.4]" />
+              </div>
+            </div>
+            <div className="flex items-baseline gap-1 my-1">
+              <span className="text-2xl sm:text-3xl font-black text-[#006a4e] tracking-tight tabular-nums">
+                + {formatMoney(totalRaised)}
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-500 font-medium mt-1">
+              {isBn ? "সকল ফান্ডের সম্মিলিত জমা অনুদান" : "Cumulative contributions across all funds"}
+            </p>
+          </div>
         </div>
 
-        <div className="p-3 sm:p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs">
-          <p className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-400">
-            {isBn ? "বর্তমান স্থিতি" : "Net Balance"}
-          </p>
-          <p className="text-sm sm:text-lg font-black text-slate-900 mt-0.5">
-            {formatMoney(totalRemaining)}
-          </p>
+        {/* Card 3: Net Remaining (Gold/Amber/Emerald Gradient) */}
+        <div className="rounded-2xl border border-amber-300/90 bg-gradient-to-br from-[#fbf8ee] via-white to-emerald-50/70 shadow-xs hover:shadow-md transition-all overflow-hidden flex flex-col justify-between">
+          <div className="h-1.5 w-full bg-gradient-to-r from-[#f2b705] via-amber-500 to-[#006a4e]" />
+          <div className="p-4 sm:p-5 flex flex-col justify-between flex-1">
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <span className="text-[11px] sm:text-xs font-black uppercase tracking-wider text-amber-900">
+                {isBn ? "বর্তমান স্থিতি" : "Net Balance"}
+              </span>
+              <div className="p-2 rounded-xl bg-gradient-to-tr from-[#f2b705] to-amber-500 text-[#12231d] shadow-md shadow-amber-600/20 flex items-center justify-center shrink-0">
+                <Wallet className="w-4 h-4 stroke-[2.4]" />
+              </div>
+            </div>
+            <div className="flex items-baseline gap-1 my-1">
+              <span className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight tabular-nums">
+                {formatMoney(totalRemaining)}
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-500 font-medium mt-1">
+              {isBn ? "ক্লাবের ব্যাংকে ও ক্যাশে মোট অবশিষ্ট স্থিতি" : "Net available funds in bank and cash"}
+            </p>
+          </div>
         </div>
       </div>
 
-      {/* 4. Funds Management (Card in Mobile mode, Table in Desktop, with Pagination) */}
+      {/* 4. Funds Card Grid with Filters & Pagination (No table!) */}
       <FundsManagementTable
         locale={locale}
         pageSize={6}
