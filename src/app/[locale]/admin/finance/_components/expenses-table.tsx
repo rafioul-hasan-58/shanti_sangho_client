@@ -124,10 +124,10 @@ export function ExpensesTable({
   return (
     <div className="space-y-4">
       {/* Modern Filter Card */}
-      <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-2.5">
+      <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-b from-slate-50/70 to-white border border-slate-200/90 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-2.5">
         {/* Left: Search input */}
         <div className="relative flex-1 min-w-[200px]">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#f42a41]" />
           <input
             type="text"
             value={search}
@@ -140,7 +140,7 @@ export function ExpensesTable({
                 ? "ব্যয়ের খাত, নোট বা পরিচালনাকারীর নাম লিখে খুঁজুন..."
                 : "Search purpose, note, handled by..."
             }
-            className="w-full pl-9 pr-8 py-2 rounded-xl border border-slate-200/90 bg-slate-50/50 hover:bg-white focus:bg-white text-xs sm:text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#006a4e] focus:ring-2 focus:ring-[#006a4e]/20 transition-all shadow-2xs"
+            className="w-full pl-9 pr-8 py-2 rounded-xl border border-rose-200/80 bg-rose-50/20 hover:bg-white focus:bg-white text-xs sm:text-sm font-semibold text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#f42a41] focus:ring-2 focus:ring-[#f42a41]/20 transition-all shadow-2xs h-[38px]"
           />
           {search && (
             <button
@@ -149,7 +149,7 @@ export function ExpensesTable({
                 setSearch("");
                 setPage(1);
               }}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
             >
               <X className="w-3.5 h-3.5" />
             </button>
@@ -169,7 +169,7 @@ export function ExpensesTable({
                     setFundFilter(e.target.value);
                     setPage(1);
                   }}
-                  className="w-full sm:w-auto appearance-none pl-8 pr-7 py-2 rounded-xl border border-slate-200/90 bg-slate-50 hover:bg-white hover:border-slate-300 text-xs font-bold text-slate-700 focus:outline-none focus:border-[#006a4e] cursor-pointer transition-colors shadow-2xs h-[38px]"
+                  className="w-full sm:w-auto appearance-none pl-8.5 pr-7 py-2 rounded-xl border border-purple-200/90 bg-purple-50/40 hover:bg-purple-50/80 hover:border-purple-300 text-xs font-bold text-purple-900 focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-600/20 cursor-pointer transition-colors shadow-2xs h-[38px]"
                 >
                   <option value="ALL">{isBn ? "সকল ফান্ড" : "All Funds"}</option>
                   {funds.map((f) => (
@@ -178,19 +178,19 @@ export function ExpensesTable({
                     </option>
                   ))}
                 </select>
-                <Layers className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <Layers className="w-3.5 h-3.5 text-purple-600 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <ChevronDown className="w-3.5 h-3.5 text-purple-600 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
               </div>
 
               {/* Quick Date Presets */}
-              <div className="flex-1 w-1/2 sm:w-auto sm:flex-initial inline-flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200/60 text-[11px] font-bold h-[38px]">
+              <div className="flex-1 w-1/2 sm:w-auto sm:flex-initial inline-flex items-center gap-1 bg-rose-50/70 p-1 rounded-xl border border-rose-200/80 text-[11px] font-bold h-[38px]">
                 <button
                   type="button"
                   onClick={() => handleDatePreset("TODAY")}
-                  className={`flex-1 sm:flex-initial px-2 py-1.5 rounded-lg transition-all cursor-pointer text-center ${
+                  className={`flex-1 sm:flex-initial px-2.5 py-1.5 rounded-lg transition-all cursor-pointer text-center ${
                     isTodayActive
-                      ? "bg-white text-[#006a4e] shadow-2xs font-black"
-                      : "text-slate-600 hover:text-slate-900"
+                      ? "bg-[#f42a41] text-white shadow-xs font-black"
+                      : "text-rose-900/80 hover:text-rose-950 hover:bg-white/60 font-bold"
                   }`}
                 >
                   {isBn ? "আজ" : "Today"}
@@ -198,10 +198,10 @@ export function ExpensesTable({
                 <button
                   type="button"
                   onClick={() => handleDatePreset("THIS_MONTH")}
-                  className={`flex-1 sm:flex-initial px-2 py-1.5 rounded-lg transition-all cursor-pointer text-center ${
+                  className={`flex-1 sm:flex-initial px-2.5 py-1.5 rounded-lg transition-all cursor-pointer text-center ${
                     isMonthActive
-                      ? "bg-white text-[#006a4e] shadow-2xs font-black"
-                      : "text-slate-600 hover:text-slate-900"
+                      ? "bg-[#f42a41] text-white shadow-xs font-black"
+                      : "text-rose-900/80 hover:text-rose-950 hover:bg-white/60 font-bold"
                   }`}
                 >
                   {isBn ? "এই মাস" : "This Month"}
@@ -210,14 +210,14 @@ export function ExpensesTable({
             </div>
           ) : (
             /* Quick Date Presets when fundId is already provided */
-            <div className="w-full sm:w-auto inline-flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200/60 text-[11px] font-bold h-[38px]">
+            <div className="w-full sm:w-auto inline-flex items-center gap-1 bg-rose-50/70 p-1 rounded-xl border border-rose-200/80 text-[11px] font-bold h-[38px]">
               <button
                 type="button"
                 onClick={() => handleDatePreset("TODAY")}
                 className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-lg transition-all cursor-pointer text-center ${
                   isTodayActive
-                    ? "bg-white text-[#006a4e] shadow-2xs font-black"
-                    : "text-slate-600 hover:text-slate-900"
+                    ? "bg-[#f42a41] text-white shadow-xs font-black"
+                    : "text-rose-900/80 hover:text-rose-950 hover:bg-white/60 font-bold"
                 }`}
               >
                 {isBn ? "আজ" : "Today"}
@@ -227,8 +227,8 @@ export function ExpensesTable({
                 onClick={() => handleDatePreset("THIS_MONTH")}
                 className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-lg transition-all cursor-pointer text-center ${
                   isMonthActive
-                    ? "bg-white text-[#006a4e] shadow-2xs font-black"
-                    : "text-slate-600 hover:text-slate-900"
+                    ? "bg-[#f42a41] text-white shadow-xs font-black"
+                    : "text-rose-900/80 hover:text-rose-950 hover:bg-white/60 font-bold"
                 }`}
               >
                 {isBn ? "এই মাস" : "This Month"}
@@ -239,9 +239,9 @@ export function ExpensesTable({
           {/* Line 2 (on mobile): Soro (From: 50%) & Shes (To: 50%) with space like first line */}
           <div className="flex items-center gap-2 w-full sm:w-auto">
             {/* Soro (From Date) */}
-            <div className="flex-1 w-1/2 sm:w-auto sm:flex-initial inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-slate-200/90 bg-slate-50 hover:bg-white text-xs shadow-2xs transition-colors min-w-0 h-[38px]">
+            <div className="flex-1 w-1/2 sm:w-auto sm:flex-initial inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-emerald-200/90 bg-emerald-50/40 hover:bg-emerald-50/70 focus-within:bg-white focus-within:border-[#006a4e] focus-within:ring-2 focus-within:ring-[#006a4e]/20 text-xs shadow-2xs transition-all min-w-0 h-[38px]">
               <Calendar className="w-3.5 h-3.5 text-[#006a4e] shrink-0" />
-              <span className="text-[10px] uppercase font-bold text-slate-400 shrink-0">
+              <span className="text-[10px] uppercase font-black text-emerald-800 shrink-0">
                 {isBn ? "শুরু" : "From"}:
               </span>
               <input
@@ -252,7 +252,7 @@ export function ExpensesTable({
                   setPage(1);
                 }}
                 title={isBn ? "শুরুর তারিখ" : "From date"}
-                className="w-full min-w-0 bg-transparent text-[11px] sm:text-xs font-bold text-slate-700 outline-none cursor-pointer p-0"
+                className="w-full min-w-0 bg-transparent text-[11px] sm:text-xs font-bold text-slate-800 outline-none cursor-pointer p-0"
               />
               {from && (
                 <button
@@ -261,7 +261,7 @@ export function ExpensesTable({
                     setFrom("");
                     setPage(1);
                   }}
-                  className="p-0.5 rounded-md text-slate-400 hover:text-rose-600 shrink-0 cursor-pointer"
+                  className="p-0.5 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 shrink-0 cursor-pointer transition-colors"
                   title={isBn ? "তারিখ মুছুন" : "Clear date"}
                 >
                   <X className="w-3 h-3" />
@@ -270,9 +270,9 @@ export function ExpensesTable({
             </div>
 
             {/* Shes (To Date) */}
-            <div className="flex-1 w-1/2 sm:w-auto sm:flex-initial inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-slate-200/90 bg-slate-50 hover:bg-white text-xs shadow-2xs transition-colors min-w-0 h-[38px]">
-              <Calendar className="w-3.5 h-3.5 text-[#006a4e] shrink-0" />
-              <span className="text-[10px] uppercase font-bold text-slate-400 shrink-0">
+            <div className="flex-1 w-1/2 sm:w-auto sm:flex-initial inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-sky-200/90 bg-sky-50/40 hover:bg-sky-50/70 focus-within:bg-white focus-within:border-sky-500 focus-within:ring-2 focus-within:ring-sky-500/20 text-xs shadow-2xs transition-all min-w-0 h-[38px]">
+              <Calendar className="w-3.5 h-3.5 text-sky-600 shrink-0" />
+              <span className="text-[10px] uppercase font-black text-sky-800 shrink-0">
                 {isBn ? "শেষ" : "To"}:
               </span>
               <input
@@ -283,7 +283,7 @@ export function ExpensesTable({
                   setPage(1);
                 }}
                 title={isBn ? "শেষ তারিখ" : "To date"}
-                className="w-full min-w-0 bg-transparent text-[11px] sm:text-xs font-bold text-slate-700 outline-none cursor-pointer p-0"
+                className="w-full min-w-0 bg-transparent text-[11px] sm:text-xs font-bold text-slate-800 outline-none cursor-pointer p-0"
               />
               {to && (
                 <button
@@ -292,7 +292,7 @@ export function ExpensesTable({
                     setTo("");
                     setPage(1);
                   }}
-                  className="p-0.5 rounded-md text-slate-400 hover:text-rose-600 shrink-0 cursor-pointer"
+                  className="p-0.5 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 shrink-0 cursor-pointer transition-colors"
                   title={isBn ? "তারিখ মুছুন" : "Clear date"}
                 >
                   <X className="w-3 h-3" />
@@ -306,9 +306,9 @@ export function ExpensesTable({
             <button
               type="button"
               onClick={clearFilters}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-rose-600 bg-rose-50/70 hover:bg-rose-100/70 border border-rose-200 transition-colors cursor-pointer shrink-0 h-[38px]"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-black text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200/90 transition-all cursor-pointer shrink-0 h-[38px] shadow-2xs active:scale-95"
             >
-              <RotateCcw className="w-3.5 h-3.5" />
+              <RotateCcw className="w-3.5 h-3.5 text-rose-600" />
               <span>{isBn ? "রিসেট" : "Reset"}</span>
             </button>
           )}

@@ -19,6 +19,8 @@ import {
   X,
   Loader2,
   AlertCircle,
+  HandCoins,
+  ReceiptText,
 } from "lucide-react";
 import { useFund, useUpdateFund, useDeleteFund } from "@/lib/hooks/use-finance";
 import { formatMoney, formatFundCategory } from "@/lib/format";
@@ -292,31 +294,41 @@ export function FundDetailClient({ fundId, locale }: FundDetailClientProps) {
         </div>
       </div>
 
-      {/* Tabs: Contributions | Expenses */}
+      {/* Tabs: Contributions (50%) | Expenses (50%) in one line on mobile */}
       <div className="space-y-4">
-        <div className="flex items-center gap-2 border-b border-slate-200/80 pb-1">
+        <div className="w-full sm:w-auto sm:inline-flex grid grid-cols-2 p-1.5 bg-slate-100/90 rounded-2xl border border-slate-200/80 gap-1.5">
           <button
             type="button"
             onClick={() => setActiveTab("contributions")}
-            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+            className={`flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer ${
               activeTab === "contributions"
-                ? "bg-[#006a4e] text-white shadow-xs"
-                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                ? "bg-[#006a4e] text-white shadow-md shadow-[#006a4e]/20"
+                : "text-slate-600 hover:text-slate-900 hover:bg-white/60 font-bold"
             }`}
           >
-            {isBn ? "ডোনেশনের তালিকা (Donations)" : "Donations"}
+            <HandCoins
+              className={`w-4 h-4 shrink-0 transition-colors ${
+                activeTab === "contributions" ? "text-white" : "text-emerald-600"
+              }`}
+            />
+            <span className="truncate">{isBn ? "ডোনেশনের তালিকা" : "Donations"}</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab("expenses")}
-            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+            className={`flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer ${
               activeTab === "expenses"
-                ? "bg-[#006a4e] text-white shadow-xs"
-                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                ? "bg-[#006a4e] text-white shadow-md shadow-[#006a4e]/20"
+                : "text-slate-600 hover:text-slate-900 hover:bg-white/60 font-bold"
             }`}
           >
-            {isBn ? "ব্যয়ের তালিকা (Expenses)" : "Expenses"}
+            <ReceiptText
+              className={`w-4 h-4 shrink-0 transition-colors ${
+                activeTab === "expenses" ? "text-white" : "text-[#f42a41]"
+              }`}
+            />
+            <span className="truncate">{isBn ? "ব্যয়ের তালিকা" : "Expenses"}</span>
           </button>
         </div>
 

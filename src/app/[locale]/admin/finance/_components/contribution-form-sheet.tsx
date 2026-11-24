@@ -242,7 +242,7 @@ export function ContributionFormSheet({
             funds={funds}
             value={selectedFundId}
             onChange={(id) => setValue("fundId", id, { shouldValidate: true, shouldDirty: true })}
-            label={isBn ? "ফান্ড (Fund)" : "Fund"}
+            label={isBn ? "ফান্ড" : "Fund"}
             placeholder={isBn ? "-- ফান্ড সিলেক্ট করুন --" : "-- Select Fund --"}
             isBn={isBn}
             required
@@ -252,7 +252,7 @@ export function ContributionFormSheet({
           {/* Amount (Taka) - Colorful Branded Highlight Card */}
           <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-br from-emerald-500/10 via-teal-500/5 to-transparent border border-emerald-200/90 space-y-2">
             <label className="text-xs font-black text-emerald-900 uppercase tracking-wider block">
-              {isBn ? "টাকার পরিমাণ (টাকা)" : "Amount (Taka)"}{" "}
+              {isBn ? "টাকার পরিমাণ" : "Amount"}{" "}
               <span className="text-[#f42a41]">*</span>
             </label>
             <div className="relative">
@@ -362,7 +362,7 @@ export function ContributionFormSheet({
           <div>
             <div className="flex items-center justify-between mb-1.5">
               <label className="text-xs font-bold text-slate-700">
-                {isBn ? "প্রদানকারী (Giver)" : "Giver"}
+                {isBn ? "প্রদানকারী" : "Giver"}
               </label>
               <div className="inline-flex p-0.5 rounded-lg bg-slate-100 border border-slate-200 text-xs">
                 <button
@@ -428,7 +428,7 @@ export function ContributionFormSheet({
           {/* Received By (Member Combobox - defaults to logged-in admin) */}
           <div>
             <MemberCombobox
-              label={isBn ? "টাকা গ্রহণকারী (Received By)" : "Received By (Admin)"}
+              label={isBn ? "টাকা গ্রহণকারী" : "Received By (Admin)"}
               required
               value={selectedReceiverId}
               onChange={(id) => setValue("receivedById", id || defaultReceiverId, { shouldValidate: true })}
