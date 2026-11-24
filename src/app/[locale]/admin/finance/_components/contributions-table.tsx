@@ -364,11 +364,33 @@ export function ContributionsTable({
             {/* Line 2 (on mobile): Soro (From: 50%) & Shes (To: 50%) with space like first line */}
             <div className="flex items-center gap-2 w-full sm:w-auto">
               {/* Soro (From Date) */}
-              <div className="flex-1 w-1/2 sm:w-auto sm:flex-initial inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-emerald-200/90 bg-emerald-50/40 hover:bg-emerald-50/70 focus-within:bg-white focus-within:border-[#006a4e] focus-within:ring-2 focus-within:ring-[#006a4e]/20 text-xs shadow-2xs transition-all min-w-0 h-[38px]">
-                <Calendar className="w-3.5 h-3.5 text-[#006a4e] shrink-0" />
-                <span className="text-[10px] uppercase font-black text-emerald-800 shrink-0">
-                  {isBn ? "শুরু" : "From"}:
-                </span>
+              <div className="relative flex-1 w-1/2 sm:w-auto sm:flex-initial inline-flex items-center justify-between gap-1.5 px-3 py-1.5 rounded-xl border border-emerald-300/80 bg-emerald-50/50 hover:bg-emerald-50 hover:border-emerald-400 text-xs shadow-2xs transition-all min-w-0 h-[38px] group">
+                <div className="flex items-center gap-1.5 min-w-0 overflow-hidden">
+                  <Calendar className="w-3.5 h-3.5 text-[#006a4e] shrink-0" />
+                  <span className="text-[10px] uppercase font-black text-emerald-800 shrink-0">
+                    {isBn ? "শুরু" : "From"}:
+                  </span>
+                  <span className={`text-[11px] sm:text-xs truncate ${from ? "font-black text-slate-900" : "font-semibold text-emerald-900/60"}`}>
+                    {from ? formatDate(from, "dd MMM yyyy") : isBn ? "তারিখ দিন" : "Pick date"}
+                  </span>
+                </div>
+                {from ? (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setFrom("");
+                      setPage(1);
+                    }}
+                    className="relative z-20 p-1 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-100/60 shrink-0 cursor-pointer transition-colors"
+                    title={isBn ? "তারিখ মুছুন" : "Clear date"}
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                ) : (
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
+                )}
                 <input
                   type="date"
                   value={from}
@@ -377,29 +399,38 @@ export function ContributionsTable({
                     setPage(1);
                   }}
                   title={isBn ? "শুরুর তারিখ" : "From date"}
-                  className="w-full min-w-0 bg-transparent text-[11px] sm:text-xs font-bold text-slate-800 outline-none cursor-pointer p-0"
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                 />
-                {from && (
+              </div>
+
+              {/* Shes (To Date) */}
+              <div className="relative flex-1 w-1/2 sm:w-auto sm:flex-initial inline-flex items-center justify-between gap-1.5 px-3 py-1.5 rounded-xl border border-sky-300/80 bg-sky-50/50 hover:bg-sky-50 hover:border-sky-400 text-xs shadow-2xs transition-all min-w-0 h-[38px] group">
+                <div className="flex items-center gap-1.5 min-w-0 overflow-hidden">
+                  <Calendar className="w-3.5 h-3.5 text-sky-600 shrink-0" />
+                  <span className="text-[10px] uppercase font-black text-sky-800 shrink-0">
+                    {isBn ? "শেষ" : "To"}:
+                  </span>
+                  <span className={`text-[11px] sm:text-xs truncate ${to ? "font-black text-slate-900" : "font-semibold text-sky-900/60"}`}>
+                    {to ? formatDate(to, "dd MMM yyyy") : isBn ? "তারিখ দিন" : "Pick date"}
+                  </span>
+                </div>
+                {to ? (
                   <button
                     type="button"
-                    onClick={() => {
-                      setFrom("");
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setTo("");
                       setPage(1);
                     }}
-                    className="p-0.5 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 shrink-0 cursor-pointer transition-colors"
+                    className="relative z-20 p-1 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-100/60 shrink-0 cursor-pointer transition-colors"
                     title={isBn ? "তারিখ মুছুন" : "Clear date"}
                   >
                     <X className="w-3 h-3" />
                   </button>
+                ) : (
+                  <span className="w-1.5 h-1.5 rounded-full bg-sky-400 shrink-0" />
                 )}
-              </div>
-
-              {/* Shes (To Date) */}
-              <div className="flex-1 w-1/2 sm:w-auto sm:flex-initial inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-sky-200/90 bg-sky-50/40 hover:bg-sky-50/70 focus-within:bg-white focus-within:border-sky-500 focus-within:ring-2 focus-within:ring-sky-500/20 text-xs shadow-2xs transition-all min-w-0 h-[38px]">
-                <Calendar className="w-3.5 h-3.5 text-sky-600 shrink-0" />
-                <span className="text-[10px] uppercase font-black text-sky-800 shrink-0">
-                  {isBn ? "শেষ" : "To"}:
-                </span>
                 <input
                   type="date"
                   value={to}
@@ -408,21 +439,8 @@ export function ContributionsTable({
                     setPage(1);
                   }}
                   title={isBn ? "শেষ তারিখ" : "To date"}
-                  className="w-full min-w-0 bg-transparent text-[11px] sm:text-xs font-bold text-slate-800 outline-none cursor-pointer p-0"
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                 />
-                {to && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setTo("");
-                      setPage(1);
-                    }}
-                    className="p-0.5 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 shrink-0 cursor-pointer transition-colors"
-                    title={isBn ? "তারিখ মুছুন" : "Clear date"}
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                )}
               </div>
             </div>
 
