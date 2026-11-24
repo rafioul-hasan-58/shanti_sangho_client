@@ -171,7 +171,7 @@ export function AllFundsPageClient({ locale }: AllFundsPageClientProps) {
       {/* 4. Funds Card Grid with Filters & Pagination (No table!) */}
       <FundsManagementTable
         locale={locale}
-        pageSize={6}
+        pageSize={4}
         onAddFundClick={() => setFundDialogOpen(true)}
       />
 

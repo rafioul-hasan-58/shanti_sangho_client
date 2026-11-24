@@ -23,10 +23,42 @@ interface FundsManagementTableProps {
   pageSize?: number;
 }
 
+/** Build compact page items with ellipses (e.g. `1, 2, 3, 4, 5, "...", 76`). */
+function getPageItems(
+  currentPage: number,
+  totalPages: number
+): Array<number | "..."> {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+
+  const items: Array<number | "..."> = [1];
+
+  if (currentPage <= 4) {
+    for (let p = 2; p <= 5; p++) items.push(p);
+    items.push("...");
+    items.push(totalPages);
+    return items;
+  }
+
+  if (currentPage >= totalPages - 3) {
+    items.push("...");
+    for (let p = totalPages - 4; p < totalPages; p++) items.push(p);
+    items.push(totalPages);
+    return items;
+  }
+
+  items.push("...");
+  items.push(currentPage - 1, currentPage, currentPage + 1);
+  items.push("...");
+  items.push(totalPages);
+  return items;
+}
+
 export function FundsManagementTable({
   locale,
   onAddFundClick,
-  pageSize = 6,
+  pageSize: initialPageSize = 4,
 }: FundsManagementTableProps) {
   const isBn = locale === "bn";
   const { data: funds = [], isLoading, isError, refetch } = useFunds();
@@ -35,6 +67,7 @@ export function FundsManagementTable({
   const [selectedCategory, setSelectedCategory] = useState<FundCategory | "ALL">("ALL");
   const [selectedStatus, setSelectedStatus] = useState<"ALL" | "ACTIVE" | "INACTIVE">("ALL");
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(initialPageSize);
 
   // Filtered funds
   const filteredFunds = useMemo(() => {
@@ -64,7 +97,14 @@ export function FundsManagementTable({
   }, [search, selectedCategory, selectedStatus]);
 
   // Pagination calculation
-  const totalPages = Math.max(1, Math.ceil(filteredFunds.length / pageSize));
+  const totalFunds = filteredFunds.length;
+  const totalPages = Math.max(1, Math.ceil(totalFunds / pageSize));
+  const startIndex = totalFunds > 0 ? (currentPage - 1) * pageSize + 1 : 0;
+  const endIndex = Math.min(currentPage * pageSize, totalFunds);
+  const pageItems = getPageItems(currentPage, totalPages);
+  const hasPreviousPage = currentPage > 1;
+  const hasNextPage = currentPage < totalPages;
+
   const paginatedFunds = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
     return filteredFunds.slice(start, start + pageSize);
@@ -187,75 +227,105 @@ export function FundsManagementTable({
             ))}
           </div>
 
-          {/* Pagination Bar */}
-          {totalPages > 1 && (
-            <div className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3 select-none">
-              <p className="text-xs text-slate-500 font-semibold text-center sm:text-left">
-                {isBn
-                  ? `মোট ${filteredFunds.length} টি ফান্ড • পৃষ্ঠা ${currentPage} এর ${totalPages}`
-                  : `Showing ${(currentPage - 1) * pageSize + 1} to ${Math.min(
-                      currentPage * pageSize,
-                      filteredFunds.length
-                    )} of ${filteredFunds.length} funds`}
-              </p>
+          {/* Pagination Bar (Always visible when there are funds) */}
+          {filteredFunds.length > 0 && (
+            <div className="rounded-2xl border border-emerald-200/80 bg-emerald-50/45 p-3.5 sm:px-4 sm:py-3 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs select-none">
+              {/* Left: Showing range + Page X of Y */}
+              <div className="flex flex-wrap items-center gap-2 text-slate-600">
+                <p className="font-medium text-[11px] sm:text-xs">
+                  {isBn ? "দেখানো হচ্ছে " : "Showing "}
+                  <span className="font-black text-[#006a4e]">
+                    {startIndex} - {endIndex}
+                  </span>
+                  {isBn ? " / মোট " : " of "}
+                  <span className="font-black text-slate-900">{totalFunds}</span>
+                  {isBn ? " টি ফান্ড" : " funds"}
+                </p>
 
-              <div className="flex items-center gap-1">
-                {/* Previous Button */}
-                <button
-                  type="button"
-                  disabled={currentPage === 1}
-                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                  className="px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors inline-flex items-center gap-1 cursor-pointer"
-                >
-                  <ChevronLeft className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">{isBn ? "পূর্ববর্তী" : "Prev"}</span>
-                </button>
+                <span className="text-slate-300 select-none">|</span>
 
-                {/* Page Numbers */}
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
-                  if (
-                    totalPages > 5 &&
-                    Math.abs(page - currentPage) > 1 &&
-                    page !== 1 &&
-                    page !== totalPages
-                  ) {
-                    if (page === 2 || page === totalPages - 1) {
-                      return (
-                        <span key={page} className="px-1 text-slate-400 text-xs">
-                          ...
-                        </span>
-                      );
-                    }
-                    return null;
-                  }
+                <span className="font-bold text-slate-500 text-[11px] sm:text-xs">
+                  {isBn
+                    ? `পেজ ${currentPage} / ${totalPages}`
+                    : `Page ${currentPage} of ${totalPages}`}
+                </span>
+              </div>
 
-                  const isActive = page === currentPage;
-                  return (
-                    <button
-                      key={page}
-                      type="button"
-                      onClick={() => setCurrentPage(page)}
-                      className={`min-w-8 h-8 px-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                        isActive
-                          ? "bg-[#006a4e] text-white shadow-xs font-black"
-                          : "border border-slate-200 text-slate-700 hover:bg-slate-50"
-                      }`}
-                    >
-                      {page}
-                    </button>
-                  );
-                })}
+              {/* Right: Per page selector + Prev + Page Numbers + Next */}
+              <div className="flex flex-wrap items-center justify-between sm:justify-end gap-2.5">
+                <div className="inline-flex items-center gap-1.5">
+                  <span className="text-[11px] font-bold text-slate-500">
+                    {isBn ? "প্রতি পেজ:" : "Per page:"}
+                  </span>
+                  <ThemedSelect
+                    ariaLabel={isBn ? "প্রতি পেজ" : "Per page"}
+                    value={String(pageSize)}
+                    size="xs"
+                    align="right"
+                    className="bg-white min-w-[64px]"
+                    onChange={(val) => {
+                      setPageSize(Number(val));
+                      setCurrentPage(1);
+                    }}
+                    options={[
+                      { value: "2", label: "2" },
+                      { value: "4", label: "4" },
+                      { value: "6", label: "6" },
+                      { value: "8", label: "8" },
+                      { value: "12", label: "12" },
+                    ]}
+                  />
+                </div>
 
-                {/* Next Button */}
-                <button
-                  type="button"
-                  disabled={currentPage === totalPages}
-                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                  className="px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors inline-flex items-center gap-1 cursor-pointer"
-                >
-                  <span className="hidden sm:inline">{isBn ? "পরবর্তী" : "Next"}</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </button>
+                <div className="flex items-center gap-1">
+                  {/* Previous Button */}
+                  <button
+                    type="button"
+                    disabled={!hasPreviousPage}
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                    className="h-8 px-2.5 rounded-xl border border-emerald-200/80 bg-white hover:bg-emerald-50 hover:border-[#006a4e]/35 text-slate-700 font-bold inline-flex items-center gap-1 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer text-xs"
+                  >
+                    <ChevronLeft className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">{isBn ? "পূর্ববর্তী" : "Prev"}</span>
+                  </button>
+
+                  {/* Page Numbers */}
+                  {pageItems.map((item, idx) =>
+                    item === "..." ? (
+                      <span
+                        key={`ellipsis-${idx}`}
+                        className="px-1 text-slate-400 font-bold select-none text-xs"
+                      >
+                        ...
+                      </span>
+                    ) : (
+                      <button
+                        key={item}
+                        type="button"
+                        onClick={() => setCurrentPage(item)}
+                        aria-current={item === currentPage ? "page" : undefined}
+                        className={`h-8 min-w-[32px] px-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                          item === currentPage
+                            ? "bg-[#006a4e] text-white shadow-xs shadow-[#006a4e]/25"
+                            : "bg-white border border-emerald-200/80 text-slate-700 hover:bg-emerald-50 hover:border-[#006a4e]/35 hover:text-[#006a4e]"
+                        }`}
+                      >
+                        {item}
+                      </button>
+                    )
+                  )}
+
+                  {/* Next Button */}
+                  <button
+                    type="button"
+                    disabled={!hasNextPage}
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                    className="h-8 px-2.5 rounded-xl border border-emerald-200/80 bg-white hover:bg-emerald-50 hover:border-[#006a4e]/35 text-slate-700 font-bold inline-flex items-center gap-1 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer text-xs"
+                  >
+                    <span className="hidden sm:inline">{isBn ? "পরবর্তী" : "Next"}</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
             </div>
           )}
