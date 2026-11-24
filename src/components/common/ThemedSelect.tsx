@@ -137,7 +137,9 @@ export default function ThemedSelect<T extends string = string>({
     variant === "form"
       ? open
         ? "bg-white border-[#006a4e] text-slate-900 ring-2 ring-[#006a4e]/20 shadow-xs"
-        : "bg-white border-slate-200 text-slate-800 hover:border-slate-300 shadow-2xs"
+        : isFiltered
+          ? "bg-emerald-50/80 border-[#006a4e]/40 text-[#004d38] shadow-2xs font-extrabold"
+          : "bg-white border-slate-200 text-slate-800 hover:border-slate-300 shadow-2xs"
       : open
         ? "bg-white border-[#006a4e] text-[#006a4e] ring-2 ring-[#006a4e]/15"
         : isFiltered

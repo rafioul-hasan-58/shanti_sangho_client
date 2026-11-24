@@ -8,7 +8,10 @@ import {
   Layers,
   ChevronLeft,
   ChevronRight,
+  Filter,
+  CheckCircle,
 } from "lucide-react";
+import ThemedSelect from "@/components/common/ThemedSelect";
 import { useFunds } from "@/lib/hooks/use-finance";
 import { FUND_CATEGORIES, type FundCategory } from "@/lib/schemas/finance";
 import { formatFundCategory } from "@/lib/format";
@@ -86,30 +89,41 @@ export function FundsManagementTable({
 
           {/* Filters Row: 2 columns on mobile, inline on sm+ */}
           <div className="grid grid-cols-2 sm:flex sm:items-center gap-2">
-            {/* Category Filter */}
-            <select
+            {/* Category Filter (Themed Dropdown) */}
+            <ThemedSelect
+              ariaLabel={isBn ? "ক্যাটাগরি ফিল্টার" : "Filter by category"}
               value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value as FundCategory | "ALL")}
-              className="w-full sm:w-auto px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm font-semibold text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#006a4e]/20 focus:border-[#006a4e] cursor-pointer"
-            >
-              <option value="ALL">{isBn ? "সকল ক্যাটাগরি" : "All Categories"}</option>
-              {FUND_CATEGORIES.map((cat) => (
-                <option key={cat} value={cat}>
-                  {formatFundCategory(cat, isBn)}
-                </option>
-              ))}
-            </select>
+              isFiltered={selectedCategory !== "ALL"}
+              variant="form"
+              size="md"
+              className="w-full sm:w-auto min-w-[140px]"
+              icon={<Filter className="w-3.5 h-3.5 text-slate-400" />}
+              onChange={(val) => setSelectedCategory(val as FundCategory | "ALL")}
+              options={[
+                { value: "ALL", label: isBn ? "সকল ক্যাটাগরি" : "All Categories" },
+                ...FUND_CATEGORIES.map((cat) => ({
+                  value: cat,
+                  label: formatFundCategory(cat, isBn),
+                })),
+              ]}
+            />
 
-            {/* Status Filter */}
-            <select
+            {/* Status Filter (Themed Dropdown) */}
+            <ThemedSelect
+              ariaLabel={isBn ? "স্ট্যাটাস ফিল্টার" : "Filter by status"}
               value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value as "ALL" | "ACTIVE" | "INACTIVE")}
-              className="w-full sm:w-auto px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm font-semibold text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#006a4e]/20 focus:border-[#006a4e] cursor-pointer"
-            >
-              <option value="ALL">{isBn ? "সকল স্ট্যাটাস" : "All Status"}</option>
-              <option value="ACTIVE">{isBn ? "সক্রিয়" : "Active"}</option>
-              <option value="INACTIVE">{isBn ? "নিষ্ক্রিয়" : "Archived"}</option>
-            </select>
+              isFiltered={selectedStatus !== "ALL"}
+              variant="form"
+              size="md"
+              className="w-full sm:w-auto min-w-[130px]"
+              icon={<CheckCircle className="w-3.5 h-3.5 text-slate-400" />}
+              onChange={(val) => setSelectedStatus(val as "ALL" | "ACTIVE" | "INACTIVE")}
+              options={[
+                { value: "ALL", label: isBn ? "সকল স্ট্যাটাস" : "All Status" },
+                { value: "ACTIVE", label: isBn ? "সক্রিয়" : "Active" },
+                { value: "INACTIVE", label: isBn ? "নিষ্ক্রিয়" : "Archived" },
+              ]}
+            />
           </div>
         </div>
 
