@@ -93,75 +93,75 @@ export function AllFundsPageClient({ locale }: AllFundsPageClientProps) {
         </div>
       </div>
 
-      {/* 3. Colorful Quick Stats Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+      {/* 3. Colorful Quick Stats Summary Cards (2 in first line, 1 in second line on mobile) */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5 sm:gap-4">
         {/* Card 1: Total Funds (Teal/Emerald Gradient) */}
-        <div className="rounded-2xl border border-teal-200/90 bg-gradient-to-br from-teal-50/95 via-white to-emerald-50/70 shadow-xs hover:shadow-md transition-all overflow-hidden flex flex-col justify-between">
+        <div className="col-span-1 rounded-2xl border border-teal-200/90 bg-gradient-to-br from-teal-50/95 via-white to-emerald-50/70 shadow-xs hover:shadow-md transition-all overflow-hidden flex flex-col justify-between">
           <div className="h-1.5 w-full bg-gradient-to-r from-teal-600 via-[#006a4e] to-emerald-400" />
-          <div className="p-4 sm:p-5 flex flex-col justify-between flex-1">
-            <div className="flex items-center justify-between gap-2 mb-2">
-              <span className="text-[11px] sm:text-xs font-black uppercase tracking-wider text-teal-800">
+          <div className="p-3 sm:p-5 flex flex-col justify-between flex-1">
+            <div className="flex items-center justify-between gap-1.5 mb-1.5 sm:mb-2">
+              <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-teal-800 truncate">
                 {isBn ? "মোট ফান্ড" : "Total Funds"}
               </span>
-              <div className="p-2 rounded-xl bg-gradient-to-tr from-teal-600 to-emerald-500 text-white shadow-md shadow-teal-700/20 flex items-center justify-center shrink-0">
-                <FolderTree className="w-4 h-4 stroke-[2.4]" />
+              <div className="p-1.5 sm:p-2 rounded-xl bg-gradient-to-tr from-teal-600 to-emerald-500 text-white shadow-md shadow-teal-700/20 flex items-center justify-center shrink-0">
+                <FolderTree className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.4]" />
               </div>
             </div>
-            <div className="flex items-baseline gap-2 my-1">
-              <span className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            <div className="flex items-baseline gap-1 my-0.5 sm:my-1">
+              <span className="text-base sm:text-2xl md:text-3xl font-black text-slate-900 tracking-tight truncate">
                 {funds.length}
               </span>
-              <span className="text-xs font-bold text-teal-700">
+              <span className="text-[10px] sm:text-xs font-bold text-teal-700 truncate">
                 ({activeCount} {isBn ? "সক্রিয়" : "active"})
               </span>
             </div>
-            <p className="text-[11px] text-slate-500 font-medium mt-1">
-              {isBn ? "ক্লাবের সকল সংরক্ষিত ফান্ড ও প্রজেক্ট" : "All registered club funds & projects"}
+            <p className="text-[10px] sm:text-xs text-slate-500 font-medium mt-1 leading-tight line-clamp-1 sm:line-clamp-none">
+              {isBn ? "সকল সংরক্ষিত ফান্ড ও প্রজেক্ট" : "All registered club funds & projects"}
             </p>
           </div>
         </div>
 
         {/* Card 2: Total Raised (Emerald Gradient) */}
-        <div className="rounded-2xl border border-emerald-300 bg-gradient-to-br from-emerald-50/95 via-white to-emerald-100/50 shadow-xs hover:shadow-md transition-all overflow-hidden flex flex-col justify-between">
+        <div className="col-span-1 rounded-2xl border border-emerald-300 bg-gradient-to-br from-emerald-50/95 via-white to-emerald-100/50 shadow-xs hover:shadow-md transition-all overflow-hidden flex flex-col justify-between">
           <div className="h-1.5 w-full bg-gradient-to-r from-[#004d38] via-[#006a4e] to-emerald-400" />
-          <div className="p-4 sm:p-5 flex flex-col justify-between flex-1">
-            <div className="flex items-center justify-between gap-2 mb-2">
-              <span className="text-[11px] sm:text-xs font-black uppercase tracking-wider text-[#004d38]">
+          <div className="p-3 sm:p-5 flex flex-col justify-between flex-1">
+            <div className="flex items-center justify-between gap-1.5 mb-1.5 sm:mb-2">
+              <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-[#004d38] truncate">
                 {isBn ? "মোট সংগৃহীত" : "Total Raised"}
               </span>
-              <div className="p-2 rounded-xl bg-gradient-to-tr from-[#006a4e] to-emerald-500 text-white shadow-md shadow-emerald-700/20 flex items-center justify-center shrink-0">
-                <ArrowUpRight className="w-4 h-4 stroke-[2.4]" />
+              <div className="p-1.5 sm:p-2 rounded-xl bg-gradient-to-tr from-[#006a4e] to-emerald-500 text-white shadow-md shadow-emerald-700/20 flex items-center justify-center shrink-0">
+                <ArrowUpRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.4]" />
               </div>
             </div>
-            <div className="flex items-baseline gap-1 my-1">
-              <span className="text-2xl sm:text-3xl font-black text-[#006a4e] tracking-tight tabular-nums">
+            <div className="flex items-baseline gap-0.5 my-0.5 sm:my-1">
+              <span className="text-base sm:text-2xl md:text-3xl font-black text-[#006a4e] tracking-tight tabular-nums truncate">
                 + {formatMoney(totalRaised)}
               </span>
             </div>
-            <p className="text-[11px] text-slate-500 font-medium mt-1">
+            <p className="text-[10px] sm:text-xs text-slate-500 font-medium mt-1 leading-tight line-clamp-1 sm:line-clamp-none">
               {isBn ? "সকল ফান্ডের সম্মিলিত জমা অনুদান" : "Cumulative contributions across all funds"}
             </p>
           </div>
         </div>
 
-        {/* Card 3: Net Remaining (Gold/Amber/Emerald Gradient) */}
-        <div className="rounded-2xl border border-amber-300/90 bg-gradient-to-br from-[#fbf8ee] via-white to-emerald-50/70 shadow-xs hover:shadow-md transition-all overflow-hidden flex flex-col justify-between">
+        {/* Card 3: Net Remaining (Gold/Amber/Emerald Gradient - Full width on mobile second row) */}
+        <div className="col-span-2 md:col-span-1 rounded-2xl border border-amber-300/90 bg-gradient-to-br from-[#fbf8ee] via-white to-emerald-50/70 shadow-xs hover:shadow-md transition-all overflow-hidden flex flex-col justify-between">
           <div className="h-1.5 w-full bg-gradient-to-r from-[#f2b705] via-amber-500 to-[#006a4e]" />
-          <div className="p-4 sm:p-5 flex flex-col justify-between flex-1">
-            <div className="flex items-center justify-between gap-2 mb-2">
-              <span className="text-[11px] sm:text-xs font-black uppercase tracking-wider text-amber-900">
+          <div className="p-3 sm:p-5 flex flex-col justify-between flex-1">
+            <div className="flex items-center justify-between gap-1.5 mb-1.5 sm:mb-2">
+              <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-amber-900 truncate">
                 {isBn ? "বর্তমান স্থিতি" : "Net Balance"}
               </span>
-              <div className="p-2 rounded-xl bg-gradient-to-tr from-[#f2b705] to-amber-500 text-[#12231d] shadow-md shadow-amber-600/20 flex items-center justify-center shrink-0">
-                <Wallet className="w-4 h-4 stroke-[2.4]" />
+              <div className="p-1.5 sm:p-2 rounded-xl bg-gradient-to-tr from-[#f2b705] to-amber-500 text-[#12231d] shadow-md shadow-amber-600/20 flex items-center justify-center shrink-0">
+                <Wallet className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.4]" />
               </div>
             </div>
-            <div className="flex items-baseline gap-1 my-1">
-              <span className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight tabular-nums">
+            <div className="flex items-baseline gap-1 my-0.5 sm:my-1">
+              <span className="text-base sm:text-2xl md:text-3xl font-black text-slate-900 tracking-tight tabular-nums truncate">
                 {formatMoney(totalRemaining)}
               </span>
             </div>
-            <p className="text-[11px] text-slate-500 font-medium mt-1">
+            <p className="text-[10px] sm:text-xs text-slate-500 font-medium mt-1 leading-tight line-clamp-1 sm:line-clamp-none">
               {isBn ? "ক্লাবের ব্যাংকে ও ক্যাশে মোট অবশিষ্ট স্থিতি" : "Net available funds in bank and cash"}
             </p>
           </div>
