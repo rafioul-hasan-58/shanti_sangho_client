@@ -14,6 +14,7 @@ export interface ThemedSelectOption<T extends string = string> {
   value: T;
   label: string;
   disabled?: boolean;
+  icon?: ReactNode;
 }
 
 interface ThemedSelectProps<T extends string = string> {
@@ -24,8 +25,9 @@ interface ThemedSelectProps<T extends string = string> {
   disabled?: boolean;
   isFiltered?: boolean;
   icon?: ReactNode;
-  size?: "xs" | "sm" | "md";
+  size?: "xs" | "sm" | "md" | "lg";
   align?: "left" | "right";
+  variant?: "filter" | "form";
   className?: string;
 }
 
@@ -43,6 +45,7 @@ export default function ThemedSelect<T extends string = string>({
   icon,
   size = "sm",
   align = "left",
+  variant = "filter",
   className = "",
 }: ThemedSelectProps<T>) {
   const [open, setOpen] = useState(false);
@@ -63,7 +66,7 @@ export default function ThemedSelect<T extends string = string>({
     const el = triggerRef.current;
     if (!el) return;
     const rect = el.getBoundingClientRect();
-    const estimatedHeight = Math.min(options.length * 36 + 16, 250);
+    const estimatedHeight = Math.min(options.length * 40 + 16, 280);
     const spaceBelow = window.innerHeight - rect.bottom;
     const openUp = spaceBelow < estimatedHeight && rect.top > estimatedHeight;
     const menuWidth = Math.max(rect.width, 165);
@@ -124,15 +127,22 @@ export default function ThemedSelect<T extends string = string>({
   const sizeClass =
     size === "xs"
       ? "h-8 px-2.5 text-[11px] rounded-lg"
-      : size === "md"
-        ? "h-10 px-3 text-xs sm:text-sm rounded-xl"
-        : "h-9 px-3 text-xs rounded-xl";
+      : size === "sm"
+        ? "h-9 px-3 text-xs rounded-xl"
+        : size === "md"
+          ? "h-10 px-3 text-xs sm:text-sm rounded-xl"
+          : "h-12 px-3.5 text-sm rounded-xl";
 
-  const triggerStateClass = open
-    ? "bg-white border-[#006a4e] text-[#006a4e] ring-2 ring-[#006a4e]/15"
-    : isFiltered
-      ? "bg-[#006a4e]/10 border-[#006a4e]/45 text-[#004d38]"
-      : "bg-emerald-50/55 border-emerald-200/80 text-[var(--text)] hover:bg-emerald-100/60 hover:border-[#006a4e]/40";
+  const triggerStateClass =
+    variant === "form"
+      ? open
+        ? "bg-white border-[#006a4e] text-slate-900 ring-2 ring-[#006a4e]/20 shadow-xs"
+        : "bg-white border-slate-200 text-slate-800 hover:border-slate-300 shadow-2xs"
+      : open
+        ? "bg-white border-[#006a4e] text-[#006a4e] ring-2 ring-[#006a4e]/15"
+        : isFiltered
+          ? "bg-[#006a4e]/10 border-[#006a4e]/45 text-[#004d38]"
+          : "bg-emerald-50/55 border-emerald-200/80 text-[var(--text)] hover:bg-emerald-100/60 hover:border-[#006a4e]/40";
 
   return (
     <>
@@ -146,19 +156,25 @@ export default function ThemedSelect<T extends string = string>({
         disabled={disabled}
         onClick={() => !disabled && setOpen((prev) => !prev)}
         onKeyDown={handleTriggerKeyDown}
-        className={`inline-flex items-center justify-between gap-2 border font-bold transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${sizeClass} ${triggerStateClass} ${className}`}
+        className={`inline-flex items-center justify-between gap-2 border font-bold transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed group select-none ${sizeClass} ${triggerStateClass} ${className}`}
       >
-        <span className="flex items-center gap-2 min-w-0">
-          {icon && (
-            <span className="shrink-0 text-[#006a4e]/80 flex items-center">
-              {icon}
-            </span>
-          )}
+        <span className="flex items-center gap-2.5 min-w-0">
+          {icon ? (
+            <span className="shrink-0 flex items-center">{icon}</span>
+          ) : selectedOption?.icon ? (
+            <span className="shrink-0 flex items-center">{selectedOption.icon}</span>
+          ) : null}
           <span className="truncate">{selectedOption?.label ?? value}</span>
         </span>
         <svg
-          className={`w-3.5 h-3.5 shrink-0 transition-transform duration-200 ${
-            open ? "rotate-180 text-[#006a4e]" : "text-[#006a4e]/75"
+          className={`shrink-0 transition-transform duration-200 ${
+            size === "lg" ? "w-4 h-4" : "w-3.5 h-3.5"
+          } ${
+            open
+              ? "rotate-180 text-[#006a4e]"
+              : variant === "form"
+                ? "text-slate-400 group-hover:text-slate-600"
+                : "text-[#006a4e]/75"
           }`}
           fill="none"
           viewBox="0 0 24 24"
@@ -184,10 +200,11 @@ export default function ThemedSelect<T extends string = string>({
               position: "fixed",
               top: coords.top,
               left: coords.left,
-              minWidth: coords.width,
+              width: coords.width,
+              maxWidth: "calc(100vw - 16px)",
               transform: coords.openUp ? "translateY(-100%)" : undefined,
             }}
-            className="z-[9999] max-h-60 overflow-y-auto rounded-2xl bg-white border border-[#006a4e]/25 shadow-xl shadow-[#006a4e]/10 p-1.5 space-y-0.5 animate-in fade-in duration-150"
+            className="z-[9999] max-h-72 overflow-y-auto rounded-2xl bg-white border border-[#006a4e]/25 shadow-xl shadow-slate-900/10 p-1.5 space-y-0.5 animate-in fade-in duration-150"
           >
             {options.map((opt) => {
               const selected = opt.value === value;
@@ -203,18 +220,29 @@ export default function ThemedSelect<T extends string = string>({
                     onChange(opt.value);
                     setOpen(false);
                   }}
-                  className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-xl text-xs font-bold text-left transition-colors ${
+                  className={`w-full flex items-center justify-between gap-2.5 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-left transition-all ${
                     opt.disabled
                       ? "opacity-40 cursor-not-allowed text-slate-400"
                       : selected
-                        ? "bg-[#006a4e] text-white shadow-2xs cursor-pointer"
-                        : "text-[var(--text)] hover:bg-emerald-50 hover:text-[#006a4e] cursor-pointer"
+                        ? "bg-[#006a4e] text-white shadow-2xs font-black cursor-pointer"
+                        : "text-slate-700 hover:bg-emerald-50 hover:text-[#006a4e] cursor-pointer"
                   }`}
                 >
-                  <span className="truncate">{opt.label}</span>
+                  <span className="flex items-center gap-2.5 min-w-0">
+                    {opt.icon && (
+                      <span
+                        className={`shrink-0 flex items-center ${
+                          selected ? "[&_svg]:text-white [&_svg]:fill-white" : ""
+                        }`}
+                      >
+                        {opt.icon}
+                      </span>
+                    )}
+                    <span className="truncate">{opt.label}</span>
+                  </span>
                   {selected && (
                     <svg
-                      className="w-3.5 h-3.5 shrink-0 text-[#f2b705]"
+                      className="w-4 h-4 shrink-0 text-[#f2b705]"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -236,4 +264,3 @@ export default function ThemedSelect<T extends string = string>({
     </>
   );
 }
-

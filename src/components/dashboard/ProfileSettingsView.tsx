@@ -45,6 +45,7 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import { useRole } from "@/context/RoleContext";
 import VerifiedTick from "@/components/common/VerifiedTick";
+import ThemedSelect from "@/components/common/ThemedSelect";
 import type { BloodGroup, MembershipType } from "@/types";
 import { BLOOD_GROUP_OPTIONS, formatBloodGroupDisplay } from "@/lib/bloodGroup";
 import {
@@ -690,30 +691,32 @@ export default function ProfileSettingsView({ locale = "bn" }: ProfileSettingsVi
                 <label className="block text-xs sm:text-[13px] font-bold text-slate-700 mb-1.5">
                   {isBn ? "রক্তের গ্রুপ" : "Blood Group"}
                 </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-rose-500">
-                    <Droplet className="w-4 h-4 fill-rose-500" />
-                  </div>
-                  <select
-                    value={profileForm.bloodGroup}
-                    onChange={(e) =>
-                      setProfileForm({
-                        ...profileForm,
-                        bloodGroup: e.target.value as BloodGroup,
-                      })
-                    }
-                    className="w-full h-12 pl-10 pr-10 rounded-xl bg-white border border-slate-200 text-sm font-bold text-slate-800 hover:border-slate-300 focus:border-[#006a4e] focus:ring-2 focus:ring-[#006a4e]/20 transition-all outline-none cursor-pointer appearance-none shadow-2xs"
-                  >
-                    {BLOOD_GROUP_OPTIONS.map((opt) => (
-                      <option key={opt.value} value={opt.value} className="text-slate-800 font-medium">
-                        {isBn ? opt.labelBn : opt.labelEn}
-                      </option>
-                    ))}
-                  </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
-                    <ChevronRight className="w-4 h-4 rotate-90" />
-                  </div>
-                </div>
+                <ThemedSelect
+                  ariaLabel={isBn ? "রক্তের গ্রুপ" : "Blood Group"}
+                  variant="form"
+                  size="lg"
+                  className="w-full"
+                  value={profileForm.bloodGroup}
+                  onChange={(val) =>
+                    setProfileForm({
+                      ...profileForm,
+                      bloodGroup: val as BloodGroup,
+                    })
+                  }
+                  icon={
+                    <Droplet className="w-4 h-4 fill-rose-500 text-rose-500" />
+                  }
+                  options={BLOOD_GROUP_OPTIONS.map((bg) => ({
+                    value: bg.value,
+                    label: isBn ? bg.labelBn : bg.labelEn,
+                    icon:
+                      bg.value !== "UNKNOWN" ? (
+                        <Droplet className="w-3.5 h-3.5 fill-rose-500 text-rose-500 shrink-0" />
+                      ) : (
+                        <span className="w-3.5 h-3.5 rounded-full border border-slate-300 shrink-0 inline-block" />
+                      ),
+                  }))}
+                />
               </div>
             </div>
 
