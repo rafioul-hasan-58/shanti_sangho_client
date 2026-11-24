@@ -548,46 +548,54 @@ export default function ProfileSettingsView({ locale = "bn" }: ProfileSettingsVi
       </div>
 
       {/* ========================================================= */}
-      {/* 2. TAB NAVIGATION (Segmented Control Pill Style)           */}
+      {/* 2. TAB NAVIGATION (Segmented Control Pill Style - 100% Fit)*/}
       {/* ========================================================= */}
-      <div className="p-1.5 rounded-2xl bg-slate-100/90 border border-slate-200/90 flex items-center gap-1.5 w-full overflow-x-auto no-scrollbar scroll-smooth">
+      <div className="p-1 sm:p-1.5 rounded-2xl bg-slate-100/90 border border-slate-200/90 grid grid-cols-3 gap-1 sm:gap-2 w-full select-none">
         <button
           type="button"
           onClick={() => setProfileSectionTab("personal")}
-          className={`flex-1 min-w-[130px] py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold inline-flex items-center justify-center gap-2 transition-all cursor-pointer select-none ${
+          className={`py-2 sm:py-2.5 px-1.5 sm:px-3 rounded-xl text-[11px] sm:text-xs md:text-sm font-bold inline-flex items-center justify-center gap-1 sm:gap-2 transition-all cursor-pointer ${
             profileSectionTab === "personal"
               ? "bg-[#006a4e] text-white shadow-xs font-black"
               : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/70"
           }`}
         >
-          <User className="w-4 h-4" />
-          <span className="whitespace-nowrap">{isBn ? "ব্যক্তিগত তথ্য" : "Personal Info"}</span>
+          <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+          <span className="truncate">
+            <span className="sm:hidden">{isBn ? "ব্যক্তিগত" : "Personal"}</span>
+            <span className="hidden sm:inline">{isBn ? "ব্যক্তিগত তথ্য" : "Personal Info"}</span>
+          </span>
         </button>
 
         <button
           type="button"
           onClick={() => setProfileSectionTab("profession")}
-          className={`flex-1 min-w-[130px] py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold inline-flex items-center justify-center gap-2 transition-all cursor-pointer select-none ${
+          className={`py-2 sm:py-2.5 px-1.5 sm:px-3 rounded-xl text-[11px] sm:text-xs md:text-sm font-bold inline-flex items-center justify-center gap-1 sm:gap-2 transition-all cursor-pointer ${
             profileSectionTab === "profession"
               ? "bg-[#006a4e] text-white shadow-xs font-black"
               : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/70"
           }`}
         >
-          <Briefcase className="w-4 h-4" />
-          <span className="whitespace-nowrap">{isBn ? "পেশা ও বায়ো" : "Profession & Bio"}</span>
+          <Briefcase className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+          <span className="truncate">
+            {isBn ? "পেশা ও বায়ো" : "Profession & Bio"}
+          </span>
         </button>
 
         <button
           type="button"
           onClick={() => setProfileSectionTab("location")}
-          className={`flex-1 min-w-[130px] py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold inline-flex items-center justify-center gap-2 transition-all cursor-pointer select-none ${
+          className={`py-2 sm:py-2.5 px-1.5 sm:px-3 rounded-xl text-[11px] sm:text-xs md:text-sm font-bold inline-flex items-center justify-center gap-1 sm:gap-2 transition-all cursor-pointer ${
             profileSectionTab === "location"
               ? "bg-[#006a4e] text-white shadow-xs font-black"
               : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/70"
           }`}
         >
-          <MapPin className="w-4 h-4" />
-          <span className="whitespace-nowrap">{isBn ? "ঠিকানা ও যোগাযোগ" : "Location & Links"}</span>
+          <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+          <span className="truncate">
+            <span className="sm:hidden">{isBn ? "ঠিকানা" : "Location"}</span>
+            <span className="hidden sm:inline">{isBn ? "ঠিকানা ও যোগাযোগ" : "Location & Links"}</span>
+          </span>
         </button>
       </div>
 
