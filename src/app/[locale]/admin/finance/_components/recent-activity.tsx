@@ -6,7 +6,6 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Clock,
-  ArrowRight,
   Receipt,
   FileText,
   UserCheck,
@@ -31,8 +30,6 @@ export function RecentActivity({ activity, locale }: RecentActivityProps) {
   const transactions = data?.transactions;
   const hasApiTransactions = Boolean(transactions && transactions.length > 0);
   const hasFallbackActivity = Boolean(activity && activity.length > 0);
-
-  const viewAllHref = withLocaleHref("/admin/finance/recent-transactions", locale);
 
   if (isLoading && !hasFallbackActivity) {
     return (
@@ -66,13 +63,6 @@ export function RecentActivity({ activity, locale }: RecentActivityProps) {
         <p className="text-xs font-semibold text-slate-400">
           {isBn ? "কোনো সাম্প্রতিক লেনদেন নেই" : "No recent activity recorded"}
         </p>
-        <Link
-          href={viewAllHref}
-          className="inline-flex items-center gap-1.5 text-xs font-bold text-[#006a4e] hover:underline"
-        >
-          <span>{isBn ? "সকল লেনদেন দেখুন" : "View all transactions"}</span>
-          <ArrowRight className="w-3.5 h-3.5" />
-        </Link>
       </div>
     );
   }
@@ -96,15 +86,6 @@ export function RecentActivity({ activity, locale }: RecentActivityProps) {
             </p>
           </div>
         </div>
-
-        {/* View All Button */}
-        <Link
-          href={viewAllHref}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100/80 text-[#006a4e] border border-emerald-200/80 text-xs font-black transition-all shrink-0 active:scale-95 shadow-2xs"
-        >
-          <span>{isBn ? "সকল কার্যক্রম দেখুন" : "View All Transactions"}</span>
-          <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
-        </Link>
       </div>
 
       {/* List */}
