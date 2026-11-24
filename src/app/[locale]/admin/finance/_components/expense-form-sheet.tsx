@@ -297,11 +297,11 @@ export function ExpenseFormSheet({
             error={errors.fundId?.message}
           />
 
-          {/* Amount (Taka) + Live Remaining Balance + Overbalance Warning */}
-          <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs font-bold text-slate-700">
-                {isBn ? "খরচের পরিমাণ (টাকা)" : "Amount (Taka)"}{" "}
+          {/* Amount (Taka) - Colorful Branded Highlight Card with Quick Suggestions */}
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-br from-rose-500/10 via-amber-500/5 to-transparent border border-rose-200/90 space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-black text-rose-900 uppercase tracking-wider block">
+                {isBn ? "টাকার পরিমাণ" : "Amount (Taka)"}{" "}
                 <span className="text-[#f42a41]">*</span>
               </label>
               {currentFund && (
@@ -319,7 +319,7 @@ export function ExpenseFormSheet({
             </div>
 
             <div className="relative">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-black text-slate-400 text-sm">
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-black text-rose-700 text-lg">
                 ৳
               </span>
               <input
@@ -327,12 +327,32 @@ export function ExpenseFormSheet({
                 step="1"
                 placeholder="0"
                 {...register("amount")}
-                className={`w-full pl-8 pr-4 py-2.5 rounded-xl border bg-white text-base font-black text-slate-900 tracking-tight tabular-nums placeholder:text-slate-300 focus:outline-none focus:ring-2 transition-all ${
+                className={`w-full pl-9 pr-4 py-2.5 rounded-xl border bg-white text-base font-black text-slate-900 tracking-tight tabular-nums placeholder:text-slate-300 focus:outline-none focus:ring-2 transition-all shadow-xs ${
                   isOverBalance
                     ? "border-amber-300 focus:border-amber-500 focus:ring-amber-200"
-                    : "border-slate-200 focus:border-[#006a4e] focus:ring-[#006a4e]/20"
+                    : "border-rose-300/80 focus:border-[#f42a41] focus:ring-[#f42a41]/20"
                 }`}
               />
+            </div>
+
+            {/* Quick Amount Suggestion Chips */}
+            <div className="flex items-center gap-1.5 flex-wrap pt-0.5">
+              {[500, 1000, 2000, 5000].map((amt) => (
+                <button
+                  key={amt}
+                  type="button"
+                  onClick={() => {
+                    const current = Number(watch("amount")) || 0;
+                    setValue("amount", (current + amt) as unknown as number, {
+                      shouldValidate: true,
+                      shouldDirty: true,
+                    });
+                  }}
+                  className="px-2.5 py-1 rounded-lg bg-white border border-rose-200 text-[11px] font-bold text-rose-800 hover:bg-rose-50 active:scale-95 shadow-2xs transition-all cursor-pointer"
+                >
+                  +{formatMoney(amt)}
+                </button>
+              ))}
             </div>
 
             {/* Warning (not a block) if amount > remaining */}
@@ -356,7 +376,7 @@ export function ExpenseFormSheet({
             )}
 
             {errors.amount && (
-              <p className="text-[11px] font-semibold text-[#f42a41] mt-1">
+              <p className="text-[11px] font-semibold text-[#f42a41]">
                 {errors.amount.message}
               </p>
             )}
