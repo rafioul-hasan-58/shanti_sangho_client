@@ -627,8 +627,8 @@ export default function DashboardSidebar({
         </div>
 
         {/* 3. Bottom: Profile Card & Direct Sign Out (Matching Screenshot) */}
-        <div className="p-4 border-t border-slate-100 bg-white space-y-3">
-          {/* User Profile Card (Clicking opens Profile & Settings) */}
+        <div className="p-3 sm:p-4 border-t border-slate-100 bg-white space-y-0 md:space-y-3">
+          {/* User Profile Card (Clicking opens Profile & Settings) - Hidden on Mobile Drawer */}
           <div
             role="button"
             tabIndex={0}
@@ -642,7 +642,7 @@ export default function DashboardSidebar({
                 setMobileOpen(false);
               }
             }}
-            className={`w-full flex items-center justify-between p-2.5 rounded-2xl border transition-all cursor-pointer select-none group ${
+            className={`hidden md:flex w-full items-center justify-between p-2.5 rounded-2xl border transition-all cursor-pointer select-none group ${
               activeTab === "profile"
                 ? "bg-[#006a4e]/10 border-[#006a4e] ring-2 ring-[#006a4e]/25 shadow-xs"
                 : "bg-white border-slate-200/90 hover:border-[#006a4e]/40 hover:shadow-xs"
