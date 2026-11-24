@@ -36,6 +36,7 @@ export default function UserProfileDropdown({
   const resolvedRole = normalizeRole(user.role ?? role);
   const isAdmin = hasDashboardAccess(resolvedRole);
   const dashboardHref = `/${locale}/dashboard`;
+  const financeHref = `/${locale}/admin/finance`;
   const profileHref = `/${locale}/dashboard?tab=profile`;
   const statusDotClass =
     user.status === "SUSPENDED" ? "bg-rose-500" : "bg-emerald-500";
@@ -220,8 +221,21 @@ export default function UserProfileDropdown({
                 className="flex items-center gap-3 px-2 py-2.5 rounded-xl hover:bg-slate-50 text-slate-700 font-semibold text-xs sm:text-sm transition-colors cursor-pointer"
               >
                 <span className="text-base leading-none">📊</span>
-                <span>{isBn ? "ড্যাশবোর্ড" : " Dashboard"}</span>
+                <span>{isBn ? "ড্যাশবোর্ড" : "Dashboard"}</span>
               </Link>
+
+              {isAdmin && (
+                <Link
+                  href={financeHref}
+                  role="menuitem"
+                  tabIndex={0}
+                  onClick={closeDropdown}
+                  className="flex items-center gap-3 px-2 py-2.5 rounded-xl hover:bg-slate-50 text-slate-700 font-semibold text-xs sm:text-sm transition-colors cursor-pointer"
+                >
+                  <span className="text-base leading-none">💰</span>
+                  <span>{isBn ? "ফান্ড ও ফাইন্যান্স" : "Fund & Finance"}</span>
+                </Link>
+              )}
 
               <Link
                 href={profileHref}
