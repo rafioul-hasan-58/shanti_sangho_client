@@ -140,13 +140,13 @@ export function FundsManagementTable({
         )}
       </div>
 
-      {/* Content: Cards Grid (Identical to the colorful cards on /finance, No Table!) */}
+      {/* Content: Cards Grid (2 cards per line on mobile, 3 on desktop) */}
       {isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4.5">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-4">
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <div
               key={i}
-              className="h-60 bg-white rounded-3xl border border-slate-200/80 p-5 animate-pulse"
+              className="h-52 sm:h-60 bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 p-3 sm:p-5 animate-pulse"
             />
           ))}
         </div>
@@ -180,8 +180,8 @@ export function FundsManagementTable({
         </div>
       ) : (
         <div className="space-y-6">
-          {/* Colorful Cards Grid (matching /finance FundCard) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4.5">
+          {/* Colorful Cards Grid (2 cards per line on mobile, 3 on desktop) */}
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-4">
             {paginatedFunds.map((fund) => (
               <FundCard key={fund.id} fund={fund} locale={locale} />
             ))}
