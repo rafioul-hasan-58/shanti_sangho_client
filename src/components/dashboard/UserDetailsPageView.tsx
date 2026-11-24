@@ -44,7 +44,7 @@ interface UserDetailsPageViewProps {
 }
 
 /**
- * Dynamic full-page member details view loaded via `GET /api/v1/members/:id`.
+ * Dynamic full-page member details view loaded via `GET /api/v1/members/details/:id`.
  */
 export default function UserDetailsPageView({
   userId,

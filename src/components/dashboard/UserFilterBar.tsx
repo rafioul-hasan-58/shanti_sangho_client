@@ -7,7 +7,6 @@ import type { BloodGroup, MembershipType, Role, UserStatus } from "@/types";
 import {
   MEMBERSHIP_OPTIONS,
   ROLE_OPTIONS,
-  SORT_FIELD_OPTIONS,
 } from "./userManagementConfig";
 
 const ICON_CLS = "w-3.5 h-3.5 shrink-0";
@@ -251,23 +250,6 @@ export default function UserFilterBar({
           ]}
         />
 
-        <ThemedSelect
-          ariaLabel={isBn ? "সর্ট ফিল্ড" : "Sort by field"}
-          value={filters.sortBy}
-          align="right"
-          className="w-full min-w-0 sm:w-auto sm:ml-auto"
-          icon={
-            <svg className={ICON_CLS} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
-            </svg>
-          }
-          onChange={(val) => onChange("sortBy", val)}
-          options={SORT_FIELD_OPTIONS.map((opt) => ({
-            value: opt.value,
-            label: isBn ? `সর্ট: ${opt.labelBn}` : `Sort: ${opt.labelEn}`,
-          }))}
-        />
-
         <button
           type="button"
           onClick={() =>
@@ -275,15 +257,15 @@ export default function UserFilterBar({
           }
           title={
             filters.sortOrder === "desc"
-              ? isBn ? "নতুন/বড় থেকে ছোট" : "Descending"
-              : isBn ? "পুরনো/ছোট থেকে বড়" : "Ascending"
+              ? isBn ? "নতুন থেকে পুরনো (সদস্য হওয়ার তারিখ অনুযায়ী)" : "Newest First (Sorted by Join Date)"
+              : isBn ? "পুরনো থেকে নতুন (সদস্য হওয়ার তারিখ অনুযায়ী)" : "Oldest First (Sorted by Join Date)"
           }
-          className="w-full min-w-0 sm:w-auto h-9 px-3 rounded-xl border border-emerald-200/80 bg-emerald-50/55 hover:bg-emerald-100/60 hover:border-[#006a4e]/40 text-xs font-extrabold text-[#006a4e] inline-flex items-center justify-center sm:justify-start gap-2 transition-colors cursor-pointer"
+          className="w-full min-w-0 sm:w-auto sm:ml-auto h-9 px-3 rounded-xl border border-emerald-200/80 bg-emerald-50/55 hover:bg-emerald-100/60 hover:border-[#006a4e]/40 text-xs font-extrabold text-[#006a4e] inline-flex items-center justify-center sm:justify-start gap-2 transition-colors cursor-pointer"
         >
           <svg className={ICON_CLS} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
           </svg>
-          <span>{filters.sortOrder === "desc" ? "DESC" : "ASC"}</span>
+          <span>{filters.sortOrder === "desc" ? (isBn ? "নতুন আগে" : "Newest") : (isBn ? "পুরনো আগে" : "Oldest")}</span>
         </button>
 
         {hasActiveFilters && (

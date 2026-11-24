@@ -76,7 +76,7 @@ const LABEL_CLASS =
   "block text-[11px] font-extrabold uppercase tracking-wide text-slate-500 mb-1";
 
 /**
- * Full UpdateUserDto edit modal wired to `PATCH /api/v1/members/:id`.
+ * Full UpdateUserDto edit modal wired to `PATCH /api/v1/members/update/:id`.
  */
 export default function UserEditModal({
   user,

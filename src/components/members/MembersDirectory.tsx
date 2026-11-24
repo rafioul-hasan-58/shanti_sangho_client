@@ -15,7 +15,6 @@ import { ROLE_OPTIONS } from "@/components/dashboard/userManagementConfig";
 import type {
   ManagedUser,
   SortOrder,
-  UserSortField,
   UsersPaginationMeta,
   UsersQueryParams,
 } from "@/lib/types/dashboard";
@@ -69,8 +68,7 @@ export default function MembersDirectory({
   const [roleFilter, setRoleFilter] = useState<Role | "ALL">("ALL");
   const [membershipFilter, setMembershipFilter] = useState<MembershipType | "ALL">("ALL");
   const [bloodGroupFilter, setBloodGroupFilter] = useState<BloodGroup | "ALL">("ALL");
-  const [sortBy, setSortBy] = useState<UserSortField>("createdAt");
-  const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(12);
 
@@ -94,11 +92,10 @@ export default function MembersDirectory({
     const params: UsersQueryParams = {
       page,
       limit,
-      sortBy,
       sortOrder,
     };
 
-    if (debouncedSearch.trim()) params.search = debouncedSearch.trim();
+    if (debouncedSearch.trim()) params.searchTerm = debouncedSearch.trim();
     if (roleFilter !== "ALL") params.role = roleFilter;
     if (membershipFilter !== "ALL") params.membershipType = membershipFilter;
     if (bloodGroupFilter !== "ALL") params.bloodGroup = bloodGroupFilter;
@@ -119,7 +116,6 @@ export default function MembersDirectory({
   }, [
     page,
     limit,
-    sortBy,
     sortOrder,
     debouncedSearch,
     roleFilter,
@@ -153,8 +149,7 @@ export default function MembersDirectory({
     setRoleFilter("ALL");
     setMembershipFilter("ALL");
     setBloodGroupFilter("ALL");
-    setSortBy("createdAt");
-    setSortOrder("asc");
+    setSortOrder("desc");
     setPage(1);
   };
 
@@ -168,12 +163,6 @@ export default function MembersDirectory({
     { key: "ALL", labelBn: "সকল সদস্য", labelEn: "All Members" },
     { key: "PLAYER_QUOTA", labelBn: "খেলোয়াড় কোটা", labelEn: "Player Quota" },
     { key: "ADMIN", labelBn: "অ্যাডমিন", labelEn: "Admins" },
-  ];
-
-  const sortOptions: Array<{ value: UserSortField; labelBn: string; labelEn: string }> = [
-    { value: "createdAt", labelBn: "যোগদানের তারিখ", labelEn: "Joined Date" },
-    { value: "fullName", labelBn: "নাম", labelEn: "Name" },
-    { value: "role", labelBn: "রোল", labelEn: "Role" },
   ];
 
   return (
@@ -343,38 +332,27 @@ export default function MembersDirectory({
             ]}
           />
 
-          <ThemedSelect
-            ariaLabel={isBn ? "সর্ট ফিল্ড" : "Sort by"}
-            value={sortBy}
-            align="right"
-            className="w-full sm:w-auto sm:ml-auto h-9"
-            icon={
-              <svg className={ICON_CLS} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
-              </svg>
-            }
-            onChange={(val) => {
-              setSortBy(val);
-              setPage(1);
-            }}
-            options={sortOptions.map((opt) => ({
-              value: opt.value,
-              label: isBn ? `সর্ট: ${opt.labelBn}` : `Sort: ${opt.labelEn}`,
-            }))}
-          />
-
           <button
             type="button"
             onClick={() => {
               setSortOrder((prev) => (prev === "desc" ? "asc" : "desc"));
               setPage(1);
             }}
-            className="w-full min-w-0 sm:w-auto h-9 px-3 rounded-xl border border-emerald-200/80 bg-emerald-50/55 hover:bg-emerald-100/60 hover:border-[#006a4e]/40 text-xs font-extrabold text-[#006a4e] inline-flex items-center justify-center sm:justify-start gap-2 transition-colors cursor-pointer"
+            title={
+              sortOrder === "desc"
+                ? isBn
+                  ? "নতুন থেকে পুরনো (যোগদানের তারিখ অনুযায়ী)"
+                  : "Newest First (Sorted by Join Date)"
+                : isBn
+                ? "পুরনো থেকে নতুন (যোগদানের তারিখ অনুযায়ী)"
+                : "Oldest First (Sorted by Join Date)"
+            }
+            className="w-full min-w-0 sm:w-auto sm:ml-auto h-9 px-3 rounded-xl border border-emerald-200/80 bg-emerald-50/55 hover:bg-emerald-100/60 hover:border-[#006a4e]/40 text-xs font-extrabold text-[#006a4e] inline-flex items-center justify-center sm:justify-start gap-2 transition-colors cursor-pointer"
           >
             <svg className={ICON_CLS} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
             </svg>
-            <span>{sortOrder === "desc" ? "DESC" : "ASC"}</span>
+            <span>{sortOrder === "desc" ? (isBn ? "নতুন আগে" : "Newest") : (isBn ? "পুরনো আগে" : "Oldest")}</span>
           </button>
 
           {hasActiveFilters && (

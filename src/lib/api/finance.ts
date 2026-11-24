@@ -1288,14 +1288,20 @@ export async function deleteExpense(id: string): Promise<boolean> {
 // ---------------------------------------------------------------------------
 
 /**
- * GET /api/v1/members?search=
+ * GET /api/v1/members/get-all?searchTerm=
  * Search members for contribution giver / receiver comboboxes.
  */
 export async function searchFinanceMembers(query = ""): Promise<FinanceMember[]> {
   try {
-    const res = await fetchWithAuth(`/members?search=${encodeURIComponent(query)}`, {
-      skipAuth: true,
-    });
+    let res = await fetchWithAuth(
+      `/members/get-all?searchTerm=${encodeURIComponent(query)}&limit=20`,
+      { skipAuth: true }
+    );
+    if (!res.ok && res.status === 404) {
+      res = await fetchWithAuth(`/members?search=${encodeURIComponent(query)}`, {
+        skipAuth: true,
+      });
+    }
     if (res.ok) {
       const json = await res.json();
       const list = json?.data?.members ?? json?.data ?? json?.members ?? json;

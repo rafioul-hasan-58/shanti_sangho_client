@@ -31,7 +31,7 @@ interface UserDetailsModalProps {
 }
 
 /**
- * Modal inspecting full sanitized user details loaded via `GET /api/v1/members/:id`.
+ * Modal inspecting full sanitized user details loaded via `GET /api/v1/members/details/:id`.
  */
 export default function UserDetailsModal({
   user,

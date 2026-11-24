@@ -12,7 +12,7 @@ interface UserDeleteConfirmModalProps {
 }
 
 /**
- * Confirmation modal before permanently deleting a member via `DELETE /api/v1/members/:id`.
+ * Confirmation modal before permanently deleting a member via `DELETE /api/v1/members/delete/:id`.
  */
 export default function UserDeleteConfirmModal({
   user,

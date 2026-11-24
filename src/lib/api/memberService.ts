@@ -4,11 +4,11 @@
  * Implements all endpoints for authenticated and administrative Member accounts:
  * - GET    /api/v1/members/profile         (authenticated member profile)
  * - PATCH  /api/v1/members/update-profile  (update own profile)
- * - GET    /api/v1/members                (public/paginated list of registered members)
- * - GET    /api/v1/members/:id            (admin: single member details)
- * - PATCH  /api/v1/members/:id            (admin: update member details/role/status)
+ * - GET    /api/v1/members/get-all         (public/paginated list of registered members)
+ * - GET    /api/v1/members/details/:id     (admin: single member details)
+ * - PATCH  /api/v1/members/update/:id      (admin: update member details/role/status)
  * - PATCH  /api/v1/members/:id/toggle-block (admin: toggle SUSPENDED <-> ACTIVE)
- * - DELETE /api/v1/members/:id            (admin: delete member)
+ * - DELETE /api/v1/members/delete/:id      (admin: delete member)
  */
 
 import { apiRequest, type ApiResponse } from "@/lib/api";
@@ -159,11 +159,16 @@ export function buildMembersQueryString(params: MembersQueryParams = {}): string
   if (typeof params.emailVerified === "boolean") {
     sp.set("emailVerified", String(params.emailVerified));
   }
-  if (params.search && params.search.trim()) {
-    sp.set("search", params.search.trim());
+  // API route update: searchTerm replaces search
+  const term = (params.searchTerm ?? params.search ?? "").trim();
+  if (term) {
+    sp.set("searchTerm", term);
   }
-  if (params.sortBy) sp.set("sortBy", params.sortBy);
-  if (params.sortOrder) sp.set("sortOrder", params.sortOrder);
+  // API route update: sortOrder replaces sort & sortBy (sorting is statically locked to createdAt)
+  const sortOrder = params.sortOrder || (params as any).sort;
+  if (sortOrder) {
+    sp.set("sortOrder", sortOrder);
+  }
 
   const qs = sp.toString();
   return qs ? `?${qs}` : "";
@@ -175,7 +180,7 @@ export const buildUsersQueryString = buildMembersQueryString;
 export function queryMockMembers(params: MembersQueryParams = {}): UsersListResponse {
   const page = Math.max(1, params.page ?? 1);
   const limit = Math.max(1, Math.min(100, params.limit ?? 10));
-  const search = (params.search ?? "").trim().toLowerCase();
+  const search = (params.searchTerm ?? params.search ?? "").trim().toLowerCase();
   const role = params.role && params.role !== ("ALL" as any) ? params.role : null;
   const status = params.status && params.status !== ("ALL" as any) ? params.status : null;
   const membershipType =
@@ -203,7 +208,7 @@ export function queryMockMembers(params: MembersQueryParams = {}): UsersListResp
   });
 
   const sortBy = params.sortBy ?? "createdAt";
-  const sortOrder = params.sortOrder ?? "desc";
+  const sortOrder = params.sortOrder ?? (params as any).sort ?? "desc";
 
   const sorted = [...filtered].sort((a, b) => {
     let cmp = 0;
@@ -243,7 +248,7 @@ export function queryMockMembers(params: MembersQueryParams = {}): UsersListResp
 export const queryMockUsers = queryMockMembers;
 
 /**
- * 1. `GET /api/v1/members`
+ * 1. `GET /api/v1/members/get-all`
  * List all club members (paginated, filterable, sortable).
  * Matches backend response contract: `response.data.members`.
  */
@@ -255,18 +260,22 @@ export async function fetchMembers(
   let lastError: Error | null = null;
 
   try {
-    // Primary: GET /api/v1/members
-    res = await apiRequest<any>(`/members${query}`, { skipAuth: true });
+    // Primary: GET /api/v1/members/get-all
+    res = await apiRequest<any>(`/members/get-all${query}`, { skipAuth: true });
   } catch (err) {
     lastError = err instanceof Error ? err : new Error(String(err));
   }
 
-  // Fallback to /users if server is still on old route during migration
+  // Fallback to /members during backend cutover if /get-all returns 404
   if (!res || !res.data) {
     try {
-      res = await apiRequest<any>(`/users${query}`, { skipAuth: true });
+      res = await apiRequest<any>(`/members${query}`, { skipAuth: true });
     } catch {
-      if (lastError) throw lastError;
+      try {
+        res = await apiRequest<any>(`/users${query}`, { skipAuth: true });
+      } catch {
+        if (lastError) throw lastError;
+      }
     }
   }
 
@@ -354,7 +363,7 @@ export async function fetchMemberProfile(): Promise<Member> {
 }
 
 /**
- * 3. `GET /api/v1/members/:id`
+ * 3. `GET /api/v1/members/details/:id`
  * Retrieve a single member by ID (Admin only).
  */
 export async function fetchMemberById(id: string): Promise<ManagedUser> {
@@ -362,12 +371,17 @@ export async function fetchMemberById(id: string): Promise<ManagedUser> {
 
   let res: ApiResponse<Record<string, unknown>> | null = null;
   try {
-    res = await apiRequest<Record<string, unknown>>(`/members/${encodeURIComponent(id)}`);
+    // Primary: GET /api/v1/members/details/:id
+    res = await apiRequest<Record<string, unknown>>(`/members/details/${encodeURIComponent(id)}`);
   } catch (err) {
     try {
-      res = await apiRequest<Record<string, unknown>>(`/users/${encodeURIComponent(id)}`);
+      res = await apiRequest<Record<string, unknown>>(`/members/${encodeURIComponent(id)}`);
     } catch {
-      throw err;
+      try {
+        res = await apiRequest<Record<string, unknown>>(`/users/${encodeURIComponent(id)}`);
+      } catch {
+        throw err;
+      }
     }
   }
 
@@ -419,7 +433,7 @@ export function sanitizeUpdateMemberPayload(
 export const sanitizeUpdatePayload = sanitizeUpdateMemberPayload;
 
 /**
- * 4. `PATCH /api/v1/members/:id`
+ * 4. `PATCH /api/v1/members/update/:id`
  * Update profile and/or administrative fields (Admin only).
  */
 export async function updateMemberById(
@@ -432,17 +446,26 @@ export async function updateMemberById(
   let res: ApiResponse<Record<string, unknown>> | null = null;
 
   try {
-    res = await apiRequest<Record<string, unknown>>(`/members/${encodeURIComponent(id)}`, {
+    // Primary: PATCH /api/v1/members/update/:id
+    res = await apiRequest<Record<string, unknown>>(`/members/update/${encodeURIComponent(id)}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
   } catch (err) {
-    res = await apiRequest<Record<string, unknown>>(`/users/${encodeURIComponent(id)}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
+    try {
+      res = await apiRequest<Record<string, unknown>>(`/members/${encodeURIComponent(id)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+    } catch {
+      res = await apiRequest<Record<string, unknown>>(`/users/${encodeURIComponent(id)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+    }
   }
 
   const raw =
@@ -498,7 +521,7 @@ export async function toggleBlockMemberById(
 export const toggleBlockUserById = toggleBlockMemberById;
 
 /**
- * 6. `DELETE /api/v1/members/:id`
+ * 6. `DELETE /api/v1/members/delete/:id`
  * Permanently delete a member (Admin only).
  */
 export async function deleteMemberById(
@@ -508,13 +531,20 @@ export async function deleteMemberById(
 
   let res: ApiResponse<Record<string, unknown>> | null = null;
   try {
-    res = await apiRequest<Record<string, unknown>>(`/members/${encodeURIComponent(id)}`, {
+    // Primary: DELETE /api/v1/members/delete/:id
+    res = await apiRequest<Record<string, unknown>>(`/members/delete/${encodeURIComponent(id)}`, {
       method: "DELETE",
     });
   } catch (err) {
-    res = await apiRequest<Record<string, unknown>>(`/users/${encodeURIComponent(id)}`, {
-      method: "DELETE",
-    });
+    try {
+      res = await apiRequest<Record<string, unknown>>(`/members/${encodeURIComponent(id)}`, {
+        method: "DELETE",
+      });
+    } catch {
+      res = await apiRequest<Record<string, unknown>>(`/users/${encodeURIComponent(id)}`, {
+        method: "DELETE",
+      });
+    }
   }
 
   const raw =

@@ -112,10 +112,9 @@ export default function AdminUsersView({
     const params: UsersQueryParams = {
       page: isPendingView ? 1 : page,
       limit: isPendingView ? 50 : filters.limit,
-      sortBy: filters.sortBy,
       sortOrder: filters.sortOrder,
     };
-    if (debouncedSearch.trim()) params.search = debouncedSearch.trim();
+    if (debouncedSearch.trim()) params.searchTerm = debouncedSearch.trim();
     if (!isPendingView && filters.status !== "ALL") {
       params.status = filters.status;
     }

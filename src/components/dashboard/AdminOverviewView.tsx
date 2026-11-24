@@ -61,7 +61,7 @@ export default function AdminOverviewView({
       .catch((err) => console.error("Error loading stats:", err))
       .finally(() => setLoading(false));
 
-    fetchMembers({ page: 1, limit: 50, sortBy: "createdAt", sortOrder: "desc" })
+    fetchMembers({ page: 1, limit: 50, sortOrder: "desc" })
       .then((res) => {
         const filtered = res.users.filter((u) => !u.adminVerified);
         setTotalPendingCount(filtered.length);

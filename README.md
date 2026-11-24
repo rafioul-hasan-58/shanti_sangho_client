@@ -34,7 +34,7 @@ The finance client (`src/lib/api/finance.ts`) calls the following endpoints usin
 - `POST /finance/contributions` -> `{ fundId, amount, method, receivedAt, receivedById, giverMemberId?, giverName?, note?, reference? }`
 - `GET  /finance/expenses?fundId&from&to&q&page&limit` -> `{ data: Expense[], total, page, limit, totalPages }`
 - `POST /finance/expenses` -> `{ fundId, amount, spentAt, spentOn, spentById?, note?, receiptUrl? }`
-- `GET  /members?search=` -> Searchable member combobox for contributor/receiver pickers
+- `GET  /members/get-all?searchTerm=` -> Searchable member combobox for contributor/receiver pickers
 
 *Fallback:* When the NestJS endpoints are offline or returning 404 during local development, `lib/api/finance.ts` transparently operates with an in-memory / localStorage store pre-seeded with funds (`GPL`, `OWAG`, `SPORTS`, `FOOTBALL`, `MAINTENANCE`, `OTHER`), contributions, and expenses. New contributions and expenses immediately update fund balances.
 
