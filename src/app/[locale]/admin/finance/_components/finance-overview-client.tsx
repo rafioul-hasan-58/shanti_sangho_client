@@ -10,8 +10,6 @@ import {
   ArrowDownRight,
   RefreshCw,
   Coins,
-  LayoutDashboard,
-  FolderTree,
   FolderPlus,
   ArrowRight,
   HandCoins,
@@ -29,20 +27,16 @@ import { RecentActivity } from "./recent-activity";
 import { ContributionFormSheet } from "./contribution-form-sheet";
 import { ExpenseFormSheet } from "./expense-form-sheet";
 import { FundFormDialog } from "./fund-form-dialog";
-import { FundsManagementTable } from "./funds-management-table";
 
 interface FinanceOverviewClientProps {
   locale: string;
 }
-
-type FinanceTab = "overview" | "funds";
 
 export function FinanceOverviewClient({ locale }: FinanceOverviewClientProps) {
   const router = useRouter();
   const isBn = locale === "bn";
   const { user, loading: authLoading } = useAuth();
 
-  const [activeTab, setActiveTab] = useState<FinanceTab>("overview");
   const [fundDialogOpen, setFundDialogOpen] = useState(false);
   const [contributionSheetOpen, setContributionSheetOpen] = useState(false);
   const [expenseSheetOpen, setExpenseSheetOpen] = useState(false);
@@ -171,56 +165,8 @@ export function FinanceOverviewClient({ locale }: FinanceOverviewClientProps) {
         </div>
       </div>
 
-      {/* 2. Top-Level Tab Switcher: Overview vs All Funds */}
-      <div className="w-full sm:w-auto sm:inline-flex grid grid-cols-2 p-1.5 bg-slate-100/90 rounded-2xl border border-slate-200/80 gap-1.5">
-        <button
-          type="button"
-          onClick={() => setActiveTab("overview")}
-          className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer ${
-            activeTab === "overview"
-              ? "bg-[#006a4e] text-white shadow-md shadow-[#006a4e]/20"
-              : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
-          }`}
-        >
-          <LayoutDashboard
-            className={`w-4 h-4 shrink-0 transition-colors ${
-              activeTab === "overview" ? "text-white" : "text-slate-500"
-            }`}
-          />
-          <span>{isBn ? "সামগ্রিক চিত্র" : "Overview"}</span>
-        </button>
-
-        <Link
-          href={withLocaleHref("/admin/finance/funds", locale)}
-          className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer ${
-            activeTab === "funds"
-              ? "bg-[#006a4e] text-white shadow-md shadow-[#006a4e]/20"
-              : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
-          }`}
-        >
-          <FolderTree
-            className={`w-4 h-4 shrink-0 transition-colors ${
-              activeTab === "funds" ? "text-white" : "text-slate-500"
-            }`}
-          />
-          <span>{isBn ? "সকল ফান্ড" : "All Funds"}</span>
-          <span
-            className={`px-2 py-0.5 rounded-full text-[10px] font-black transition-colors ${
-              activeTab === "funds"
-                ? "bg-white/20 text-white"
-                : "bg-slate-200/80 text-slate-700"
-            }`}
-          >
-            {funds.length}
-          </span>
-        </Link>
-      </div>
-
-      {/* 3. Tab Contents */}
-
-      {/* TAB A: OVERVIEW */}
-      {activeTab === "overview" && (
-        <div className="space-y-8 animate-fadeIn">
+      {/* 2. Overview Content */}
+      <div className="space-y-8 animate-fadeIn">
           {/* Top Row: 3 Stat Cards (2 per row on mobile, 3 on desktop) */}
           <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5 sm:gap-4">
             <StatCard
@@ -296,29 +242,6 @@ export function FinanceOverviewClient({ locale }: FinanceOverviewClientProps) {
           {/* Recent Activity List (Last 8 merged & sorted) */}
           <RecentActivity activity={recentActivity} locale={locale} />
         </div>
-      )}
-
-      {/* TAB B: ALL FUNDS TABLE */}
-      {activeTab === "funds" && (
-        <div className="animate-fadeIn space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-black text-slate-900">
-                {isBn ? "ক্লাবের সকল ফান্ড ব্যবস্থাপনা" : "All Club Funds"}
-              </h2>
-              <p className="text-xs text-slate-500">
-                {isBn
-                  ? "ফান্ড তৈরি, এডিট, স্থিতি পর্যবেক্ষণ ও পরিচালনা করুন"
-                  : "Create, edit, archive, and monitor balances across all funds"}
-              </p>
-            </div>
-          </div>
-          <FundsManagementTable
-            locale={locale}
-            onAddFundClick={() => setFundDialogOpen(true)}
-          />
-        </div>
-      )}
 
       {/* Fund Create/Edit Modal Dialog */}
       <FundFormDialog

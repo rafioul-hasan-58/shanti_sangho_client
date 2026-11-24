@@ -4,18 +4,14 @@ import React, { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import {
   Search,
-  Filter,
   Plus,
   Eye,
   Edit,
   Trash2,
   AlertTriangle,
   CheckCircle,
-  Archive,
   RefreshCw,
-  FolderLock,
   Layers,
-  ArrowRight,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
@@ -153,38 +149,41 @@ export function FundsManagementTable({
             />
           </div>
 
-          {/* Category Filter */}
-          <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value as FundCategory | "ALL")}
-            className="px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm font-semibold text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#006a4e]/20 focus:border-[#006a4e] cursor-pointer"
-          >
-            <option value="ALL">{isBn ? "সকল ক্যাটাগরি" : "All Categories"}</option>
-            {FUND_CATEGORIES.map((cat) => (
-              <option key={cat} value={cat}>
-                {formatFundCategory(cat, isBn)}
-              </option>
-            ))}
-          </select>
+          {/* Filters Row: 2 columns on mobile, inline on sm+ */}
+          <div className="grid grid-cols-2 sm:flex sm:items-center gap-2">
+            {/* Category Filter */}
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value as FundCategory | "ALL")}
+              className="w-full sm:w-auto px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm font-semibold text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#006a4e]/20 focus:border-[#006a4e] cursor-pointer"
+            >
+              <option value="ALL">{isBn ? "সকল ক্যাটাগরি" : "All Categories"}</option>
+              {FUND_CATEGORIES.map((cat) => (
+                <option key={cat} value={cat}>
+                  {formatFundCategory(cat, isBn)}
+                </option>
+              ))}
+            </select>
 
-          {/* Status Filter */}
-          <select
-            value={selectedStatus}
-            onChange={(e) => setSelectedStatus(e.target.value as "ALL" | "ACTIVE" | "INACTIVE")}
-            className="px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm font-semibold text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#006a4e]/20 focus:border-[#006a4e] cursor-pointer"
-          >
-            <option value="ALL">{isBn ? "সকল স্ট্যাটাস" : "All Status"}</option>
-            <option value="ACTIVE">{isBn ? "সক্রিয় (Active)" : "Active"}</option>
-            <option value="INACTIVE">{isBn ? "আর্কাইভ/নিষ্ক্রিয়" : "Archived"}</option>
-          </select>
+            {/* Status Filter */}
+            <select
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value as "ALL" | "ACTIVE" | "INACTIVE")}
+              className="w-full sm:w-auto px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm font-semibold text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#006a4e]/20 focus:border-[#006a4e] cursor-pointer"
+            >
+              <option value="ALL">{isBn ? "সকল স্ট্যাটাস" : "All Status"}</option>
+              <option value="ACTIVE">{isBn ? "সক্রিয়" : "Active"}</option>
+              <option value="INACTIVE">{isBn ? "নিষ্ক্রিয়" : "Archived"}</option>
+            </select>
+          </div>
         </div>
 
-        {/* Add Fund Button */}
+        {/* Add Fund Button (Mobile only here; desktop has it in the page header) */}
         {onAddFundClick && (
           <button
             type="button"
             onClick={onAddFundClick}
-            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-[#006a4e] hover:bg-[#004d38] active:scale-95 text-white text-xs sm:text-sm font-bold shadow-xs transition-all cursor-pointer shrink-0"
+            className="sm:hidden inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#006a4e] hover:bg-[#004d38] active:scale-95 text-white text-xs font-bold shadow-xs transition-all cursor-pointer shrink-0"
           >
             <Plus className="w-4 h-4 stroke-[2.5]" />
             <span>{isBn ? "নতুন ফান্ড" : "New Fund"}</span>
