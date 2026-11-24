@@ -43,6 +43,16 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
     status: "ready",
   },
   {
+    id: "finance",
+    labelEn: "Finance",
+    labelBn: "ফাইন্যান্স ও ফান্ড",
+    shortLabelEn: "Finance",
+    shortLabelBn: "ফাইন্যান্স",
+    icon: WalletIcon,
+    href: "/admin/finance",
+    status: "ready",
+  },
+  {
     id: "committee",
     labelEn: "Committee",
     labelBn: "কার্যনির্বাহী কমিটি",
@@ -154,16 +164,7 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
     href: "/admin/members",
     status: "ready",
   },
-  {
-    id: "finance",
-    labelEn: "Finance",
-    labelBn: "ফাইন্যান্স ও ফান্ড",
-    shortLabelEn: "Finance",
-    shortLabelBn: "ফাইন্যান্স",
-    icon: WalletIcon,
-    href: "/admin/finance",
-    status: "ready",
-  },
+
 ];
 
 /** The 4 primary mobile bottom bar tab IDs: Dashboard, Finance, User, Profile */

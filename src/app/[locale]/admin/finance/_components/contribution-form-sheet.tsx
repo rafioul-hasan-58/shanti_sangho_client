@@ -325,7 +325,7 @@ export function ContributionFormSheet({
                         : "bg-slate-50/80 hover:bg-white border-slate-200 text-slate-600 hover:border-slate-300 font-bold"
                     }`}
                   >
-                    <PaymentMethodLogo method={m} className="w-5 h-5 shrink-0" />
+                    <PaymentMethodLogo method={m} className="w-6 h-6 shrink-0" />
                     <span className="text-[11px] truncate">{getMethodName()}</span>
                   </button>
                 );

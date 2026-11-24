@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 import type { PaymentMethod } from "@/lib/schemas/finance";
 
 export interface PaymentMethodLogoProps {
@@ -12,58 +13,38 @@ export interface PaymentMethodLogoProps {
 export function BkashLogo({ className = "w-4 h-4" }: { className?: string }) {
   return (
     <span
-      className={`inline-flex items-center justify-center shrink-0 rounded-md bg-[#e2136e] text-white shadow-2xs p-0.5 ${className}`}
+      className={`relative inline-flex items-center justify-center shrink-0 ${className}`}
       title="bKash"
     >
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className="w-full h-full"
-      >
-        {/* Beak */}
-        <polygon points="21,5 17,9.5 21.5,8.8" fill="#ffffff" />
-        {/* Upper wing */}
-        <polygon points="12,2 17,9.5 13.5,11.5" fill="#ffffff" fillOpacity="0.95" />
-        {/* Left fold */}
-        <polygon points="6,6 12,2 10.5,8" fill="#ffffff" fillOpacity="0.85" />
-        {/* Body core */}
-        <polygon points="10.5,8 17,9.5 12,15 9,12" fill="#ffffff" fillOpacity="0.9" />
-        {/* Tail wing */}
-        <polygon points="9,12 12,15 6,21 3,17" fill="#ffffff" fillOpacity="0.95" />
-        {/* Tail point */}
-        <polygon points="3,17 6,21 1.5,21.5" fill="#ffffff" fillOpacity="0.8" />
-        {/* Underbody */}
-        <polygon points="12,15 17,9.5 16,18" fill="#ffffff" fillOpacity="0.75" />
-      </svg>
+      <Image
+        src="/images/payments/bkash.png"
+        alt="bKash"
+        width={40}
+        height={40}
+        className="w-full h-full object-contain"
+        unoptimized
+      />
     </span>
   );
 }
 
 /**
- * Authentic Nagad stylized swirl / flame logo with brand gradient
+ * Authentic Nagad stylized runner logo
  */
 export function NagadLogo({ className = "w-4 h-4" }: { className?: string }) {
   return (
     <span
-      className={`inline-flex items-center justify-center shrink-0 rounded-md bg-gradient-to-br from-[#f7941d] via-[#f15a24] to-[#e83a3b] text-white shadow-2xs p-0.5 ${className}`}
+      className={`relative inline-flex items-center justify-center shrink-0 ${className}`}
       title="Nagad"
     >
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className="w-full h-full"
-      >
-        <path
-          d="M17.5 4.5C14.5 2 9.5 3 6.8 6.5C4 10 4.2 15 7.5 18.2C10.8 21.4 16 21.2 18.8 17.8C20.8 15.3 20.5 11.5 18 9.5C15.8 7.8 12.8 8.2 11.2 10.2C9.8 12 10.2 14.5 12 15.6C13.2 16.3 14.8 16 15.6 14.8C16.2 13.9 15.9 12.8 15 12.2"
-          stroke="#ffffff"
-          strokeWidth="2.4"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <circle cx="12" cy="12" r="1.5" fill="#ffffff" />
-      </svg>
+      <Image
+        src="/images/payments/nagad.png"
+        alt="Nagad"
+        width={40}
+        height={40}
+        className="w-full h-full object-contain"
+        unoptimized
+      />
     </span>
   );
 }
