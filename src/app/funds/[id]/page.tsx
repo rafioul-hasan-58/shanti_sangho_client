@@ -7,5 +7,5 @@ export default async function FundDetailRedirect({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  redirect(`/${defaultLocale}/funds/${id}`);
+  redirect(`/${defaultLocale}/admin/finance/funds/${id}`);
 }

@@ -60,11 +60,6 @@ export default function Navbar({
       label: dict.nav.members || (isBn ? "সদস্যবৃন্দ" : "Members"),
       hasDropdown: false,
     },
-    {
-      href: `/${locale}/funds`,
-      label: isBn ? "তহবিল ও অনুদান" : "Funds",
-      hasDropdown: false,
-    },
   ];
 
   return (

@@ -31,7 +31,9 @@ export default function MobileBottomNav({ locale }: MobileBottomNavProps) {
   const isAdmin = hasDashboardAccess(resolvedRole);
 
   const isBn = locale === "bn";
-  const primaryTabs = MOBILE_BOTTOM_NAV_ITEMS;
+  const primaryTabs = isAdmin
+    ? MOBILE_BOTTOM_NAV_ITEMS
+    : MOBILE_BOTTOM_NAV_ITEMS.filter((item) => item.id !== "finance");
 
   const isProfileActive =
     isAdminPathActive(pathname, "/admin/profile") ||
@@ -69,7 +71,11 @@ export default function MobileBottomNav({ locale }: MobileBottomNavProps) {
       }}
       className="md:hidden fixed bottom-0 inset-x-0 z-50 border-t border-[#f2b705]/30 shadow-2xl"
     >
-      <div className="grid grid-cols-4 h-16 px-1">
+      <div
+        className={`grid ${
+          primaryTabs.length === 3 ? "grid-cols-3" : "grid-cols-4"
+        } h-16 px-1`}
+      >
         {primaryTabs.map((item) => {
           const Icon = item.icon;
           const tabLabel = isBn
