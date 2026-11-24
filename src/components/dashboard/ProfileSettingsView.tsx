@@ -687,15 +687,9 @@ export default function ProfileSettingsView({ locale = "bn" }: ProfileSettingsVi
 
               {/* Blood Group */}
               <div className="sm:col-span-2">
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="block text-xs sm:text-[13px] font-bold text-slate-700">
-                    {isBn ? "রক্তের গ্রুপ" : "Blood Group"}
-                  </label>
-                  <span className="text-[11px] text-rose-600 font-bold flex items-center gap-1">
-                    <Droplet className="w-3 h-3 fill-rose-600" />
-                    <span>{isBn ? "জরুরি রক্তদানে ব্যবহৃত" : "Used for emergency blood matching"}</span>
-                  </span>
-                </div>
+                <label className="block text-xs sm:text-[13px] font-bold text-slate-700 mb-1.5">
+                  {isBn ? "রক্তের গ্রুপ" : "Blood Group"}
+                </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-rose-500">
                     <Droplet className="w-4 h-4 fill-rose-500" />
