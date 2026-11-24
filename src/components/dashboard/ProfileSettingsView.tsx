@@ -78,8 +78,8 @@ export default function ProfileSettingsView({ locale = "bn" }: ProfileSettingsVi
       bio: u?.bio || "",
       summary: u?.summary || "",
       profession: u?.profession || "",
-      village: u?.village || "সাভারচালা",
-      currentLocation: u?.currentLocation || "সাভারচালা, সখিপুর, টাঙ্গাইল",
+      village: u?.village || "",
+      currentLocation: u?.currentLocation || "",
       whatsappNumber: u?.whatsappNumber || "",
       facebookProfile: u?.facebookProfile || "",
     }),
@@ -436,7 +436,7 @@ export default function ProfileSettingsView({ locale = "bn" }: ProfileSettingsVi
                 </button>
               </div>
 
-              {/* Badges Row: Role + Blood Group + Member status */}
+              {/* Badges Row: Role + Blood Group */}
               <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap pt-0.5">
                 {/* Role Pill: Amber with Crown */}
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-900 border border-amber-200/90 text-xs font-black shadow-2xs">
@@ -463,14 +463,6 @@ export default function ProfileSettingsView({ locale = "bn" }: ProfileSettingsVi
                       : `${isBn ? "গ্রুপ" : "Blood"}: ${formattedBlood}`}
                   </span>
                 </span>
-
-                {/* Village Pill */}
-                {profileForm.village && (
-                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200/80 text-xs font-semibold">
-                    <Home className="w-3.5 h-3.5 text-slate-500" />
-                    <span>{profileForm.village}</span>
-                  </span>
-                )}
               </div>
             </div>
           </div>
