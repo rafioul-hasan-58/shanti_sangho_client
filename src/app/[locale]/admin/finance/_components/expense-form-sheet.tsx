@@ -31,6 +31,7 @@ import {
 } from "@/lib/schemas/finance";
 import { MemberCombobox } from "./member-combobox";
 import { FundSelectDropdown } from "./fund-select-dropdown";
+import { FormDatePicker } from "./form-date-picker";
 import { formatMoney, formatFundCategory } from "@/lib/format";
 
 interface ExpenseFormSheetProps {
@@ -91,6 +92,7 @@ export function ExpenseFormSheet({
   const selectedFundId = watch("fundId");
   const enteredAmount = watch("amount");
   const selectedSpentById = watch("spentById");
+  const spentAtValue = watch("spentAt");
 
   // Find currently selected fund to show live balance
   const currentFund = funds.find((f) => f.id === selectedFundId) || null;
@@ -384,22 +386,17 @@ export function ExpenseFormSheet({
           </div>
 
           {/* Date Spent */}
-          <div>
-            <label className="text-xs font-bold text-slate-700 block mb-1.5">
-              {isBn ? "ব্যয়ের তারিখ" : "Date Spent"}{" "}
-              <span className="text-[#f42a41]">*</span>
-            </label>
-            <input
-              type="date"
-              {...register("spentAt")}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-800 focus:outline-none focus:border-[#006a4e] focus:ring-2 focus:ring-[#006a4e]/20 transition-all"
-            />
-            {errors.spentAt && (
-              <p className="text-[11px] font-semibold text-[#f42a41] mt-1">
-                {errors.spentAt.message}
-              </p>
-            )}
-          </div>
+          <FormDatePicker
+            label={isBn ? "ব্যয়ের তারিখ" : "Date Spent"}
+            required
+            value={spentAtValue}
+            onChange={(val) =>
+              setValue("spentAt", val, { shouldValidate: true, shouldDirty: true })
+            }
+            error={errors.spentAt?.message}
+            isBn={isBn}
+            colorTheme="rose"
+          />
 
           {/* Handled By (Member Combobox - Optional) */}
           <div>

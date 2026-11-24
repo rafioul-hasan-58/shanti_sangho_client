@@ -19,6 +19,7 @@ import {
 import { MemberCombobox } from "./member-combobox";
 import { PaymentMethodLogo } from "./payment-method-logo";
 import { FundSelectDropdown } from "./fund-select-dropdown";
+import { FormDatePicker } from "./form-date-picker";
 import { formatMoney, formatFundCategory } from "@/lib/format";
 
 interface ContributionFormSheetProps {
@@ -79,6 +80,7 @@ export function ContributionFormSheet({
   const giverType = watch("giverType");
   const selectedGiverMemberId = watch("giverMemberId");
   const selectedReceiverId = watch("receivedById");
+  const receivedAtValue = watch("receivedAt");
 
   // Sync contributionToEdit or defaultFundId
   useEffect(() => {
@@ -339,24 +341,17 @@ export function ContributionFormSheet({
           </div>
 
           {/* Date Received */}
-          <div>
-            <label className="text-xs font-bold text-slate-700 block mb-1.5">
-              {isBn ? "গ্রহণের তারিখ" : "Date Received"}{" "}
-              <span className="text-[#f42a41]">*</span>
-            </label>
-            <div className="relative">
-              <input
-                type="date"
-                {...register("receivedAt")}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-800 focus:outline-none focus:border-[#006a4e] focus:ring-2 focus:ring-[#006a4e]/20 transition-all"
-              />
-            </div>
-            {errors.receivedAt && (
-              <p className="text-[11px] font-semibold text-[#f42a41] mt-1">
-                {errors.receivedAt.message}
-              </p>
-            )}
-          </div>
+          <FormDatePicker
+            label={isBn ? "গ্রহণের তারিখ" : "Date Received"}
+            required
+            value={receivedAtValue}
+            onChange={(val) =>
+              setValue("receivedAt", val, { shouldValidate: true, shouldDirty: true })
+            }
+            error={errors.receivedAt?.message}
+            isBn={isBn}
+            colorTheme="emerald"
+          />
 
           {/* Giver Type Toggle */}
           <div>
