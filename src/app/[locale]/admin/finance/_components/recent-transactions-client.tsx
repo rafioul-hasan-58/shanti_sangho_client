@@ -1,27 +1,27 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
   ArrowUpRight,
   ArrowDownRight,
   Clock,
-  Filter,
   Receipt,
   Layers,
   ChevronLeft,
   ChevronRight,
   RefreshCw,
-  ExternalLink,
+  Search,
+  Calendar,
+  User,
   X,
-  Wallet,
   HandCoins,
   ReceiptText,
+  CheckCircle2,
+  FileText,
 } from "lucide-react";
-import {
-  useRecentTransactions,
-} from "@/lib/hooks/use-finance";
+import { useRecentTransactions } from "@/lib/hooks/use-finance";
 import type {
   RecentTransaction,
   RecentTransactionType,
@@ -29,6 +29,7 @@ import type {
 } from "@/lib/api/finance";
 import { formatMoney, formatDate } from "@/lib/format";
 import { MethodBadge } from "./method-badge";
+import { ReceiptButton } from "./receipt-preview";
 import { withLocaleHref } from "@/lib/config/adminNav";
 
 interface RecentTransactionsClientProps {
@@ -41,7 +42,7 @@ export function RecentTransactionsClient({ locale }: RecentTransactionsClientPro
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [typeFilter, setTypeFilter] = useState<RecentTransactionType>("ALL");
-  const [previewReceiptUrl, setPreviewReceiptUrl] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const { data, isLoading, isError, refetch, isFetching } = useRecentTransactions({
     page,
@@ -72,6 +73,21 @@ export function RecentTransactionsClient({ locale }: RecentTransactionsClientPro
     setPage(1);
   };
 
+  // Client search filter across current page items
+  const displayTransactions = useMemo(() => {
+    if (!searchTerm.trim()) return transactions;
+    const term = searchTerm.toLowerCase().trim();
+    return transactions.filter((tx) => {
+      const titleMatch = tx.title.toLowerCase().includes(term);
+      const noteMatch = tx.note?.toLowerCase().includes(term);
+      const fundMatch = tx.fund.name.toLowerCase().includes(term);
+      const giverMatch = tx.donationDetails?.giverName?.toLowerCase().includes(term);
+      const spentByMatch = tx.expenseDetails?.spentBy?.fullName?.toLowerCase().includes(term);
+      const refMatch = tx.donationDetails?.reference?.toLowerCase().includes(term);
+      return titleMatch || noteMatch || fundMatch || giverMatch || spentByMatch || refMatch;
+    });
+  }, [transactions, searchTerm]);
+
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
       {/* 1. Header & Navigation */}
@@ -94,7 +110,7 @@ export function RecentTransactionsClient({ locale }: RecentTransactionsClientPro
               </h1>
               <p className="text-xs sm:text-sm font-medium text-slate-500">
                 {isBn
-                  ? "সকল ফান্ডের ডোনেশন ও ব্যয়ের পূর্ণাঙ্গ সমন্বিত ট্রানজ্যাকশন লেজার"
+                  ? "সকল ফান্ডের অনুদান ও ব্যয়ের বিস্তারিত সমন্বিত ট্রানজ্যাকশন লেজার"
                   : "Complete combined transaction ledger across all club funds"}
               </p>
             </div>
@@ -108,14 +124,14 @@ export function RecentTransactionsClient({ locale }: RecentTransactionsClientPro
           className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition-all shadow-2xs cursor-pointer self-start sm:self-auto disabled:opacity-50"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? "animate-spin text-[#006a4e]" : ""}`} />
-          <span>{isBn ? "রিফ্রেশ" : "Refresh"}</span>
+          <span>{isBn ? "রিফ্রেশ করুন" : "Refresh"}</span>
         </button>
       </div>
 
       {/* 2. Stat Cards Summary */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
         {/* Total Transactions */}
-        <div className="p-4 rounded-2xl bg-gradient-to-br from-indigo-50/60 via-purple-50/30 to-white border border-indigo-100/80 shadow-2xs flex items-center justify-between">
+        <div className="p-4 rounded-2xl bg-gradient-to-br from-indigo-50/70 via-purple-50/40 to-white border border-indigo-100 shadow-2xs flex items-center justify-between">
           <div>
             <span className="text-[11px] font-black uppercase text-indigo-900/70 tracking-wider block">
               {isBn ? "মোট লেনদেন সংখ্যা" : "Total Transactions"}
@@ -124,56 +140,59 @@ export function RecentTransactionsClient({ locale }: RecentTransactionsClientPro
               {toBn(meta.total)}
             </span>
           </div>
-          <div className="w-11 h-11 rounded-2xl bg-indigo-100/80 text-indigo-700 flex items-center justify-center shrink-0">
+          <div className="w-11 h-11 rounded-2xl bg-indigo-100/90 text-indigo-700 flex items-center justify-center shrink-0 shadow-2xs">
             <ReceiptText className="w-5 h-5 stroke-[2.2]" />
           </div>
         </div>
 
         {/* Total Donations */}
-        <div className="p-4 rounded-2xl bg-gradient-to-br from-emerald-50/60 via-teal-50/30 to-white border border-emerald-100/80 shadow-2xs flex items-center justify-between">
+        <div className="p-4 rounded-2xl bg-gradient-to-br from-emerald-50/70 via-teal-50/40 to-white border border-emerald-100 shadow-2xs flex items-center justify-between">
           <div>
             <span className="text-[11px] font-black uppercase text-emerald-900/70 tracking-wider block">
-              {isBn ? "ডোনেশন কার্যক্রম" : "Donations Count"}
+              {isBn ? "অনুদান জমা" : "Donations Count"}
             </span>
             <span className="text-2xl sm:text-3xl font-black text-emerald-950 tracking-tight tabular-nums mt-0.5 block">
               {toBn(meta.totalDonations)}
             </span>
           </div>
-          <div className="w-11 h-11 rounded-2xl bg-emerald-100/80 text-[#006a4e] flex items-center justify-center shrink-0">
+          <div className="w-11 h-11 rounded-2xl bg-emerald-100/90 text-[#006a4e] flex items-center justify-center shrink-0 shadow-2xs">
             <HandCoins className="w-5 h-5 stroke-[2.2]" />
           </div>
         </div>
 
         {/* Total Expenses */}
-        <div className="p-4 rounded-2xl bg-gradient-to-br from-rose-50/60 via-amber-50/30 to-white border border-rose-100/80 shadow-2xs flex items-center justify-between">
+        <div className="p-4 rounded-2xl bg-gradient-to-br from-rose-50/70 via-red-50/40 to-white border border-rose-100 shadow-2xs flex items-center justify-between">
           <div>
             <span className="text-[11px] font-black uppercase text-rose-900/70 tracking-wider block">
-              {isBn ? "ব্যয়ের কার্যক্রম" : "Expenses Count"}
+              {isBn ? "ব্যয়ের হিসাব" : "Expenses Count"}
             </span>
             <span className="text-2xl sm:text-3xl font-black text-rose-950 tracking-tight tabular-nums mt-0.5 block">
               {toBn(meta.totalExpenses)}
             </span>
           </div>
-          <div className="w-11 h-11 rounded-2xl bg-rose-100/80 text-[#f42a41] flex items-center justify-center shrink-0">
+          <div className="w-11 h-11 rounded-2xl bg-rose-100/90 text-[#f42a41] flex items-center justify-center shrink-0 shadow-2xs">
             <Receipt className="w-5 h-5 stroke-[2.2]" />
           </div>
         </div>
       </div>
 
-      {/* 3. Filter Controls Bar */}
-      <div className="p-3 sm:p-4 rounded-2xl bg-white border border-slate-200/90 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        {/* Type Filter Tabs */}
-        <div className="inline-flex p-1 rounded-xl bg-slate-100/80 border border-slate-200/80 text-xs font-bold gap-1 self-start sm:self-auto w-full sm:w-auto">
+      {/* 3. Search and Filter Bar */}
+      <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-slate-200/90 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+        {/* Left: Type Filter Tabs */}
+        <div className="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/80 text-xs font-bold gap-1 w-full lg:w-auto">
           <button
             type="button"
             onClick={() => handleTypeChange("ALL")}
             className={`flex-1 sm:flex-initial px-3.5 py-1.5 rounded-lg transition-all cursor-pointer text-center ${
               typeFilter === "ALL"
-                ? "bg-white text-slate-900 shadow-xs font-black"
+                ? "bg-white text-slate-900 shadow-xs font-black border border-slate-200/70"
                 : "text-slate-600 hover:text-slate-900"
             }`}
           >
-            {isBn ? "সকল কার্যক্রম" : "All Activity"} ({toBn(meta.total)})
+            {isBn ? "সকল কার্যক্রম" : "All Activity"}{" "}
+            <span className="ml-1 px-1.5 py-0.5 rounded-md bg-slate-200/70 text-[10px] font-extrabold text-slate-700">
+              {toBn(meta.total)}
+            </span>
           </button>
           <button
             type="button"
@@ -184,7 +203,16 @@ export function RecentTransactionsClient({ locale }: RecentTransactionsClientPro
                 : "text-slate-600 hover:text-emerald-700"
             }`}
           >
-            {isBn ? "ডোনেশন জমা" : "Donations"} ({toBn(meta.totalDonations)})
+            {isBn ? "অনুদানসমূহ" : "Donations"}{" "}
+            <span
+              className={`ml-1 px-1.5 py-0.5 rounded-md text-[10px] font-extrabold ${
+                typeFilter === "DONATION"
+                  ? "bg-emerald-800 text-white"
+                  : "bg-emerald-100/80 text-emerald-800"
+              }`}
+            >
+              {toBn(meta.totalDonations)}
+            </span>
           </button>
           <button
             type="button"
@@ -195,29 +223,62 @@ export function RecentTransactionsClient({ locale }: RecentTransactionsClientPro
                 : "text-slate-600 hover:text-rose-700"
             }`}
           >
-            {isBn ? "ব্যয়ের হিসাব" : "Expenses"} ({toBn(meta.totalExpenses)})
+            {isBn ? "ব্যয়সমূহ" : "Expenses"}{" "}
+            <span
+              className={`ml-1 px-1.5 py-0.5 rounded-md text-[10px] font-extrabold ${
+                typeFilter === "EXPENSE"
+                  ? "bg-rose-800 text-white"
+                  : "bg-rose-100/80 text-rose-800"
+              }`}
+            >
+              {toBn(meta.totalExpenses)}
+            </span>
           </button>
         </div>
 
-        {/* Limit Selector & Page Info */}
-        <div className="flex items-center justify-between sm:justify-end gap-3 text-xs text-slate-500">
-          <span>{isBn ? "প্রতি পেজে:" : "Per page:"}</span>
-          <select
-            value={limit}
-            onChange={(e) => {
-              setLimit(Number(e.target.value));
-              setPage(1);
-            }}
-            className="px-2.5 py-1 rounded-lg border border-slate-200 bg-white font-bold text-slate-800 focus:outline-none cursor-pointer"
-          >
-            <option value={10}>১০</option>
-            <option value={20}>২০</option>
-            <option value={50}>৫০</option>
-          </select>
+        {/* Right: Search Box + Items Per Page */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2.5">
+          {/* Quick search input */}
+          <div className="relative flex-1 sm:w-64">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder={isBn ? "শিরোনাম, ব্যক্তি বা ফান্ড খুঁজুন..." : "Search title, person, fund..."}
+              className="w-full pl-9 pr-8 py-1.5 rounded-xl border border-slate-200 bg-slate-50/50 text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#006a4e]/20 focus:border-[#006a4e] transition-all"
+            />
+            {searchTerm && (
+              <button
+                type="button"
+                onClick={() => setSearchTerm("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+
+          {/* Per Page Limit */}
+          <div className="flex items-center justify-between sm:justify-start gap-2 text-xs text-slate-500 shrink-0">
+            <span className="font-semibold">{isBn ? "প্রতি পেজে:" : "Per page:"}</span>
+            <select
+              value={limit}
+              onChange={(e) => {
+                setLimit(Number(e.target.value));
+                setPage(1);
+              }}
+              className="px-2.5 py-1.5 rounded-xl border border-slate-200 bg-white font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#006a4e]/20 cursor-pointer shadow-2xs"
+            >
+              <option value={10}>১০</option>
+              <option value={20}>২০</option>
+              <option value={50}>৫০</option>
+            </select>
+          </div>
         </div>
       </div>
 
-      {/* 4. Transactions List */}
+      {/* 4. Transactions Data View */}
       <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden">
         {isLoading ? (
           <div className="p-8 space-y-4">
@@ -230,7 +291,7 @@ export function RecentTransactionsClient({ locale }: RecentTransactionsClientPro
                     <div className="h-3 w-28 bg-slate-100 rounded" />
                   </div>
                 </div>
-                <div className="h-5 w-20 bg-slate-100 rounded" />
+                <div className="h-6 w-24 bg-slate-100 rounded" />
               </div>
             ))}
           </div>
@@ -249,7 +310,7 @@ export function RecentTransactionsClient({ locale }: RecentTransactionsClientPro
               {isBn ? "আবার চেষ্টা করুন" : "Try Again"}
             </button>
           </div>
-        ) : transactions.length === 0 ? (
+        ) : displayTransactions.length === 0 ? (
           <div className="p-12 text-center space-y-3">
             <Clock className="w-10 h-10 text-slate-300 mx-auto" />
             <h3 className="text-base font-bold text-slate-700">
@@ -258,149 +319,301 @@ export function RecentTransactionsClient({ locale }: RecentTransactionsClientPro
             <p className="text-xs text-slate-400 max-w-sm mx-auto">
               {isBn
                 ? "বর্তমান ফিল্টারে কোনো রেকর্ড নেই। ফিল্টার পরিবর্তন করে আবার চেষ্টা করুন।"
-                : "No transactions match your current filter selection."}
+                : "No transactions match your current search or filter selection."}
             </p>
           </div>
         ) : (
-          <div className="divide-y divide-slate-100">
-            {transactions.map((tx) => {
-              const isDonation = tx.type === "DONATION";
-              const giverOrHandler = isDonation
-                ? tx.donationDetails?.giverName
-                  ? isBn
-                    ? `প্রদানকারী: ${tx.donationDetails.giverName}`
-                    : `Giver: ${tx.donationDetails.giverName}`
-                  : null
-                : tx.expenseDetails?.spentBy?.fullName
-                ? isBn
-                  ? `ব্যয়কারী: ${tx.expenseDetails.spentBy.fullName}`
-                  : `Spent by: ${tx.expenseDetails.spentBy.fullName}`
-                : null;
+          <>
+            {/* Desktop Table View (>= md) */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-200/90 bg-slate-50/90 text-slate-600 font-extrabold uppercase tracking-wider text-[11px]">
+                    <th className="py-3.5 px-4">{isBn ? "তারিখ" : "Date"}</th>
+                    <th className="py-3.5 px-4">{isBn ? "ধরণ" : "Type"}</th>
+                    <th className="py-3.5 px-4">{isBn ? "শিরোনাম ও ফান্ড" : "Title & Fund"}</th>
+                    <th className="py-3.5 px-4">{isBn ? "পেমেন্ট মাধ্যম" : "Payment Method"}</th>
+                    <th className="py-3.5 px-4">{isBn ? "সংশ্লিষ্ট ব্যক্তি" : "Person"}</th>
+                    <th className="py-3.5 px-4">{isBn ? "নোট / বিবরণ" : "Note / Details"}</th>
+                    <th className="py-3.5 px-4 text-right">{isBn ? "টাকার পরিমাণ" : "Amount"}</th>
+                    <th className="py-3.5 px-4 text-center">{isBn ? "রসিদ" : "Receipt"}</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {displayTransactions.map((tx) => {
+                    const isDonation = tx.type === "DONATION";
 
-              return (
-                <div
-                  key={tx.id}
-                  className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/70 transition-colors"
-                >
-                  {/* Left: Icon, Title, Subtitle, Badges */}
-                  <div className="flex items-start sm:items-center gap-3.5 min-w-0">
-                    {/* Semantic Icon Box */}
-                    <div
-                      className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 shadow-xs ${
-                        isDonation
-                          ? "bg-emerald-50 text-[#006a4e] border border-emerald-200/70"
-                          : "bg-rose-50 text-[#f42a41] border border-rose-200/70"
-                      }`}
-                    >
-                      {isDonation ? (
-                        <ArrowUpRight className="w-5 h-5 stroke-[2.5]" />
-                      ) : (
-                        <ArrowDownRight className="w-5 h-5 stroke-[2.5]" />
-                      )}
-                    </div>
+                    const personName = isDonation
+                      ? tx.donationDetails?.giverName ||
+                        tx.donationDetails?.giverMember?.fullName ||
+                        (isBn ? "ক্লাব শুভাকাঙ্ক্ষী" : "Donor")
+                      : tx.expenseDetails?.spentBy?.fullName || (isBn ? "অনুমোদিত কর্মকর্তা" : "Admin");
 
-                    <div className="min-w-0 space-y-1">
-                      {/* Row 1: Title + Fund Link */}
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-black text-sm sm:text-base text-slate-900 leading-snug">
-                          {tx.title}
-                        </span>
-                        <Link
-                          href={withLocaleHref(`/admin/finance/funds/${tx.fund.id}`, locale)}
-                          className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold shrink-0 transition-colors"
-                        >
-                          <Layers className="w-3 h-3 text-slate-500" />
-                          <span>{tx.fund.name}</span>
-                        </Link>
-                        <span
-                          className={`px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider ${
-                            isDonation
-                              ? "bg-emerald-100/70 text-[#006a4e]"
-                              : "bg-rose-100/70 text-[#f42a41]"
-                          }`}
-                        >
-                          {isDonation
-                            ? isBn
-                              ? "ডোনেশন জমা"
-                              : "DONATION"
-                            : isBn
-                            ? "ব্যয়ের হিসাব"
-                            : "EXPENSE"}
-                        </span>
-                      </div>
+                    const personRole = isDonation
+                      ? isBn
+                        ? "দাতা"
+                        : "Giver"
+                      : isBn
+                      ? "ব্যয়কারী"
+                      : "Spent By";
 
-                      {/* Row 2: Metadata (Date, Method, Giver/Handler, Receipt) */}
-                      <div className="flex items-center gap-2 text-xs text-slate-400 flex-wrap">
-                        <span className="font-medium text-slate-600">
-                          {formatDate(tx.transactionDate)}
-                        </span>
+                    return (
+                      <tr
+                        key={tx.id}
+                        className="hover:bg-slate-50/80 transition-colors group"
+                      >
+                        {/* 1. Date */}
+                        <td className="py-3.5 px-4 whitespace-nowrap">
+                          <div className="flex items-center gap-1.5 text-slate-800 font-bold">
+                            <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                            <span>{formatDate(tx.transactionDate)}</span>
+                          </div>
+                        </td>
 
-                        {isDonation && tx.donationDetails?.method && (
-                          <>
-                            <span>•</span>
-                            <MethodBadge
-                              method={tx.donationDetails.method as ReceiveMethod}
-                              isBn={isBn}
-                            />
-                          </>
-                        )}
-
-                        {giverOrHandler && (
-                          <>
-                            <span>•</span>
-                            <span className="font-semibold text-slate-700">
-                              {giverOrHandler}
+                        {/* 2. Type Badge */}
+                        <td className="py-3.5 px-4 whitespace-nowrap">
+                          {isDonation ? (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-emerald-50 border border-emerald-200/90 text-emerald-800 text-[11px] font-black shadow-2xs">
+                              <ArrowUpRight className="w-3.5 h-3.5 stroke-[2.5] text-emerald-700" />
+                              <span>{isBn ? "অনুদান জমা" : "Donation"}</span>
                             </span>
-                          </>
-                        )}
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-rose-50 border border-rose-200/90 text-[#f42a41] text-[11px] font-black shadow-2xs">
+                              <ArrowDownRight className="w-3.5 h-3.5 stroke-[2.5]" />
+                              <span>{isBn ? "ব্যয়ের হিসাব" : "Expense"}</span>
+                            </span>
+                          )}
+                        </td>
 
-                        {tx.note && (
-                          <>
-                            <span>•</span>
-                            <span className="truncate max-w-[220px] text-slate-500">
+                        {/* 3. Title & Fund */}
+                        <td className="py-3.5 px-4">
+                          <div className="space-y-1 max-w-[260px]">
+                            <span className="font-black text-slate-900 text-xs sm:text-sm block leading-snug">
+                              {tx.title}
+                            </span>
+                            <Link
+                              href={withLocaleHref(`/admin/finance/funds/${tx.fund.id}`, locale)}
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-slate-100 hover:bg-slate-200/80 text-slate-700 text-[11px] font-bold border border-slate-200/60 transition-colors shrink-0"
+                            >
+                              <Layers className="w-3 h-3 text-[#006a4e]" />
+                              <span className="truncate max-w-[180px]">{tx.fund.name}</span>
+                            </Link>
+                          </div>
+                        </td>
+
+                        {/* 4. Payment Method */}
+                        <td className="py-3.5 px-4 whitespace-nowrap">
+                          {isDonation && tx.donationDetails?.method ? (
+                            <div className="space-y-0.5">
+                              <MethodBadge
+                                method={tx.donationDetails.method as ReceiveMethod}
+                                isBn={isBn}
+                              />
+                              {tx.donationDetails.reference && (
+                                <span className="text-[10px] text-slate-400 font-mono block">
+                                  #{tx.donationDetails.reference}
+                                </span>
+                              )}
+                            </div>
+                          ) : isDonation ? (
+                            <span className="text-slate-400 font-medium text-[11px]">—</span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[11px] font-semibold">
+                              {isBn ? "ক্যাশ / ভাউচার" : "Cash / Voucher"}
+                            </span>
+                          )}
+                        </td>
+
+                        {/* 5. Person (Giver / Spent By) */}
+                        <td className="py-3.5 px-4 whitespace-nowrap">
+                          <div className="flex items-center gap-2">
+                            <div
+                              className={`w-7 h-7 rounded-full flex items-center justify-center font-black text-xs shrink-0 shadow-2xs ${
+                                isDonation
+                                  ? "bg-emerald-100 text-[#006a4e]"
+                                  : "bg-rose-100 text-[#f42a41]"
+                              }`}
+                            >
+                              {personName.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                              <span className="font-extrabold text-slate-800 text-xs block leading-tight truncate max-w-[150px]">
+                                {personName}
+                              </span>
+                              <span className="text-[10px] font-semibold text-slate-400 block">
+                                {personRole}
+                              </span>
+                            </div>
+                          </div>
+                        </td>
+
+                        {/* 6. Note / Details */}
+                        <td className="py-3.5 px-4">
+                          {tx.note ? (
+                            <span
+                              className="text-slate-600 font-medium text-xs truncate max-w-[180px] block"
+                              title={tx.note}
+                            >
                               {tx.note}
                             </span>
-                          </>
-                        )}
+                          ) : (
+                            <span className="text-slate-300 font-medium">—</span>
+                          )}
+                        </td>
 
+                        {/* 7. Amount: Large & High Contrast */}
+                        <td className="py-3.5 px-4 text-right whitespace-nowrap">
+                          {isDonation ? (
+                            <span className="inline-flex items-center px-3 py-1.5 rounded-xl bg-emerald-50/90 border border-emerald-200 font-black text-sm tabular-nums text-emerald-800 shadow-2xs">
+                              + {formatMoney(tx.amount)}
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center px-3 py-1.5 rounded-xl bg-rose-50/90 border border-rose-200 font-black text-sm tabular-nums text-[#f42a41] shadow-2xs">
+                              - {formatMoney(tx.amount)}
+                            </span>
+                          )}
+                        </td>
+
+                        {/* 8. Receipt / Action */}
+                        <td className="py-3.5 px-4 text-center whitespace-nowrap">
+                          {!isDonation && tx.expenseDetails?.receiptUrl ? (
+                            <ReceiptButton
+                              receiptUrl={tx.expenseDetails.receiptUrl}
+                              title={tx.title}
+                              isBn={isBn}
+                            />
+                          ) : (
+                            <span className="text-slate-300 text-xs">—</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Stacked Cards (< md) */}
+            <div className="md:hidden p-3 space-y-3 bg-slate-50/50">
+              {displayTransactions.map((tx) => {
+                const isDonation = tx.type === "DONATION";
+
+                const personName = isDonation
+                  ? tx.donationDetails?.giverName ||
+                    tx.donationDetails?.giverMember?.fullName ||
+                    (isBn ? "ক্লাব সদস্য" : "Donor")
+                  : tx.expenseDetails?.spentBy?.fullName || (isBn ? "অনুমোদিত কর্মকর্তা" : "Admin");
+
+                const personRole = isDonation
+                  ? isBn
+                    ? "দাতা"
+                    : "Giver"
+                  : isBn
+                  ? "ব্যয়কারী"
+                  : "Spent By";
+
+                return (
+                  <div
+                    key={tx.id}
+                    className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-3"
+                  >
+                    {/* Top Row: Type Badge + Date + Amount */}
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {isDonation ? (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-black">
+                            <ArrowUpRight className="w-3.5 h-3.5 stroke-[2.5] text-emerald-700" />
+                            <span>{isBn ? "অনুদান জমা" : "Donation"}</span>
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-rose-50 border border-rose-200 text-[#f42a41] text-[11px] font-black">
+                            <ArrowDownRight className="w-3.5 h-3.5 stroke-[2.5]" />
+                            <span>{isBn ? "ব্যয়ের হিসাব" : "Expense"}</span>
+                          </span>
+                        )}
+                        <span className="text-[11px] font-semibold text-slate-500">
+                          {formatDate(tx.transactionDate)}
+                        </span>
+                      </div>
+
+                      {/* Amount Chip */}
+                      <span
+                        className={`inline-flex items-center px-3 py-1 rounded-xl font-black text-sm tabular-nums shrink-0 shadow-2xs ${
+                          isDonation
+                            ? "bg-emerald-50 border border-emerald-200 text-emerald-800"
+                            : "bg-rose-50 border border-rose-200 text-[#f42a41]"
+                        }`}
+                      >
+                        {isDonation ? "+ " : "- "}
+                        {formatMoney(tx.amount)}
+                      </span>
+                    </div>
+
+                    {/* Middle: Title & Fund */}
+                    <div className="space-y-1">
+                      <h4 className="font-black text-sm text-slate-900 leading-snug">
+                        {tx.title}
+                      </h4>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Link
+                          href={withLocaleHref(`/admin/finance/funds/${tx.fund.id}`, locale)}
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-slate-100 hover:bg-slate-200/80 text-slate-700 text-[11px] font-bold border border-slate-200/60"
+                        >
+                          <Layers className="w-3 h-3 text-[#006a4e]" />
+                          <span>{tx.fund.name}</span>
+                        </Link>
+                        {tx.note && (
+                          <span className="text-[11px] text-slate-500 font-medium truncate max-w-[200px]">
+                            {tx.note}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Bottom: Person, Method, Receipt */}
+                    <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2 text-xs">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div
+                          className={`w-6 h-6 rounded-full flex items-center justify-center font-black text-[10px] shrink-0 ${
+                            isDonation
+                              ? "bg-emerald-100 text-[#006a4e]"
+                              : "bg-rose-100 text-[#f42a41]"
+                          }`}
+                        >
+                          {personName.charAt(0).toUpperCase()}
+                        </div>
+                        <span className="font-extrabold text-slate-800 truncate text-[11px]">
+                          {personName} ({personRole})
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        {isDonation && tx.donationDetails?.method && (
+                          <MethodBadge
+                            method={tx.donationDetails.method as ReceiveMethod}
+                            isBn={isBn}
+                          />
+                        )}
                         {!isDonation && tx.expenseDetails?.receiptUrl && (
-                          <button
-                            type="button"
-                            onClick={() => setPreviewReceiptUrl(tx.expenseDetails!.receiptUrl!)}
-                            className="inline-flex items-center gap-1 text-[11px] font-bold text-[#006a4e] hover:underline cursor-pointer bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/80 ml-1"
-                          >
-                            <Receipt className="w-3 h-3" />
-                            <span>{isBn ? "রসিদ দেখুন" : "View Receipt"}</span>
-                          </button>
+                          <ReceiptButton
+                            receiptUrl={tx.expenseDetails.receiptUrl}
+                            title={tx.title}
+                            isBn={isBn}
+                          />
                         )}
                       </div>
                     </div>
                   </div>
-
-                  {/* Right: Amount */}
-                  <div className="text-right shrink-0 sm:pl-4">
-                    <span
-                      className={`text-base sm:text-lg font-black tracking-tight tabular-nums block ${
-                        isDonation ? "text-emerald-700" : "text-[#f42a41]"
-                      }`}
-                    >
-                      {isDonation ? "+ " : "- "}
-                      {formatMoney(tx.amount)}
-                    </span>
-                    <span className="text-[10px] text-slate-400 font-medium block">
-                      {isBn ? "পরিমাণ (বিডিটি)" : "Amount (BDT)"}
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          </>
         )}
 
         {/* 5. Pagination Bar */}
         {meta.totalPages > 1 && (
           <div className="p-4 bg-slate-50/80 border-t border-slate-200/90 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-            <span className="text-slate-500 font-semibold">
+            <span className="text-slate-600 font-bold">
               {isBn
                 ? `পৃষ্ঠা ${toBn(meta.page)} এর মধ্যে ${toBn(meta.totalPages)} (মোট ${toBn(
                     meta.total
@@ -423,7 +636,6 @@ export function RecentTransactionsClient({ locale }: RecentTransactionsClientPro
               <div className="flex items-center gap-1">
                 {Array.from({ length: meta.totalPages }, (_, i) => i + 1)
                   .filter((p) => {
-                    // Show current page, edges, and +/- 1 page
                     return (
                       p === 1 ||
                       p === meta.totalPages ||
@@ -436,7 +648,7 @@ export function RecentTransactionsClient({ locale }: RecentTransactionsClientPro
 
                     return (
                       <React.Fragment key={p}>
-                        {isJump && <span className="px-1 text-slate-400">...</span>}
+                        {isJump && <span className="px-1 text-slate-400 font-bold">...</span>}
                         <button
                           type="button"
                           onClick={() => setPage(p)}
@@ -466,43 +678,6 @@ export function RecentTransactionsClient({ locale }: RecentTransactionsClientPro
           </div>
         )}
       </div>
-
-      {/* 6. Receipt Image Preview Modal */}
-      {previewReceiptUrl && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn"
-          onClick={() => setPreviewReceiptUrl(null)}
-        >
-          <div
-            className="relative max-w-2xl w-full bg-white rounded-3xl p-4 shadow-2xl space-y-3 animate-scaleUp overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-              <h4 className="font-bold text-sm text-slate-900 flex items-center gap-2">
-                <Receipt className="w-4 h-4 text-[#006a4e]" />
-                <span>{isBn ? "ভাউচার / রসিদের ছবি" : "Expense Receipt"}</span>
-              </h4>
-              <button
-                type="button"
-                onClick={() => setPreviewReceiptUrl(null)}
-                className="p-1 rounded-xl text-slate-400 hover:text-slate-900 hover:bg-slate-100 cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="rounded-2xl overflow-hidden bg-slate-50 border border-slate-200 flex items-center justify-center max-h-[75vh]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={previewReceiptUrl}
-                alt="Receipt Preview"
-                className="max-h-[70vh] object-contain w-auto rounded-xl"
-              />
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

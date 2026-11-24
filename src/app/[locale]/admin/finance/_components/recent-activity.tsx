@@ -280,18 +280,11 @@ export function RecentActivity({ activity, locale }: RecentActivityProps) {
             })}
       </div>
 
-      {/* Footer view all link */}
-      <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+      {/* Footer */}
+      <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs">
         <span className="text-[11px] font-semibold text-slate-400">
           {isBn ? "সর্বশেষ ৮টি লেনদেন প্রদর্শিত হচ্ছে" : "Showing latest 8 transactions"}
         </span>
-        <Link
-          href={viewAllHref}
-          className="inline-flex items-center gap-1 font-black text-[#006a4e] hover:underline cursor-pointer"
-        >
-          <span>{isBn ? "পেইজিনেশন সহ সম্পূর্ণ হিস্ট্রি দেখুন" : "View all with pagination"}</span>
-          <ArrowRight className="w-3.5 h-3.5" />
-        </Link>
       </div>
     </div>
   );
