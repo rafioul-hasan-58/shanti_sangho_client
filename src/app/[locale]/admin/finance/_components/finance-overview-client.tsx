@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   Wallet,
@@ -20,6 +21,7 @@ import { useFinanceOverview } from "@/lib/hooks/use-finance";
 import { useAuth } from "@/context/AuthContext";
 import { hasDashboardAccess } from "@/lib/authRole";
 import { formatMoney } from "@/lib/format";
+import { withLocaleHref } from "@/lib/config/adminNav";
 import { StatCard } from "./stat-card";
 import { FundCard } from "./fund-card";
 import { FundCharts } from "./fund-charts";
@@ -188,9 +190,8 @@ export function FinanceOverviewClient({ locale }: FinanceOverviewClientProps) {
           <span>{isBn ? "সামগ্রিক চিত্র" : "Overview"}</span>
         </button>
 
-        <button
-          type="button"
-          onClick={() => setActiveTab("funds")}
+        <Link
+          href={withLocaleHref("/admin/finance/funds", locale)}
           className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer ${
             activeTab === "funds"
               ? "bg-[#006a4e] text-white shadow-md shadow-[#006a4e]/20"
@@ -212,7 +213,7 @@ export function FinanceOverviewClient({ locale }: FinanceOverviewClientProps) {
           >
             {funds.length}
           </span>
-        </button>
+        </Link>
       </div>
 
       {/* 3. Tab Contents */}
@@ -273,14 +274,13 @@ export function FinanceOverviewClient({ locale }: FinanceOverviewClientProps) {
                     : "Active funds with remaining balances and progress"}
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={() => setActiveTab("funds")}
+              <Link
+                href={withLocaleHref("/admin/finance/funds", locale)}
                 className="inline-flex items-center gap-1 text-xs font-bold text-[#006a4e] hover:underline cursor-pointer"
               >
-                <span>{isBn ? "ফান্ড টেবিল দেখুন" : "Manage All Funds"}</span>
+                <span>{isBn ? "সকল ফান্ড দেখুন" : "View All Funds"}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
-              </button>
+              </Link>
             </div>
 
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-4">
