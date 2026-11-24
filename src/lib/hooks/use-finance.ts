@@ -18,6 +18,7 @@ import {
   deleteExpense,
   searchFinanceMembers,
   getFinanceOverview,
+  getRecentTransactions,
   type FundQueryParams,
   type ContributionQueryParams,
   type ExpenseQueryParams,
@@ -25,6 +26,7 @@ import {
   type UpdateFundPayload,
   type CreateContributionPayload,
   type CreateExpensePayload,
+  type RecentTransactionsParams,
 } from "@/lib/api/finance";
 
 // Query Keys
@@ -41,6 +43,8 @@ export const financeKeys = {
     [...financeKeys.all, "expenses", params] as const,
   expense: (id: string) => [...financeKeys.all, "expense", id] as const,
   members: (query: string) => [...financeKeys.all, "members", query] as const,
+  recentTransactions: (params?: RecentTransactionsParams) =>
+    [...financeKeys.all, "recent-transactions", params] as const,
 };
 
 /**
@@ -263,5 +267,15 @@ export function useDeleteExpense() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: financeKeys.all });
     },
+  });
+}
+
+/**
+ * Fetch paginated recent transactions across all funds
+ */
+export function useRecentTransactions(params?: RecentTransactionsParams) {
+  return useQuery({
+    queryKey: financeKeys.recentTransactions(params),
+    queryFn: () => getRecentTransactions(params),
   });
 }

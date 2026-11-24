@@ -235,6 +235,64 @@ export interface FinanceOverview {
   recentActivity: RecentActivityItem[];
 }
 
+export type RecentTransactionType = "ALL" | "DONATION" | "EXPENSE";
+
+export interface TransactionFund {
+  id: string;
+  name: string;
+  category?: FundCategory | string;
+  isActive?: boolean;
+}
+
+export interface TransactionDonationDetails {
+  method?: PaymentMethod | string;
+  reference?: string | null;
+  giverName?: string | null;
+  giverMember?: { id: string; fullName?: string; name?: string; avatar?: string } | null;
+  receivedBy?: { id: string; fullName?: string; name?: string } | null;
+}
+
+export interface TransactionExpenseDetails {
+  spentOn?: string;
+  receiptUrl?: string | null;
+  spentBy?: { id: string; fullName?: string; name?: string } | null;
+}
+
+export interface RecentTransaction {
+  id: string;
+  type: "DONATION" | "EXPENSE";
+  amount: number;
+  title: string;
+  note?: string | null;
+  transactionDate: string; // ISO date string
+  createdAt: string; // ISO date string
+  fund: TransactionFund;
+  donationDetails?: TransactionDonationDetails | null;
+  expenseDetails?: TransactionExpenseDetails | null;
+}
+
+export interface RecentTransactionsMeta {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  totalDonations: number;
+  totalExpenses: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
+
+export interface RecentTransactionsResponse {
+  transactions: RecentTransaction[];
+  meta: RecentTransactionsMeta;
+}
+
+export interface RecentTransactionsParams {
+  page?: number;
+  limit?: number;
+  type?: RecentTransactionType;
+}
+
 // ---------------------------------------------------------------------------
 // 2. Normalization Helpers
 // ---------------------------------------------------------------------------
@@ -1356,35 +1414,66 @@ export async function getFinanceOverview(): Promise<FinanceOverview> {
     { month: "Nov", in: 240000, out: 172000 },
   ];
 
-  const { data: contributions } = await getContributions({ limit: 10 });
-  const { data: expenses } = await getExpenses({ limit: 10 });
+  // Try loading recent transactions from real API
+  let recentActivity: RecentActivityItem[] = [];
+  try {
+    const txData = await getRecentTransactions({ limit: 8, type: "ALL" });
+    if (txData.transactions && txData.transactions.length > 0) {
+      recentActivity = txData.transactions.map((t) => ({
+        id: t.id,
+        type: t.type === "EXPENSE" ? ("expense" as const) : ("contribution" as const),
+        date: t.transactionDate,
+        amount: t.amount,
+        title: t.title,
+        subtitle:
+          t.type === "DONATION"
+            ? t.donationDetails?.reference
+              ? `Ref: ${t.donationDetails.reference}`
+              : t.note || undefined
+            : t.expenseDetails?.spentBy?.fullName
+            ? `Handled by ${t.expenseDetails.spentBy.fullName}`
+            : t.note || undefined,
+        fundName: t.fund.name,
+        fundId: t.fund.id,
+        method: t.donationDetails?.method as ReceiveMethod,
+        note: t.note,
+        reference: t.donationDetails?.reference,
+      }));
+    }
+  } catch {}
 
-  const recentActivity: RecentActivityItem[] = [
-    ...contributions.map((c) => ({
-      id: c.id,
-      type: "contribution" as const,
-      date: c.receivedAt,
-      amount: c.amount,
-      title: c.giverName ? `Contribution from ${c.giverName}` : "Club Member Contribution",
-      subtitle: c.reference ? `Ref: ${c.reference}` : c.note || undefined,
-      fundName: c.fundName,
-      fundId: c.fundId,
-      method: c.method,
-      note: c.note,
-      reference: c.reference,
-    })),
-    ...expenses.map((e) => ({
-      id: e.id,
-      type: "expense" as const,
-      date: e.spentAt,
-      amount: e.amount,
-      title: e.spentOn,
-      subtitle: e.spentByName ? `Handled by ${e.spentByName}` : e.note || undefined,
-      fundName: e.fundName,
-      fundId: e.fundId,
-      note: e.note,
-    })),
-  ];
+  // Fallback if recentActivity is empty
+  if (recentActivity.length === 0) {
+    const { data: contributions } = await getContributions({ limit: 10 });
+    const { data: expenses } = await getExpenses({ limit: 10 });
+
+    recentActivity = [
+      ...contributions.map((c) => ({
+        id: c.id,
+        type: "contribution" as const,
+        date: c.receivedAt,
+        amount: c.amount,
+        title: c.giverName ? `Contribution from ${c.giverName}` : "Club Member Contribution",
+        subtitle: c.reference ? `Ref: ${c.reference}` : c.note || undefined,
+        fundName: c.fundName,
+        fundId: c.fundId,
+        method: c.method,
+        note: c.note,
+        reference: c.reference,
+      })),
+      ...expenses.map((e) => ({
+        id: e.id,
+        type: "expense" as const,
+        date: e.spentAt,
+        amount: e.amount,
+        title: e.spentOn,
+        subtitle: e.spentByName ? `Handled by ${e.spentByName}` : e.note || undefined,
+        fundName: e.fundName,
+        fundId: e.fundId,
+        note: e.note,
+      })),
+    ];
+  }
 
   recentActivity.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   const top8Activity = recentActivity.slice(0, 8);
@@ -1396,5 +1485,204 @@ export async function getFinanceOverview(): Promise<FinanceOverview> {
     funds,
     monthlyFlow,
     recentActivity: top8Activity,
+  };
+}
+
+/**
+ * GET /funds/recent-transactions (alias: /funds/recent)
+ * Retrieve paginated recent transactions across all funds.
+ */
+export async function getRecentTransactions(
+  params: RecentTransactionsParams = {}
+): Promise<RecentTransactionsResponse> {
+  const page = Math.max(1, params.page || 1);
+  const limit = Math.max(1, params.limit || 10);
+  const type = params.type || "ALL";
+
+  const query = new URLSearchParams();
+  query.set("page", String(page));
+  query.set("limit", String(limit));
+  if (type !== "ALL") query.set("type", type);
+
+  try {
+    let res = await fetchWithAuth(`/funds/recent-transactions?${query.toString()}`, {
+      skipAuth: true,
+    });
+    if (!res.ok && res.status === 404) {
+      res = await fetchWithAuth(`/funds/recent?${query.toString()}`, {
+        skipAuth: true,
+      });
+    }
+
+    if (res.ok) {
+      const json = await res.json();
+      const data = json?.data ?? json;
+      const rawList = Array.isArray(data?.transactions)
+        ? data.transactions
+        : Array.isArray(data)
+        ? data
+        : [];
+
+      const transactions: RecentTransaction[] = rawList.map((t: any, idx: number) => {
+        const isExp = t.type === "EXPENSE";
+        const fundObj = t.fund || {};
+        return {
+          id: String(t.id || t._id || `tx-${idx + 1}`),
+          type: isExp ? "EXPENSE" : "DONATION",
+          amount: Number(t.amount) || 0,
+          title: String(
+            t.title ||
+              (isExp
+                ? t.expenseDetails?.spentOn || t.spentOn || "Expense"
+                : t.donationDetails?.giverName
+                ? `Donation from ${t.donationDetails.giverName}`
+                : "Club Member Contribution")
+          ),
+          note: t.note ?? null,
+          transactionDate: String(
+            t.transactionDate || t.date || (isExp ? t.spentAt : t.receivedAt) || t.createdAt || new Date().toISOString()
+          ),
+          createdAt: String(t.createdAt || t.transactionDate || new Date().toISOString()),
+          fund: {
+            id: String(fundObj.id || fundObj._id || t.fundId || "fund-1"),
+            name: String(fundObj.name || t.fundName || "General Fund"),
+            category: fundObj.category || "SPORTS",
+            isActive: fundObj.isActive ?? true,
+          },
+          donationDetails: !isExp
+            ? {
+                method: t.donationDetails?.method || t.method || "CASH",
+                reference: t.donationDetails?.reference || t.reference || null,
+                giverName: t.donationDetails?.giverName || t.giverName || null,
+                giverMember: t.donationDetails?.giverMember || null,
+                receivedBy: t.donationDetails?.receivedBy || (t.receivedByName ? { id: t.receivedById || "mem", fullName: t.receivedByName } : null),
+              }
+            : null,
+          expenseDetails: isExp
+            ? {
+                spentOn: t.expenseDetails?.spentOn || t.spentOn || t.title || "Expense",
+                receiptUrl: t.expenseDetails?.receiptUrl || t.receiptUrl || null,
+                spentBy: t.expenseDetails?.spentBy || (t.spentByName ? { id: t.spentById || "mem", fullName: t.spentByName } : null),
+              }
+            : null,
+        };
+      });
+
+      const rawMeta = data?.meta || {};
+      const total = Number(rawMeta.total ?? transactions.length);
+      const totalPages = Number(rawMeta.totalPages ?? Math.max(1, Math.ceil(total / limit)));
+      const totalDonations = Number(
+        rawMeta.totalDonations ?? transactions.filter((t) => t.type === "DONATION").length
+      );
+      const totalExpenses = Number(
+        rawMeta.totalExpenses ?? transactions.filter((t) => t.type === "EXPENSE").length
+      );
+
+      const meta: RecentTransactionsMeta = {
+        total,
+        page,
+        limit,
+        totalPages,
+        totalDonations,
+        totalExpenses,
+        hasNextPage: rawMeta.hasNextPage ?? page < totalPages,
+        hasPreviousPage: rawMeta.hasPreviousPage ?? page > 1,
+      };
+
+      return { transactions, meta };
+    }
+  } catch (err) {
+    console.warn("fetch recent transactions network error, using fallback:", err);
+  }
+
+  // Graceful fallback from mock contributions & expenses
+  return getMockRecentTransactions(page, limit, type);
+}
+
+/**
+ * Mock fallback generator for recent transactions during offline development
+ */
+function getMockRecentTransactions(
+  page: number,
+  limit: number,
+  type: RecentTransactionType
+): RecentTransactionsResponse {
+  const store = getMockStore();
+  const donations: RecentTransaction[] = store.contributions.map((c) => ({
+    id: c.id,
+    type: "DONATION",
+    amount: c.amount,
+    title: c.giverName ? `Donation from ${c.giverName}` : "Club Member Contribution",
+    note: c.note || null,
+    transactionDate: c.receivedAt,
+    createdAt: c.createdAt || c.receivedAt,
+    fund: {
+      id: c.fundId,
+      name: c.fundName,
+      category: c.fund?.category || "SPORTS",
+      isActive: true,
+    },
+    donationDetails: {
+      method: c.method,
+      reference: c.reference,
+      giverName: c.giverName,
+      giverMember: c.giverMember ? { id: c.giverMember.id, fullName: c.giverMember.fullName } : null,
+      receivedBy: c.receivedBy ? { id: c.receivedBy.id, fullName: c.receivedBy.fullName } : null,
+    },
+    expenseDetails: null,
+  }));
+
+  const expenses: RecentTransaction[] = store.expenses.map((e) => ({
+    id: e.id,
+    type: "EXPENSE",
+    amount: e.amount,
+    title: e.spentOn,
+    note: e.note || null,
+    transactionDate: e.spentAt,
+    createdAt: e.createdAt || e.spentAt,
+    fund: {
+      id: e.fundId,
+      name: e.fundName,
+      category: e.fund?.category || "SPORTS",
+      isActive: true,
+    },
+    donationDetails: null,
+    expenseDetails: {
+      spentOn: e.spentOn,
+      receiptUrl: e.receiptUrl,
+      spentBy: e.spentBy ? { id: e.spentBy.id, fullName: e.spentBy.fullName } : null,
+    },
+  }));
+
+  let merged: RecentTransaction[] = [];
+  if (type === "DONATION") merged = [...donations];
+  else if (type === "EXPENSE") merged = [...expenses];
+  else merged = [...donations, ...expenses];
+
+  // Sort by newest createdAt / transactionDate first
+  merged.sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+
+  const total = merged.length;
+  const totalDonations = donations.length;
+  const totalExpenses = expenses.length;
+  const totalPages = Math.max(1, Math.ceil(total / limit));
+  const safePage = Math.min(page, totalPages);
+  const start = (safePage - 1) * limit;
+  const transactions = merged.slice(start, start + limit);
+
+  return {
+    transactions,
+    meta: {
+      total,
+      page: safePage,
+      limit,
+      totalPages,
+      totalDonations,
+      totalExpenses,
+      hasNextPage: safePage < totalPages,
+      hasPreviousPage: safePage > 1,
+    },
   };
 }
