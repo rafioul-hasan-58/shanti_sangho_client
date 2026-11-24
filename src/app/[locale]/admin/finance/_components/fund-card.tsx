@@ -186,12 +186,12 @@ export function FundCard({ fund, locale }: FundCardProps) {
   return (
     <>
       <div
-        className={`rounded-2xl border shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between group ${palette.cardBg} ${
-          menuOpen ? "relative z-30 overflow-visible" : "overflow-hidden"
+        className={`rounded-2xl border shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between group ${palette.cardBg} relative overflow-hidden ${
+          menuOpen ? "z-30 ring-2 ring-black/5" : ""
         }`}
       >
         {/* Top Colorful Accent Bar */}
-        <div className={`h-1.5 w-full bg-gradient-to-r rounded-t-2xl ${palette.topBar}`} />
+        <div className={`h-1.5 w-full bg-gradient-to-r shrink-0 ${palette.topBar}`} />
 
         <div className="p-3.5 sm:p-5 flex flex-col justify-between flex-1">
           <div>
@@ -240,7 +240,7 @@ export function FundCard({ fund, locale }: FundCardProps) {
                   <div
                     ref={menuRef}
                     onClick={(e) => e.stopPropagation()}
-                    className="absolute right-0 top-full mt-1 w-36 rounded-xl bg-white shadow-2xl border border-slate-200 py-1.5 z-40 text-xs font-semibold animate-in fade-in zoom-in-95"
+                    className="absolute right-0 top-full mt-1 w-32 rounded-xl bg-white shadow-2xl border border-slate-200 py-1.5 z-40 text-xs font-semibold animate-in fade-in zoom-in-95"
                   >
                     <button
                       type="button"
