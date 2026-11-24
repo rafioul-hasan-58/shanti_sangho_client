@@ -3,8 +3,6 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
-  Plus,
-  Receipt,
   Wallet,
   TrendingUp,
   ArrowUpRight,
@@ -13,9 +11,10 @@ import {
   Coins,
   LayoutDashboard,
   FolderTree,
-  FileSpreadsheet,
   FolderPlus,
   ArrowRight,
+  HandCoins,
+  ReceiptText,
 } from "lucide-react";
 import { useFinanceOverview } from "@/lib/hooks/use-finance";
 import { useAuth } from "@/context/AuthContext";
@@ -29,14 +28,12 @@ import { ContributionFormSheet } from "./contribution-form-sheet";
 import { ExpenseFormSheet } from "./expense-form-sheet";
 import { FundFormDialog } from "./fund-form-dialog";
 import { FundsManagementTable } from "./funds-management-table";
-import { ContributionsTable } from "./contributions-table";
-import { ExpensesTable } from "./expenses-table";
 
 interface FinanceOverviewClientProps {
   locale: string;
 }
 
-type FinanceTab = "overview" | "funds" | "contributions" | "expenses";
+type FinanceTab = "overview" | "funds";
 
 export function FinanceOverviewClient({ locale }: FinanceOverviewClientProps) {
   const router = useRouter();
@@ -139,94 +136,82 @@ export function FinanceOverviewClient({ locale }: FinanceOverviewClientProps) {
         </div>
 
         {/* Primary Action Buttons: Add Fund, Add Contribution, Add Expense */}
-        <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
+        <div className="grid grid-cols-3 gap-2 w-full sm:flex sm:w-auto sm:items-center sm:gap-2.5">
           {/* Add Fund */}
           <button
             type="button"
             onClick={() => setFundDialogOpen(true)}
-            className="inline-flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/80 active:scale-95 text-[#006a4e] text-xs sm:text-sm font-black shadow-2xs transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#006a4e]"
+            className="inline-flex items-center justify-center gap-1.5 sm:gap-2 h-10 sm:h-11 px-2 sm:px-4 rounded-xl sm:rounded-2xl bg-emerald-50/80 hover:bg-emerald-100/90 border border-emerald-300/70 active:scale-95 text-[#006a4e] text-xs sm:text-sm font-black shadow-2xs transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#006a4e]"
           >
-            <FolderPlus className="w-4 h-4 stroke-[2.5]" />
-            <span>{isBn ? "নতুন ফান্ড" : "Add Fund"}</span>
+            <FolderPlus className="w-4 h-4 shrink-0 stroke-[2.2]" />
+            <span className="truncate">{isBn ? "নতুন ফান্ড" : "Add Fund"}</span>
           </button>
 
           {/* Add Contribution */}
           <button
             type="button"
             onClick={() => setContributionSheetOpen(true)}
-            className="inline-flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-[#006a4e] hover:bg-[#004d38] active:scale-95 text-white text-xs sm:text-sm font-black shadow-md shadow-[#006a4e]/20 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f2b705]"
+            className="inline-flex items-center justify-center gap-1.5 sm:gap-2 h-10 sm:h-11 px-2 sm:px-4 rounded-xl sm:rounded-2xl bg-[#006a4e] hover:bg-[#00543e] active:scale-95 text-white text-xs sm:text-sm font-black shadow-md shadow-[#006a4e]/20 border border-[#006a4e] transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f2b705]"
           >
-            <Plus className="w-4 h-4 stroke-[2.5]" />
-            <span>{isBn ? "ডোনেশন জমা" : "Add Contribution"}</span>
+            <HandCoins className="w-4 h-4 shrink-0 stroke-[2.2]" />
+            <span className="truncate">{isBn ? "ডোনেশন জমা" : "Add Contribution"}</span>
           </button>
 
           {/* Add Expense */}
           <button
             type="button"
             onClick={() => setExpenseSheetOpen(true)}
-            className="inline-flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 active:scale-95 text-slate-800 text-xs sm:text-sm font-black shadow-2xs transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f2b705]"
+            className="inline-flex items-center justify-center gap-1.5 sm:gap-2 h-10 sm:h-11 px-2 sm:px-4 rounded-xl sm:rounded-2xl bg-rose-50/90 hover:bg-rose-100 active:scale-95 text-[#f42a41] border border-rose-200/90 text-xs sm:text-sm font-black shadow-2xs transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f42a41]"
           >
-            <Receipt className="w-4 h-4 text-[#f42a41] stroke-[2.5]" />
-            <span>{isBn ? "ব্যয় যোগ" : "Add Expense"}</span>
+            <ReceiptText className="w-4 h-4 shrink-0 stroke-[2.2] text-[#f42a41]" />
+            <span className="truncate">{isBn ? "ব্যয় যোগ" : "Add Expense"}</span>
           </button>
         </div>
       </div>
 
-      {/* 2. Top-Level Tab Switcher */}
-      <div className="flex items-center gap-1.5 p-1 bg-slate-100/90 rounded-2xl w-full sm:w-auto overflow-x-auto border border-slate-200/60 scrollbar-none">
+      {/* 2. Top-Level Tab Switcher: Overview vs All Funds */}
+      <div className="w-full sm:w-auto sm:inline-flex grid grid-cols-2 p-1.5 bg-slate-100/90 rounded-2xl border border-slate-200/80 gap-1.5">
         <button
           type="button"
           onClick={() => setActiveTab("overview")}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer shrink-0 ${
+          className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer ${
             activeTab === "overview"
-              ? "bg-white text-slate-900 shadow-xs"
-              : "text-slate-600 hover:text-slate-900 hover:bg-white/50"
+              ? "bg-[#006a4e] text-white shadow-md shadow-[#006a4e]/20"
+              : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
           }`}
         >
-          <LayoutDashboard className="w-4 h-4" />
+          <LayoutDashboard
+            className={`w-4 h-4 shrink-0 transition-colors ${
+              activeTab === "overview" ? "text-white" : "text-slate-500"
+            }`}
+          />
           <span>{isBn ? "সামগ্রিক চিত্র" : "Overview"}</span>
         </button>
 
         <button
           type="button"
           onClick={() => setActiveTab("funds")}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer shrink-0 ${
+          className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer ${
             activeTab === "funds"
-              ? "bg-white text-slate-900 shadow-xs"
-              : "text-slate-600 hover:text-slate-900 hover:bg-white/50"
+              ? "bg-[#006a4e] text-white shadow-md shadow-[#006a4e]/20"
+              : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
           }`}
         >
-          <FolderTree className="w-4 h-4" />
+          <FolderTree
+            className={`w-4 h-4 shrink-0 transition-colors ${
+              activeTab === "funds" ? "text-white" : "text-slate-500"
+            }`}
+          />
           <span>{isBn ? "সকল ফান্ড" : "All Funds"}</span>
-          <span className="px-1.5 py-0.2 rounded-md bg-slate-100 text-slate-600 text-[10px] font-extrabold">
+          <span
+            className={`px-2 py-0.5 rounded-full text-[10px] font-black transition-colors ${
+              activeTab === "funds"
+                ? "bg-white/20 text-white"
+                : "bg-slate-200/80 text-slate-700"
+            }`}
+          >
             {funds.length}
           </span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab("contributions")}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer shrink-0 ${
-            activeTab === "contributions"
-              ? "bg-white text-slate-900 shadow-xs"
-              : "text-slate-600 hover:text-slate-900 hover:bg-white/50"
-          }`}
-        >
-          <ArrowUpRight className="w-4 h-4 text-emerald-600" />
-          <span>{isBn ? "ডোনেশন হিসাব" : "Contributions"}</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab("expenses")}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer shrink-0 ${
-            activeTab === "expenses"
-              ? "bg-white text-slate-900 shadow-xs"
-              : "text-slate-600 hover:text-slate-900 hover:bg-white/50"
-          }`}
-        >
-          <ArrowDownRight className="w-4 h-4 text-[#f42a41]" />
-          <span>{isBn ? "ব্যয়ের খতিয়ান" : "Expenses"}</span>
         </button>
       </div>
 
@@ -331,70 +316,6 @@ export function FinanceOverviewClient({ locale }: FinanceOverviewClientProps) {
           <FundsManagementTable
             locale={locale}
             onAddFundClick={() => setFundDialogOpen(true)}
-          />
-        </div>
-      )}
-
-      {/* TAB C: CONTRIBUTIONS */}
-      {activeTab === "contributions" && (
-        <div className="animate-fadeIn space-y-4">
-          {/* Header Pill & Summary */}
-          <div className="bg-gradient-to-r from-emerald-500/10 via-emerald-500/5 to-transparent p-4 rounded-2xl border border-emerald-200/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <span className="text-[11px] font-black uppercase tracking-wider text-emerald-800 block">
-                {isBn ? "মোট জমাকৃত ডোনেশন লেজার" : "Contributions Ledger"}
-              </span>
-              <p className="text-xs text-slate-600 font-medium">
-                {isBn
-                  ? "দাতা ও সদস্যদের থেকে প্রাপ্ত সকল ডোনেশন এবং ব্যাংকিং রেফারেন্স"
-                  : "All received donations, sponsorships, and fees recorded in funds"}
-              </p>
-            </div>
-
-            {/* Sum Pill */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 text-white font-black text-sm shadow-xs shrink-0">
-              <span className="text-emerald-100 text-xs font-semibold">
-                {isBn ? "মোট সংগৃহীত:" : "Total Raised:"}
-              </span>
-              <span className="tabular-nums">{formatMoney(totalRaised)}</span>
-            </div>
-          </div>
-
-          <ContributionsTable
-            isBn={isBn}
-            onAddClick={() => setContributionSheetOpen(true)}
-          />
-        </div>
-      )}
-
-      {/* TAB D: EXPENSES */}
-      {activeTab === "expenses" && (
-        <div className="animate-fadeIn space-y-4">
-          {/* Header Pill & Summary */}
-          <div className="bg-gradient-to-r from-rose-500/10 via-rose-500/5 to-transparent p-4 rounded-2xl border border-rose-200/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <span className="text-[11px] font-black uppercase tracking-wider text-[#f42a41] block">
-                {isBn ? "ক্লাবের সকল ব্যয়ের খতিয়ান" : "Expenditures Ledger"}
-              </span>
-              <p className="text-xs text-slate-600 font-medium">
-                {isBn
-                  ? "ক্লাবের ফান্ড থেকে খরচের সকল ভাউচার এবং রসিদের হিসাব"
-                  : "Complete outflow vouchers, operational costs, and receipts"}
-              </p>
-            </div>
-
-            {/* Sum Pill */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#f42a41] text-white font-black text-sm shadow-xs shrink-0">
-              <span className="text-rose-100 text-xs font-semibold">
-                {isBn ? "মোট ব্যয়িত:" : "Total Spent:"}
-              </span>
-              <span className="tabular-nums">{formatMoney(totalSpent)}</span>
-            </div>
-          </div>
-
-          <ExpensesTable
-            isBn={isBn}
-            onAddClick={() => setExpenseSheetOpen(true)}
           />
         </div>
       )}
