@@ -249,6 +249,7 @@ export function ExpensesTable({
               isBn={isBn}
               colorTheme="emerald"
               align="left"
+              placement="top"
             />
 
             <DatePickerButton
@@ -261,6 +262,7 @@ export function ExpensesTable({
               isBn={isBn}
               colorTheme="sky"
               align="right"
+              placement="top"
             />
           </div>
 

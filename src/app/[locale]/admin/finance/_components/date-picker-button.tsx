@@ -33,6 +33,7 @@ export interface DatePickerButtonProps {
   isBn?: boolean;
   colorTheme?: "emerald" | "sky" | "rose";
   align?: "left" | "right";
+  placement?: "top" | "bottom";
   className?: string;
 }
 
@@ -81,6 +82,7 @@ export function DatePickerButton({
   isBn = false,
   colorTheme = "emerald",
   align = "left",
+  placement = "top",
   className = "",
 }: DatePickerButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -203,6 +205,31 @@ export function DatePickerButton({
     : "text-rose-800";
 
   const defaultPlaceholder = isBn ? "তারিখ দিন" : "Pick date";
+  const isTop = placement === "top";
+
+  const selectedDayStyle = isEmerald
+    ? "bg-[#006a4e] text-white font-black shadow-md shadow-[#006a4e]/25 scale-105"
+    : isSky
+    ? "bg-sky-600 text-white font-black shadow-md shadow-sky-600/25 scale-105"
+    : "bg-[#f42a41] text-white font-black shadow-md shadow-rose-600/25 scale-105";
+
+  const todayDayStyle = isEmerald
+    ? "border-2 border-[#006a4e] text-[#006a4e] font-black bg-emerald-50/70"
+    : isSky
+    ? "border-2 border-sky-600 text-sky-700 font-black bg-sky-50/70"
+    : "border-2 border-[#f42a41] text-[#f42a41] font-black bg-rose-50/70";
+
+  const currentMonthHover = isEmerald
+    ? "text-slate-800 font-bold hover:bg-emerald-50 hover:text-[#006a4e] active:scale-95"
+    : isSky
+    ? "text-slate-800 font-bold hover:bg-sky-50 hover:text-sky-700 active:scale-95"
+    : "text-slate-800 font-bold hover:bg-rose-50 hover:text-[#f42a41] active:scale-95";
+
+  const todayActionBtnStyle = isEmerald
+    ? "bg-emerald-50 text-[#006a4e] hover:bg-emerald-100"
+    : isSky
+    ? "bg-sky-50 text-sky-700 hover:bg-sky-100"
+    : "bg-rose-50 text-[#f42a41] hover:bg-rose-100";
 
   return (
     <div
@@ -219,7 +246,15 @@ export function DatePickerButton({
             : isSky
             ? "focus:ring-sky-500/20"
             : "focus:ring-rose-500/20"
-        } ${isOpen ? "ring-2 ring-[#006a4e]/30 bg-white" : ""}`}
+        } ${
+          isOpen
+            ? isEmerald
+              ? "ring-2 ring-[#006a4e]/30 bg-white"
+              : isSky
+              ? "ring-2 ring-sky-500/30 bg-white"
+              : "ring-2 ring-rose-500/30 bg-white"
+            : ""
+        }`}
         aria-label={`${label}: ${value || defaultPlaceholder}`}
       >
         <div className="flex items-center gap-1.5 min-w-0 overflow-hidden">
@@ -267,12 +302,18 @@ export function DatePickerButton({
         )}
       </button>
 
-      {/* Appealing Floating Calendar Popover */}
+      {/* Appealing Floating Calendar Popover - Opens on top */}
       {isOpen && (
         <div
-          className={`absolute top-full mt-2 z-50 w-72 sm:w-80 max-w-[calc(100vw-32px)] bg-white rounded-2xl shadow-2xl border border-slate-200/90 p-3.5 sm:p-4 text-xs animate-in fade-in zoom-in-95 ${
+          className={`absolute ${
+            isTop ? "bottom-full mb-2" : "top-full mt-2"
+          } z-50 w-72 sm:w-80 max-w-[calc(100vw-32px)] bg-white rounded-2xl shadow-2xl border border-slate-200/90 p-3.5 sm:p-4 text-xs animate-in fade-in zoom-in-95 ${
             align === "right"
-              ? "right-0 sm:right-0 sm:left-auto origin-top-right"
+              ? isTop
+                ? "right-0 sm:right-0 sm:left-auto origin-bottom-right"
+                : "right-0 sm:right-0 sm:left-auto origin-top-right"
+              : isTop
+              ? "left-0 sm:left-0 sm:right-auto origin-bottom-left"
               : "left-0 sm:left-0 sm:right-auto origin-top-left"
           }`}
         >
@@ -340,11 +381,11 @@ export function DatePickerButton({
                   onClick={() => handleSelectDay(day)}
                   className={`h-8 w-8 sm:h-9 sm:w-9 mx-auto rounded-xl flex items-center justify-center text-xs transition-all cursor-pointer ${
                     isSelected
-                      ? "bg-[#006a4e] text-white font-black shadow-md shadow-[#006a4e]/25 scale-105"
+                      ? selectedDayStyle
                       : isTodayDate
-                      ? "border-2 border-[#006a4e] text-[#006a4e] font-black bg-emerald-50/70"
+                      ? todayDayStyle
                       : isCurrentMonth
-                      ? "text-slate-800 font-bold hover:bg-emerald-50 hover:text-[#006a4e] active:scale-95"
+                      ? currentMonthHover
                       : "text-slate-300 font-normal hover:bg-slate-50"
                   }`}
                   title={format(day, "yyyy-MM-dd")}
@@ -360,7 +401,7 @@ export function DatePickerButton({
             <button
               type="button"
               onClick={handleTodayClick}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 text-[#006a4e] hover:bg-emerald-100 font-black transition-colors cursor-pointer"
+              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg ${todayActionBtnStyle} font-black transition-colors cursor-pointer`}
             >
               <Check className="w-3 h-3 stroke-[3]" />
               <span>{isBn ? "আজ" : "Today"}</span>
