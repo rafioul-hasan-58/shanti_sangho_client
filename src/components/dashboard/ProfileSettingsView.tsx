@@ -631,7 +631,7 @@ export default function ProfileSettingsView({ locale = "bn" }: ProfileSettingsVi
                   </label>
                   <span className="inline-flex items-center gap-1 text-[10px] text-emerald-700 font-bold bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
                     <Check className="w-3 h-3 stroke-[2.5]" />
-                    <span>{isBn ? "যাচাইকৃত" : "Verified"}</span>
+                    <span>Verified</span>
                   </span>
                 </div>
                 <div className="relative">
