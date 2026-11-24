@@ -248,7 +248,7 @@ export default function UserProfileDropdown({
                 <span>{isBn ? "সেটিংস ও প্রোফাইল" : "Settings & Profile"}</span>
               </Link>
 
-              <Link
+              {/* <Link
                 href={`/${locale}/members`}
                 role="menuitem"
                 tabIndex={0}
@@ -257,7 +257,7 @@ export default function UserProfileDropdown({
               >
                 <span className="text-base leading-none">💬</span>
                 <span>{isBn ? "সদস্য ডিরেক্টরি" : "Club Members"}</span>
-              </Link>
+              </Link> */}
             </div>
 
             {/* Bottom Divider Line */}
