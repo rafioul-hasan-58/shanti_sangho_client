@@ -13,9 +13,9 @@ export type FundCategory = (typeof FUND_CATEGORIES)[number];
 
 export const PAYMENT_METHODS = [
   "CASH",
-  "BANK",
   "BKASH",
   "NAGAD",
+  "BANK",
   "OTHER",
 ] as const;
 

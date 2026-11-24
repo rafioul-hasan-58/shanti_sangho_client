@@ -19,8 +19,8 @@ export function BkashLogo({ className = "w-4 h-4" }: { className?: string }) {
       <Image
         src="/images/payments/bkash.png"
         alt="bKash"
-        width={40}
-        height={40}
+        width={32}
+        height={32}
         className="w-full h-full object-contain"
         unoptimized
       />
@@ -40,8 +40,8 @@ export function NagadLogo({ className = "w-4 h-4" }: { className?: string }) {
       <Image
         src="/images/payments/nagad.png"
         alt="Nagad"
-        width={40}
-        height={40}
+        width={32}
+        height={32}
         className="w-full h-full object-contain"
         unoptimized
       />
