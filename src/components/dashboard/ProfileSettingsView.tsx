@@ -334,28 +334,12 @@ export default function ProfileSettingsView({ locale = "bn" }: ProfileSettingsVi
   return (
     <div className="space-y-6 max-w-5xl mx-auto pb-16">
       {/* ========================================================= */}
-      {/* 1. PROFILE HEADER CARD WITH GRADIENT BANNER & OVERLAP AVATAR */}
+      {/* 1. PROFILE HEADER CARD                                    */}
       {/* ========================================================= */}
-      <div className="bg-white rounded-3xl border border-slate-200/90 shadow-xs overflow-hidden transition-all duration-200">
-        {/* Cover Banner (120px to 140px Emerald-to-Teal Gradient with Pattern) */}
-        <div className="h-28 sm:h-36 w-full bg-gradient-to-r from-emerald-600 via-[#006a4e] to-teal-700 relative overflow-hidden">
-          {/* Subtle geometric dot pattern */}
-          <div
-            className="absolute inset-0 opacity-15"
-            style={{
-              backgroundImage:
-                "radial-gradient(circle at 2px 2px, white 1px, transparent 0)",
-              backgroundSize: "20px 20px",
-            }}
-          />
-          {/* Ambient light glow */}
-          <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-emerald-400/20 blur-2xl" />
-          <div className="absolute -bottom-8 -left-8 w-40 h-40 rounded-full bg-teal-300/20 blur-xl" />
-        </div>
-
-        {/* Content Below Banner */}
-        <div className="px-5 sm:px-8 pb-6 sm:pb-8 pt-0">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 -mt-12 sm:-mt-14 mb-4">
+      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-xs transition-all duration-200">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          {/* Left: Avatar + User Details */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-6 min-w-0">
             {/* Avatar & Camera Button */}
             <div className="relative shrink-0 mx-auto sm:mx-0 group">
               {/* Hidden file input */}
@@ -369,14 +353,14 @@ export default function ProfileSettingsView({ locale = "bn" }: ProfileSettingsVi
                 disabled={isPhotoProcessing}
               />
 
-              {/* 96px circular avatar with 4px white border and soft shadow */}
+              {/* 96px circular avatar */}
               <button
                 type="button"
                 onClick={() => profilePhotoInputRef.current?.click()}
                 disabled={isPhotoProcessing}
                 aria-label={isBn ? "প্রোফাইল ছবি পরিবর্তন করুন" : "Change profile photo"}
                 title={isBn ? "ছবি পরিবর্তন করতে ক্লিক করুন" : "Click to change photo"}
-                className="relative block h-24 w-24 sm:h-28 sm:w-28 rounded-full overflow-hidden ring-4 ring-white shadow-xl bg-[#006a4e] transition-transform duration-200 cursor-pointer hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#006a4e]/40"
+                className="relative block h-24 w-24 sm:h-28 sm:w-28 rounded-full overflow-hidden ring-4 ring-emerald-500/20 hover:ring-[#006a4e] shadow-lg bg-[#006a4e] transition-all duration-200 cursor-pointer hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#006a4e]/40"
               >
                 {currentPhoto ? (
                   <Image
@@ -419,132 +403,132 @@ export default function ProfileSettingsView({ locale = "bn" }: ProfileSettingsVi
               </button>
             </div>
 
-            {/* Top Right: Profile Completion Progress Bar */}
-            <div className="w-full sm:w-64 bg-slate-50 border border-slate-200/80 rounded-2xl p-3 shadow-2xs">
-              <div className="flex items-center justify-between text-xs font-bold mb-1.5">
-                <span className="text-slate-700 flex items-center gap-1.5">
-                  <Sparkle className="w-3.5 h-3.5 text-[#006a4e]" />
-                  <span>{isBn ? "প্রোফাইল সম্পন্নতা" : "Profile Completeness"}</span>
-                </span>
-                <span className="text-[#006a4e] font-black">{completionStats.percentage}%</span>
+            {/* User Details: Name, Verified, Email, Badges */}
+            <div className="space-y-2.5 text-center sm:text-left min-w-0">
+              {/* Name + Verified */}
+              <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
+                <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight">
+                  {displayName}
+                </h1>
+                {isAdminVerified(user?.adminVerified ?? (user as any)?.adminApproved) && (
+                  <VerifiedTick isBn={isBn} className="w-5 h-5" />
+                )}
               </div>
-              <div className="w-full h-2 rounded-full bg-slate-200 overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-emerald-500 to-[#006a4e] rounded-full transition-all duration-500"
-                  style={{ width: `${completionStats.percentage}%` }}
-                />
+
+              {/* Email with Copy Button */}
+              <div className="flex items-center justify-center sm:justify-start gap-2 text-xs sm:text-sm text-slate-500 font-medium">
+                <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                <span className="truncate max-w-[260px] sm:max-w-none">{displayEmail}</span>
+                <button
+                  type="button"
+                  onClick={handleCopyEmail}
+                  className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer inline-flex items-center gap-1 text-[11px]"
+                  title={isBn ? "ইমেইল কপি করুন" : "Copy email address"}
+                >
+                  {copiedEmail ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-emerald-600" />
+                      <span className="text-emerald-700 font-bold">{isBn ? "কপি হয়েছে!" : "Copied!"}</span>
+                    </>
+                  ) : (
+                    <Copy className="w-3.5 h-3.5" />
+                  )}
+                </button>
               </div>
-              {completionStats.missing.length > 0 && (
-                <p className="text-[10px] text-slate-400 mt-1.5 truncate">
-                  {isBn ? "বাকি আছে:" : "Next to add:"}{" "}
-                  <span className="text-slate-600 font-semibold">
-                    {completionStats.missing.slice(0, 2).map((m) => m.label).join(", ")}
+
+              {/* Badges Row: Role + Blood Group + Member status */}
+              <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap pt-0.5">
+                {/* Role Pill: Amber with Crown */}
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-900 border border-amber-200/90 text-xs font-black shadow-2xs">
+                  <Crown className="w-3.5 h-3.5 text-amber-600 stroke-[2.4]" />
+                  <span>
+                    {isAdmin
+                      ? isBn
+                        ? roleMeta.labelBn
+                        : roleMeta.labelEn
+                      : isBn
+                      ? "রেজিস্টার্ড সদস্য"
+                      : "Club Member"}
                   </span>
-                </p>
-              )}
+                </span>
+
+                {/* Blood Group Pill: Red with Droplet */}
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 text-rose-800 border border-rose-200/90 text-xs font-black shadow-2xs">
+                  <Droplet className="w-3.5 h-3.5 text-rose-600 fill-rose-600" />
+                  <span>
+                    {!formattedBlood || formattedBlood.trim().toUpperCase() === "UNKNOWN"
+                      ? isBn
+                        ? "রক্তের গ্রুপ দেওয়া হয়নি"
+                        : "Blood: N/A"
+                      : `${isBn ? "গ্রুপ" : "Blood"}: ${formattedBlood}`}
+                  </span>
+                </span>
+
+                {/* Village Pill */}
+                {profileForm.village && (
+                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200/80 text-xs font-semibold">
+                    <Home className="w-3.5 h-3.5 text-slate-500" />
+                    <span>{profileForm.village}</span>
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 
-          {/* User Details Row: Name, Verified Badge, Email, Pills */}
-          <div className="space-y-3 text-center sm:text-left">
-            {/* Name + Verified */}
-            <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
-              <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight">
-                {displayName}
-              </h1>
-              {isAdminVerified(user?.adminVerified ?? (user as any)?.adminApproved) && (
-                <VerifiedTick isBn={isBn} className="w-5 h-5" />
-              )}
-            </div>
-
-            {/* Email with Copy Button */}
-            <div className="flex items-center justify-center sm:justify-start gap-2 text-xs sm:text-sm text-slate-500 font-medium">
-              <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-              <span className="truncate max-w-[260px] sm:max-w-none">{displayEmail}</span>
-              <button
-                type="button"
-                onClick={handleCopyEmail}
-                className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer inline-flex items-center gap-1 text-[11px]"
-                title={isBn ? "ইমেইল কপি করুন" : "Copy email address"}
-              >
-                {copiedEmail ? (
-                  <>
-                    <Check className="w-3.5 h-3.5 text-emerald-600" />
-                    <span className="text-emerald-700 font-bold">{isBn ? "কপি হয়েছে!" : "Copied!"}</span>
-                  </>
-                ) : (
-                  <Copy className="w-3.5 h-3.5" />
-                )}
-              </button>
-            </div>
-
-            {/* Badges Row: Role + Blood Group + Member status */}
-            <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap pt-1">
-              {/* Role Pill: Amber with Crown */}
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-900 border border-amber-200/90 text-xs font-black shadow-2xs">
-                <Crown className="w-3.5 h-3.5 text-amber-600 stroke-[2.4]" />
-                <span>
-                  {isAdmin
-                    ? isBn
-                      ? roleMeta.labelBn
-                      : roleMeta.labelEn
-                    : isBn
-                    ? "রেজিস্টার্ড সদস্য"
-                    : "Club Member"}
-                </span>
+          {/* Right: Profile Completion Progress Bar */}
+          <div className="w-full md:w-64 bg-slate-50 border border-slate-200/80 rounded-2xl p-3.5 shadow-2xs shrink-0 self-center md:self-auto">
+            <div className="flex items-center justify-between text-xs font-bold mb-1.5">
+              <span className="text-slate-700 flex items-center gap-1.5">
+                <Sparkle className="w-3.5 h-3.5 text-[#006a4e]" />
+                <span>{isBn ? "প্রোফাইল সম্পন্নতা" : "Profile Completeness"}</span>
               </span>
-
-              {/* Blood Group Pill: Red with Droplet */}
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 text-rose-800 border border-rose-200/90 text-xs font-black shadow-2xs">
-                <Droplet className="w-3.5 h-3.5 text-rose-600 fill-rose-600" />
-                <span>
-                  {!formattedBlood || formattedBlood.trim().toUpperCase() === "UNKNOWN"
-                    ? isBn
-                      ? "রক্তের গ্রুপ দেওয়া হয়নি"
-                      : "Blood: N/A"
-                    : `${isBn ? "গ্রুপ" : "Blood"}: ${formattedBlood}`}
-                </span>
-              </span>
-
-              {/* Village Pill */}
-              {profileForm.village && (
-                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200/80 text-xs font-semibold">
-                  <Home className="w-3.5 h-3.5 text-slate-500" />
-                  <span>{profileForm.village}</span>
-                </span>
-              )}
+              <span className="text-[#006a4e] font-black">{completionStats.percentage}%</span>
             </div>
-
-            {/* Photo Notification / Error Alerts */}
-            {photoOptimizationNote && (
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-semibold animate-fadeIn mt-2">
-                <Sparkles className="w-3.5 h-3.5 text-[#006a4e]" />
-                <span>{photoOptimizationNote}</span>
-              </div>
-            )}
-            {photoStatusMessage && (
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold animate-fadeIn mt-2">
-                <CheckCircle2 className="w-4 h-4 text-[#006a4e]" />
-                <span>{isBn ? photoStatusMessage.bn : photoStatusMessage.en}</span>
-              </div>
-            )}
-            {photoError && (
-              <div className="w-full max-w-md rounded-xl bg-red-50 border border-red-200 p-2.5 text-red-700 text-xs font-medium flex items-start gap-2 animate-fadeIn mt-2">
-                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-red-600" />
-                <div className="flex-1">
-                  <p className="font-bold">{photoError.bn}</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setPhotoError(null)}
-                  className="text-red-400 hover:text-red-700 font-bold"
-                >
-                  ✕
-                </button>
-              </div>
+            <div className="w-full h-2 rounded-full bg-slate-200 overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-emerald-500 to-[#006a4e] rounded-full transition-all duration-500"
+                style={{ width: `${completionStats.percentage}%` }}
+              />
+            </div>
+            {completionStats.missing.length > 0 && (
+              <p className="text-[10px] text-slate-400 mt-1.5 truncate">
+                {isBn ? "বাকি আছে:" : "Next to add:"}{" "}
+                <span className="text-slate-600 font-semibold">
+                  {completionStats.missing.slice(0, 2).map((m) => m.label).join(", ")}
+                </span>
+              </p>
             )}
           </div>
         </div>
+
+        {/* Photo Notification / Error Alerts */}
+        {photoOptimizationNote && (
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-semibold animate-fadeIn mt-3">
+            <Sparkles className="w-3.5 h-3.5 text-[#006a4e]" />
+            <span>{photoOptimizationNote}</span>
+          </div>
+        )}
+        {photoStatusMessage && (
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold animate-fadeIn mt-3">
+            <CheckCircle2 className="w-4 h-4 text-[#006a4e]" />
+            <span>{isBn ? photoStatusMessage.bn : photoStatusMessage.en}</span>
+          </div>
+        )}
+        {photoError && (
+          <div className="w-full max-w-md rounded-xl bg-red-50 border border-red-200 p-2.5 text-red-700 text-xs font-medium flex items-start gap-2 animate-fadeIn mt-3">
+            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-red-600" />
+            <div className="flex-1">
+              <p className="font-bold">{photoError.bn}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setPhotoError(null)}
+              className="text-red-400 hover:text-red-700 font-bold"
+            >
+              ✕
+            </button>
+          </div>
+        )}
       </div>
 
       {/* ========================================================= */}
