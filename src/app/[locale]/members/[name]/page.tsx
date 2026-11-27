@@ -6,6 +6,7 @@ import { SAVARCHALA_FULL_BRAND_NAME_EN } from "@/lib/constants/site";
 import PersonDetailsView from "@/components/profile/PersonDetailsView";
 import MemberFullPageView from "@/components/members/MemberFullPageView";
 import { fetchMemberById } from "@/lib/api/memberService";
+import { isAdminVerified } from "@/lib/authRole";
 
 export const dynamicParams = true;
 
@@ -89,7 +90,7 @@ export default async function MemberPersonPage({ params }: PageProps) {
   // Fallback for registered dynamic member ID or slug
   try {
     const member = await fetchMemberById(name);
-    if (member) {
+    if (member && isAdminVerified(member.adminVerified)) {
       return (
         <main className="min-h-screen bg-chalk">
           <MemberFullPageView

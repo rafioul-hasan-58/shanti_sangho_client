@@ -132,6 +132,7 @@ export default function MembersDirectory({
       page,
       limit,
       sortOrder,
+      adminVerified: true,
     };
 
     if (debouncedSearch.trim()) params.searchTerm = debouncedSearch.trim();
@@ -141,7 +142,8 @@ export default function MembersDirectory({
 
     try {
       const res = await fetchPublicMembers(params);
-      setMembers(res.users);
+      const verifiedUsers = res.users.filter((u) => isAdminVerified(u.adminVerified));
+      setMembers(verifiedUsers);
       setMeta(res.meta);
     } catch (err) {
       setMembers([]);

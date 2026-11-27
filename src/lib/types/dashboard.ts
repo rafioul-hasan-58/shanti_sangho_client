@@ -112,6 +112,7 @@ export interface UsersQueryParams {
   membershipType?: MembershipType;
   bloodGroup?: BloodGroup;
   emailVerified?: boolean;
+  adminVerified?: boolean;
   searchTerm?: string;
   search?: string; // backwards compatibility alias for searchTerm
   sortBy?: UserSortField; // deprecated: sorting is locked to createdAt

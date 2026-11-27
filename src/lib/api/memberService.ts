@@ -159,6 +159,9 @@ export function buildMembersQueryString(params: MembersQueryParams = {}): string
   if (typeof params.emailVerified === "boolean") {
     sp.set("emailVerified", String(params.emailVerified));
   }
+  if (typeof params.adminVerified === "boolean") {
+    sp.set("adminVerified", String(params.adminVerified));
+  }
   // API route update: searchTerm replaces search
   const term = (params.searchTerm ?? params.search ?? "").trim();
   if (term) {
@@ -193,6 +196,8 @@ export function queryMockMembers(params: MembersQueryParams = {}): UsersListResp
       : null;
   const emailVerified =
     typeof params.emailVerified === "boolean" ? params.emailVerified : null;
+  const adminVerified =
+    typeof params.adminVerified === "boolean" ? params.adminVerified : null;
 
   const filtered = MOCK_MANAGED_USERS.filter((u) => {
     if (search) {
@@ -204,6 +209,7 @@ export function queryMockMembers(params: MembersQueryParams = {}): UsersListResp
     if (membershipType && u.membershipType !== membershipType) return false;
     if (bloodGroup && toPrismaBloodGroup(u.bloodGroup) !== bloodGroup) return false;
     if (emailVerified !== null && Boolean(u.emailVerified) !== emailVerified) return false;
+    if (adminVerified !== null && Boolean(u.adminVerified) !== adminVerified) return false;
     return true;
   });
 
@@ -340,11 +346,28 @@ export const fetchUsers = fetchMembers;
 export async function fetchPublicMembers(
   params: MembersQueryParams = {}
 ): Promise<UsersListResponse> {
+  const publicParams: MembersQueryParams = {
+    ...params,
+    adminVerified: true,
+  };
   try {
-    return await fetchMembers(params);
+    const res = await fetchMembers(publicParams);
+    // Ensure all returned members are adminVerified in public directory
+    const verifiedUsers = res.users.filter((u) => Boolean(u.adminVerified));
+    return {
+      ...res,
+      users: verifiedUsers,
+      members: verifiedUsers,
+      meta: {
+        ...res.meta,
+        total: res.isMockFallback
+          ? verifiedUsers.length
+          : res.meta?.total ?? verifiedUsers.length,
+      },
+    };
   } catch (err) {
     console.warn("fetchMembers network error, using local fallback:", err);
-    return queryMockMembers(params);
+    return queryMockMembers(publicParams);
   }
 }
 
