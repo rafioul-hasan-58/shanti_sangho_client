@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -22,9 +23,12 @@ export default function Footer({
   const pathname = usePathname();
   const isBn = locale === "bn";
 
-  // Hide footer on dashboard and admin portals; hide on mobile for login/register so auth screens fit cleanly without scrolling
+  // Hide footer on dashboard, admin portals, and member details view
   const isDashboardRoute =
     pathname?.includes("/dashboard") || pathname?.includes("/admin");
+  const isMemberDetailsRoute = Boolean(
+    pathname && /^\/(?:en|bn)\/members\/[^\/]+$/.test(pathname)
+  );
   const isAuthRoute =
     pathname?.includes("/login") ||
     pathname?.includes("/register") ||
@@ -32,7 +36,20 @@ export default function Footer({
     pathname?.includes("/verify-otp") ||
     pathname?.includes("/reset-password");
 
-  if (isDashboardRoute) {
+  const [hasMemberQuery, setHasMemberQuery] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const checkQuery = () => {
+      const params = new URLSearchParams(window.location.search);
+      setHasMemberQuery(Boolean(params.get("member")));
+    };
+    checkQuery();
+    window.addEventListener("popstate", checkQuery);
+    return () => window.removeEventListener("popstate", checkQuery);
+  }, [pathname]);
+
+  if (isDashboardRoute || isMemberDetailsRoute || hasMemberQuery) {
     return null;
   }
 
