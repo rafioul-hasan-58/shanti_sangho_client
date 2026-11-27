@@ -28,6 +28,7 @@ import {
 import type { DashboardStats, ManagedUser } from "@/lib/types/dashboard";
 import { formatBDT } from "@/lib/constants/categories";
 import { formatBloodGroupDisplay } from "@/lib/bloodGroup";
+import { formatRegistrationTime } from "@/lib/format";
 
 interface AdminOverviewViewProps {
   adminName?: string;
@@ -249,7 +250,7 @@ export default function AdminOverviewView({
                       <th className="py-3.5 px-4">{isBn ? "যোগাযোগ" : "Contact"}</th>
                       <th className="py-3.5 px-4">{isBn ? "রক্ত ও এলাকা" : "Blood & Area"}</th>
                       <th className="py-3.5 px-4">{isBn ? "অবস্থা" : "Status"}</th>
-                      <th className="py-3.5 px-4">{isBn ? "যোগদান" : "Joined"}</th>
+                      <th className="py-3.5 px-4">{isBn ? "নিবন্ধন সময়" : "Registered"}</th>
                       <th className="py-3.5 px-4 text-right">{isBn ? "অ্যাকশন" : "Actions"}</th>
                     </tr>
                   </thead>
@@ -314,7 +315,27 @@ export default function AdminOverviewView({
                         </td>
 
                         <td className="py-3.5 px-4 text-xs font-semibold text-slate-500 whitespace-nowrap">
-                          {pendingUser.joinedAt || "—"}
+                          <div className="flex items-center gap-1.5">
+                            <svg
+                              className="w-3.5 h-3.5 text-slate-400 shrink-0"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              strokeWidth={2}
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M12 6v6l4 2m6-2a10 10 0 11-20 0 10 10 0 0120 0z"
+                              />
+                            </svg>
+                            <span>
+                              {formatRegistrationTime(
+                                pendingUser.createdAt || pendingUser.joinedAt,
+                                isBn
+                              )}
+                            </span>
+                          </div>
                         </td>
 
                         <td className="py-3.5 px-4 text-right">
@@ -402,12 +423,36 @@ export default function AdminOverviewView({
                       </div>
                     </div>
 
-                    {/* Line 2: Approval Needed status & Approve / Remove action buttons */}
+                    {/* Line 2: Approval Needed status & Registration time on left, Approve / Remove action buttons on right */}
                     <div className="flex items-center justify-between gap-2 pt-2.5 border-t border-slate-100">
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200/80 shrink-0">
-                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse shrink-0" />
-                        <span>{isBn ? "অনুমোদন প্রয়োজন" : "Approval Needed"}</span>
-                      </span>
+                      <div className="flex flex-col xs:flex-row xs:items-center gap-1.5 xs:gap-2.5 min-w-0">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200/80 shrink-0 w-fit">
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse shrink-0" />
+                          <span>{isBn ? "অনুমোদন প্রয়োজন" : "Approval Needed"}</span>
+                        </span>
+
+                        <span className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-500 whitespace-nowrap">
+                          <svg
+                            className="w-3.5 h-3.5 text-slate-400 shrink-0"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M12 6v6l4 2m6-2a10 10 0 11-20 0 10 10 0 0120 0z"
+                            />
+                          </svg>
+                          <span>
+                            {formatRegistrationTime(
+                              pendingUser.createdAt || pendingUser.joinedAt,
+                              isBn
+                            )}
+                          </span>
+                        </span>
+                      </div>
 
                       <div className="flex items-center gap-1.5 shrink-0">
                         {/* Tick Button (Approve) */}

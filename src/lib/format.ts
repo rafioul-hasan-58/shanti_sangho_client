@@ -90,3 +90,45 @@ export function formatFundCategory(
         .join(" ");
   }
 }
+
+/**
+ * Format registration timestamp into user-friendly format: e.g. "2:30 am 25 Nov"
+ * Handles Bengali conversion when isBn is true: e.g. "২:৩০ am ২৫ নভে"
+ */
+export function formatRegistrationTime(
+  dateInput: string | Date | null | undefined,
+  isBn: boolean = false
+): string {
+  if (!dateInput) return "—";
+  try {
+    const d = typeof dateInput === "string" ? new Date(dateInput) : dateInput;
+    if (!d || isNaN(d.getTime())) return "—";
+
+    let hours = d.getHours();
+    const minutes = d.getMinutes();
+    const ampm = hours >= 12 ? "pm" : "am";
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    const minStr = minutes < 10 ? `0${minutes}` : `${minutes}`;
+
+    const day = d.getDate();
+    const monthEn = [
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+    ][d.getMonth()];
+    const monthBn = [
+      "জানু", "ফেব্রু", "মার্চ", "এপ্রিল", "মে", "জুন",
+      "জুলাই", "আগস্ট", "সেপ্টে", "অক্টো", "নভে", "ডিসে",
+    ][d.getMonth()];
+
+    if (isBn) {
+      const toBn = (n: number | string) =>
+        String(n).replace(/\d/g, (c) => "০১২৩৪৫৬৭৮৯"[parseInt(c, 10)]);
+      return `${toBn(hours)}:${toBn(minStr)} ${ampm} ${toBn(day)} ${monthBn}`;
+    }
+
+    return `${hours}:${minStr} ${ampm} ${day} ${monthEn}`;
+  } catch {
+    return "—";
+  }
+}
