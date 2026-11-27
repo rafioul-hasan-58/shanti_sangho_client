@@ -156,36 +156,40 @@ export default function MemberFullPageView({
           </div>
 
           {/* Centered Details */}
-          <div className="space-y-1.5 max-w-lg">
-            {/* Name */}
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-snug">
-              {member.fullName}
-            </h1>
-
-            {member.name && member.name !== member.fullName && (
-              <p className="text-xs sm:text-sm font-semibold text-slate-500">
-                ({member.name})
-              </p>
-            )}
-
-            {/* Email & Role */}
-            <div className="flex flex-wrap items-center justify-center gap-2 text-xs sm:text-sm text-slate-600 font-medium pt-0.5">
-              {member.email && (
-                <span className="inline-flex items-center gap-1.5 text-slate-600">
-                  <Mail className="w-3.5 h-3.5 text-slate-400" />
-                  <span className="font-semibold text-slate-700">{member.email}</span>
-                </span>
+          <div className="space-y-2 max-w-lg">
+            {/* 1st Line: Name */}
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-snug">
+                {member.fullName}
+              </h1>
+              {member.name && member.name !== member.fullName && (
+                <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-0.5">
+                  ({member.name})
+                </p>
               )}
-              {member.email && <span className="text-slate-300">•</span>}
-              <RoleBadge role={member.role} isBn={isBn} />
             </div>
 
-            {/* Permanent Member */}
-            <div className="pt-1.5 flex items-center justify-center">
+            {/* 2nd Line: Email */}
+            {member.email && (
+              <div>
+                <a
+                  href={`mailto:${member.email}`}
+                  className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-600 hover:text-[#006a4e] transition-colors"
+                >
+                  <Mail className="w-3.5 h-3.5 text-slate-400" />
+                  <span>{member.email}</span>
+                </a>
+              </div>
+            )}
+
+            {/* 3rd Line: Member (Role) and Membership Type two in one line */}
+            <div className="flex flex-wrap items-center justify-center gap-2 pt-0.5">
+              <RoleBadge role={member.role} isBn={isBn} />
+
               {isPlayerQuota ? (
                 <PlayerQuotaBadgeIcon isBn={isBn} withLabel />
               ) : (
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-[#006a4e] border border-emerald-200/80 shadow-2xs">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-[#006a4e] border border-emerald-200/80 shadow-2xs">
                   {membershipMeta
                     ? isBn
                       ? membershipMeta.labelBn

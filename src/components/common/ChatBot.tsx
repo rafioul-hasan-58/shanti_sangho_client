@@ -64,9 +64,8 @@ export default function ChatBot({ locale }: { locale: Locale }) {
     }
   }, [messages, isOpen, isTyping]);
 
-  const isMemberDetailsRoute = Boolean(
-    pathname && /^\/(?:en|bn)\/members\/[^\/]+$/.test(pathname)
-  );
+  // Check if current page is members directory or member details page
+  const isMembersRoute = Boolean(pathname?.includes("/members"));
 
   const [isMemberActive, setIsMemberActive] = useState(false);
 
@@ -87,11 +86,11 @@ export default function ChatBot({ locale }: { locale: Locale }) {
     };
   }, [pathname]);
 
-  // Hide on dashboard, admin portals, and member details view (checked AFTER all hooks)
+  // Hide on dashboard, admin portals, /members page, and member details view (checked AFTER all hooks)
   if (
     pathname?.includes("/dashboard") ||
     pathname?.includes("/admin") ||
-    isMemberDetailsRoute ||
+    isMembersRoute ||
     isMemberActive
   ) {
     return null;
