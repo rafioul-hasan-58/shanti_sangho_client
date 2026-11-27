@@ -1,11 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
-  Share2,
-  Check,
   Mail,
   Phone,
   MessageCircle,
@@ -47,9 +45,7 @@ export default function MemberFullPageView({
   isBn = false,
   onBack,
 }: MemberFullPageViewProps) {
-  const [copiedLink, setCopiedLink] = useState(false);
-
-  // Hide global website footer while viewing this member profile page
+  // Hide global website footer and chatbot while viewing this member profile page
   useEffect(() => {
     if (typeof document !== "undefined") {
       document.body.classList.add("member-details-active");
@@ -78,19 +74,15 @@ export default function MemberFullPageView({
 
   const notProvidedText = isBn ? "প্রদান করা হয়নি" : "Not Provided";
 
-  const handleShareLink = () => {
-    if (typeof window !== "undefined") {
-      navigator.clipboard.writeText(window.location.href);
-      setCopiedLink(true);
-      setTimeout(() => setCopiedLink(false), 2500);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-chalk text-slate-900 pb-12 sm:pb-16 animate-in fade-in duration-200">
-      {/* Global CSS override ensuring website footer is removed on this profile page */}
+      {/* Global CSS override ensuring website footer and chatbot are removed on this profile page */}
       <style dangerouslySetInnerHTML={{ __html: `
-        body.member-details-active footer {
+        body.member-details-active footer,
+        body.member-details-active .chatbot-root,
+        body.member-details-active [aria-label="Open chatbot"],
+        body.member-details-active [aria-label="Close chatbot"],
+        body.member-details-active div[class*="animate-radiate"] {
           display: none !important;
         }
       `}} />
@@ -137,104 +129,72 @@ export default function MemberFullPageView({
               </span>
             </div>
           </div>
-
-          {/* Quick Share Link button */}
-          <button
-            type="button"
-            onClick={handleShareLink}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-bold transition-all shadow-2xs cursor-pointer shrink-0"
-          >
-            {copiedLink ? (
-              <>
-                <Check className="w-3.5 h-3.5 text-emerald-600" />
-                <span className="text-emerald-700 font-extrabold">
-                  {isBn ? "লিংক কপি হয়েছে!" : "Link Copied!"}
-                </span>
-              </>
-            ) : (
-              <>
-                <Share2 className="w-3.5 h-3.5 text-slate-500" />
-                <span>{isBn ? "প্রোফাইল শেয়ার" : "Share Profile"}</span>
-              </>
-            )}
-          </button>
         </div>
       </div>
 
       <div className="mx-auto max-w-6xl px-4 sm:px-6 py-6 sm:py-8 space-y-6 sm:space-y-7">
-        {/* 2. MEMBER PROFILE HERO SECTION */}
+        {/* 2. MEMBER PROFILE HERO SECTION (Centered, Clean, No Green Cover) */}
         <section
           aria-label="Member Profile Header"
-          className="rounded-3xl bg-white border border-slate-200/80 shadow-xs overflow-hidden"
+          className="rounded-3xl bg-white border border-slate-200/80 shadow-xs p-6 sm:p-8 flex flex-col items-center text-center space-y-3"
         >
-          {/* Elegant Green Themed Cover Banner (Minimal, clean, uncrowded) */}
-          <div className="h-28 sm:h-36 bg-gradient-to-r from-[#006a4e] via-[#005a42] to-[#004d38] relative">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.08),transparent_60%)] pointer-events-none" />
+          {/* Centered Avatar with Blue Verified Tick in Profile Frame */}
+          <div className="relative inline-block">
+            <UserAvatar
+              src={member.profileImage || member.picture}
+              name={member.fullName}
+              className="h-28 w-28 sm:h-32 sm:w-32 rounded-full ring-4 ring-slate-100 shadow-md bg-white object-cover"
+            />
+            {isAdminVerified(member.adminVerified) && (
+              <div
+                title={isBn ? "যাচাইকৃত সদস্য" : "Verified Member"}
+                className="absolute bottom-0 right-0 rounded-full bg-white p-0.5 shadow-sm ring-2 ring-white flex items-center justify-center"
+              >
+                <VerifiedTick isBn={isBn} className="w-6 h-6 sm:w-7 sm:h-7" />
+              </div>
+            )}
           </div>
 
-          {/* Profile Card Body */}
-          <div className="px-5 sm:px-8 pb-6 sm:pb-7">
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 -mt-14 sm:-mt-18">
-              {/* Left Side: Avatar + Details */}
-              <div className="flex flex-col sm:flex-row sm:items-end gap-4 sm:gap-6 min-w-0">
-                <div className="relative self-start shrink-0">
-                  <UserAvatar
-                    src={member.profileImage || member.picture}
-                    name={member.fullName}
-                    className="h-24 w-24 sm:h-32 sm:w-32 rounded-2xl sm:rounded-3xl ring-4 ring-white shadow-md bg-white object-cover"
-                  />
-                </div>
+          {/* Centered Details */}
+          <div className="space-y-1.5 max-w-lg">
+            {/* Name */}
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-snug">
+              {member.fullName}
+            </h1>
 
-                {/* Primary Titles and Badges */}
-                <div className="min-w-0 space-y-1.5 sm:pb-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight leading-snug">
-                      {member.fullName}
-                    </h1>
-                    {isAdminVerified(member.adminVerified) && (
-                      <VerifiedTick isBn={isBn} className="w-5 h-5 sm:w-6 sm:h-6 shrink-0 inline-block" />
-                    )}
-                  </div>
+            {member.name && member.name !== member.fullName && (
+              <p className="text-xs sm:text-sm font-semibold text-slate-500">
+                ({member.name})
+              </p>
+            )}
 
-                  {member.name && member.name !== member.fullName && (
-                    <p className="text-xs sm:text-sm font-semibold text-slate-500">
-                      ({member.name})
-                    </p>
-                  )}
+            {/* Email & Role */}
+            <div className="flex flex-wrap items-center justify-center gap-2 text-xs sm:text-sm text-slate-600 font-medium pt-0.5">
+              {member.email && (
+                <span className="inline-flex items-center gap-1.5 text-slate-600">
+                  <Mail className="w-3.5 h-3.5 text-slate-400" />
+                  <span className="font-semibold text-slate-700">{member.email}</span>
+                </span>
+              )}
+              {member.email && <span className="text-slate-300">•</span>}
+              <RoleBadge role={member.role} isBn={isBn} />
+            </div>
 
-                  {/* Profession & Location underneath */}
-                  <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-600 font-medium flex-wrap pt-0.5">
-                    <span className="inline-flex items-center gap-1 font-bold text-slate-800">
-                      <Briefcase className="w-3.5 h-3.5 text-emerald-700" />
-                      <span>{member.profession || (isBn ? "ক্লাব সদস্য" : "Club Member")}</span>
-                    </span>
-                    <span className="text-slate-300">•</span>
-                    <span className="inline-flex items-center gap-1 text-slate-600">
-                      <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                      <span>{member.village || (isBn ? "সাভারচালা" : "Shavarchala")}</span>
-                    </span>
-                  </div>
-
-                  {/* Badges row: Membership Status & Role */}
-                  <div className="flex flex-wrap items-center gap-1.5 pt-1.5">
-                    <RoleBadge role={member.role} isBn={isBn} />
-
-                    {isPlayerQuota ? (
-                      <PlayerQuotaBadgeIcon isBn={isBn} withLabel />
-                    ) : (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-[#006a4e] border border-emerald-200/80">
-                        {membershipMeta
-                          ? isBn
-                            ? membershipMeta.labelBn
-                            : membershipMeta.labelEn
-                          : isBn
-                          ? "স্থায়ী সদস্য"
-                          : "Permanent Member"}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
+            {/* Permanent Member */}
+            <div className="pt-1.5 flex items-center justify-center">
+              {isPlayerQuota ? (
+                <PlayerQuotaBadgeIcon isBn={isBn} withLabel />
+              ) : (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-[#006a4e] border border-emerald-200/80 shadow-2xs">
+                  {membershipMeta
+                    ? isBn
+                      ? membershipMeta.labelBn
+                      : membershipMeta.labelEn
+                    : isBn
+                    ? "স্থায়ী সদস্য"
+                    : "Permanent Member"}
+                </span>
+              )}
             </div>
           </div>
         </section>

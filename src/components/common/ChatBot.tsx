@@ -64,8 +64,36 @@ export default function ChatBot({ locale }: { locale: Locale }) {
     }
   }, [messages, isOpen, isTyping]);
 
-  // Hide on dashboard and admin portals (checked AFTER all hooks to adhere to React Hook rules)
-  if (pathname?.includes("/dashboard") || pathname?.includes("/admin")) {
+  const isMemberDetailsRoute = Boolean(
+    pathname && /^\/(?:en|bn)\/members\/[^\/]+$/.test(pathname)
+  );
+
+  const [isMemberActive, setIsMemberActive] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const checkActive = () => {
+      const params = new URLSearchParams(window.location.search);
+      const hasMember = Boolean(params.get("member"));
+      const hasClass = document.body.classList.contains("member-details-active");
+      setIsMemberActive(hasMember || hasClass);
+    };
+    checkActive();
+    const interval = setInterval(checkActive, 300);
+    window.addEventListener("popstate", checkActive);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("popstate", checkActive);
+    };
+  }, [pathname]);
+
+  // Hide on dashboard, admin portals, and member details view (checked AFTER all hooks)
+  if (
+    pathname?.includes("/dashboard") ||
+    pathname?.includes("/admin") ||
+    isMemberDetailsRoute ||
+    isMemberActive
+  ) {
     return null;
   }
 
@@ -263,7 +291,7 @@ export default function ChatBot({ locale }: { locale: Locale }) {
   };
 
   return (
-    <>
+    <div className="chatbot-root">
       {/* Floating Action Button (Matches the User's Attached Screenshot with Radiation Effect) */}
       <div className="fixed bottom-6 right-6 z-50 flex items-center justify-center">
         {/* Radiating Waves / Radiation effect outside the button */}
@@ -498,7 +526,7 @@ export default function ChatBot({ locale }: { locale: Locale }) {
           </form>
         </div>
       )}
-    </>
+    </div>
   );
 }
 
