@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { Users, ShieldCheck, Award, Droplet } from "lucide-react";
 import type { Locale } from "@/i18n/config";
 import UserAvatar from "@/components/layout/UserAvatar";
 import RoleBadge from "@/components/layout/RoleBadge";
@@ -68,6 +69,43 @@ export default function MembersDirectory({
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(12);
+
+  const [stats, setStats] = useState({
+    totalMembers: 0,
+    adminCount: 0,
+    permanentCount: 0,
+    donorCount: 0,
+  });
+
+  // Load directory stats directly from database
+  const loadDirectoryStats = useCallback(async () => {
+    try {
+      const [allRes, adminRes] = await Promise.all([
+        fetchPublicMembers({ limit: 100, page: 1 }),
+        fetchPublicMembers({ role: "ADMIN", limit: 1 }),
+      ]);
+      const users = allRes.users || [];
+      const adminVerifiedUsers = users.filter((u) => isAdminVerified(u.adminVerified));
+      const explicitAdmins = adminVerifiedUsers.filter(
+        (u) => u.role === "ADMIN" || u.role === "SUPER_ADMIN"
+      ).length;
+
+      setStats({
+        totalMembers: allRes.meta?.total ?? adminVerifiedUsers.length,
+        adminCount: adminRes.meta?.total ?? explicitAdmins,
+        permanentCount: adminVerifiedUsers.filter((u) => u.membershipType === "PERMANENT").length,
+        donorCount: adminVerifiedUsers.filter(
+          (u) => Boolean(u.bloodGroup && (u.bloodGroup as string) !== "UNKNOWN")
+        ).length,
+      });
+    } catch {
+      // Graceful fallback from current loaded members
+    }
+  }, []);
+
+  useEffect(() => {
+    loadDirectoryStats();
+  }, [loadDirectoryStats]);
 
   const [selectedMember, setSelectedMember] = useState<{
     user: ManagedUser;
@@ -145,6 +183,12 @@ export default function MembersDirectory({
       const verifiedUsers = res.users.filter((u) => isAdminVerified(u.adminVerified));
       setMembers(verifiedUsers);
       setMeta(res.meta);
+      if (res.meta?.total) {
+        setStats((prev) => ({
+          ...prev,
+          totalMembers: res.meta.total,
+        }));
+      }
     } catch (err) {
       setMembers([]);
       setMeta(DEFAULT_META);
@@ -213,22 +257,119 @@ export default function MembersDirectory({
           : "mx-auto max-w-7xl px-3.5 sm:px-6 lg:px-8 py-8 sm:py-14"
       }
     >
-      {/* Header */}
+      {/* Header Minimal Card (Inspired by User's Reference UI) */}
       {!inDashboard ? (
-        <div className="text-center max-w-3xl mx-auto space-y-3 mb-8 sm:mb-10">
-          <span className="inline-block bg-[#006a4e]/10 text-[#006a4e] text-xs font-extrabold uppercase px-3 py-1 rounded-sm tracking-widest border border-[#006a4e]/20">
-            {isBn
-              ? "সাভারচালা শান্তি সংঘ সদস্য ডিরেক্টরি"
-              : `${BRAND_NAME_UPPER_EN} MEMBER DIRECTORY`}
-          </span>
-          <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-extrabold text-pitch tracking-tight">
-            {isBn ? "আমাদের সম্মানিত সদস্যবৃন্দ" : "Our Respected Members"}
-          </h1>
-          <p className="text-sm sm:text-base text-brand-700 leading-relaxed font-sans">
-            {isBn
-              ? "২০০৭ সাল থেকে সাভারচালা শান্তি সংঘের অগ্রযাত্রায় নিবেদিত সকল নিবন্ধিত ও সক্রিয় সদস্যদের তালিকা।"
-              : `Registered and active members powering ${FULL_BRAND_NAME_EN} since 2007.`}
-          </p>
+        <div className="rounded-3xl bg-gradient-to-br from-emerald-50/60 via-white to-slate-50/70 border border-emerald-200/80 p-5 sm:p-7 shadow-xs mb-6 sm:mb-8 space-y-5">
+          {/* Top Info Header */}
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold text-[#006a4e] bg-emerald-100/70 border border-emerald-200/80 shadow-2xs">
+              <span className="text-emerald-600">✨</span>
+              <span>
+                {isBn
+                  ? "সাভারচালা শান্তি সংঘ সদস্য ডিরেক্টরি"
+                  : `${BRAND_NAME_UPPER_EN} MEMBER DIRECTORY`}
+              </span>
+            </div>
+
+            <h1 className="font-display text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2 flex-wrap">
+              <span>{isBn ? "আমাদের সম্মানিত সদস্যবৃন্দ" : "Our Respected Members"}</span>
+              <span className="text-xl sm:text-2xl">👥</span>
+            </h1>
+
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-sans max-w-2xl">
+              {isBn
+                ? "২০০৭ সাল থেকে সাভারচালা শান্তি সংঘের অগ্রযাত্রায় নিবেদিত সকল নিবন্ধিত ও সক্রিয় সদস্যদের তালিকা।"
+                : `Registered and active members powering ${FULL_BRAND_NAME_EN} since 2007.`}
+            </p>
+          </div>
+
+          {/* Minimal Stat Cards (2x2 on Mobile, 4-col on Desktop) */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 pt-1">
+            {/* Card 1: Total Members */}
+            <div
+              onClick={() => {
+                setRoleFilter("ALL");
+                setMembershipFilter("ALL");
+                setPage(1);
+              }}
+              className="p-3.5 sm:p-4 rounded-2xl bg-white border border-slate-200/70 shadow-2xs flex items-center gap-3 transition-all hover:shadow-xs hover:border-emerald-300 cursor-pointer"
+            >
+              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-emerald-50 text-[#006a4e] border border-emerald-100 flex items-center justify-center shrink-0">
+                <Users className="w-5 h-5 text-[#006a4e]" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider truncate">
+                  {isBn ? "মোট সদস্য" : "Total Members"}
+                </p>
+                <p className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-tight mt-0.5">
+                  {stats.totalMembers || meta.total || members.length}
+                </p>
+              </div>
+            </div>
+
+            {/* Card 2: Total Admins */}
+            <div
+              onClick={() => {
+                setRoleFilter("ADMIN");
+                setPage(1);
+              }}
+              className="p-3.5 sm:p-4 rounded-2xl bg-white border border-slate-200/70 shadow-2xs flex items-center gap-3 transition-all hover:shadow-xs hover:border-purple-300 cursor-pointer"
+            >
+              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-purple-50 text-purple-700 border border-purple-100 flex items-center justify-center shrink-0">
+                <ShieldCheck className="w-5 h-5 text-purple-600" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider truncate">
+                  {isBn ? "অ্যাডমিনবৃন্দ" : "Total Admins"}
+                </p>
+                <p className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-tight mt-0.5">
+                  {stats.adminCount || members.filter((u) => u.role === "ADMIN" || u.role === "SUPER_ADMIN").length}
+                </p>
+              </div>
+            </div>
+
+            {/* Card 3: Permanent Members */}
+            <div
+              onClick={() => {
+                setMembershipFilter("PERMANENT");
+                setPage(1);
+              }}
+              className="p-3.5 sm:p-4 rounded-2xl bg-white border border-slate-200/70 shadow-2xs flex items-center gap-3 transition-all hover:shadow-xs hover:border-sky-300 cursor-pointer"
+            >
+              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-sky-50 text-sky-700 border border-sky-100 flex items-center justify-center shrink-0">
+                <Award className="w-5 h-5 text-sky-600" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider truncate">
+                  {isBn ? "স্থায়ী সদস্য" : "Permanent"}
+                </p>
+                <p className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-tight mt-0.5">
+                  {stats.permanentCount || members.filter((u) => u.membershipType === "PERMANENT").length}
+                </p>
+              </div>
+            </div>
+
+            {/* Card 4: Blood Donors */}
+            <div
+              onClick={() => {
+                setBloodGroupFilter("A_POSITIVE");
+                setPage(1);
+              }}
+              className="p-3.5 sm:p-4 rounded-2xl bg-white border border-slate-200/70 shadow-2xs flex items-center gap-3 transition-all hover:shadow-xs hover:border-rose-300 cursor-pointer"
+            >
+              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-rose-50 text-rose-600 border border-rose-100 flex items-center justify-center shrink-0">
+                <Droplet className="w-5 h-5 text-rose-500" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider truncate">
+                  {isBn ? "রক্তদাতা" : "Blood Donors"}
+                </p>
+                <p className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-tight mt-0.5">
+                  {stats.donorCount || members.filter((u) => Boolean(u.bloodGroup && (u.bloodGroup as string) !== "UNKNOWN")).length}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       ) : (
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-1 border-b border-slate-200/60">
