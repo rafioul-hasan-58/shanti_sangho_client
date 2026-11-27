@@ -248,7 +248,7 @@ export default function DashboardShell({
                 adminName={user?.name || "Admin"}
                 adminVerified={isAdminVerified(user?.adminVerified)}
                 locale={locale}
-                onReviewPending={() => setActiveTab("admin_users_pending")}
+                onReviewPending={() => handleTabChange("admin_users_pending")}
               />
             )}
 
@@ -274,7 +274,7 @@ export default function DashboardShell({
                 featureNameEn="Sports & SPL"
                 featureNameBn="স্পোর্টস ও এসপিএল"
                 locale={locale}
-                onDashboardClick={() => setActiveTab(isAdmin ? "overview" : "members")}
+                onDashboardClick={() => handleTabChange(isAdmin ? "overview" : "members")}
               />
             )}
 
@@ -290,7 +290,7 @@ export default function DashboardShell({
                   currentUserId={user?.id}
                   subTab={activeTab === "admin_users_pending" ? "pending" : "all"}
                   onSubTabChange={(next) =>
-                    setActiveTab(
+                    handleTabChange(
                       next === "pending" ? "admin_users_pending" : "admin_users"
                     )
                   }
@@ -388,7 +388,7 @@ export default function DashboardShell({
                 featureNameEn="Pioneers"
                 featureNameBn="অগ্রপথিক"
                 locale={locale}
-                onDashboardClick={() => setActiveTab(isAdmin ? "overview" : "members")}
+                onDashboardClick={() => handleTabChange(isAdmin ? "overview" : "members")}
               />
             )}
 
@@ -397,7 +397,7 @@ export default function DashboardShell({
                 featureNameEn="Committee"
                 featureNameBn="কমিটি"
                 locale={locale}
-                onDashboardClick={() => setActiveTab(isAdmin ? "overview" : "members")}
+                onDashboardClick={() => handleTabChange(isAdmin ? "overview" : "members")}
               />
             )}
 
@@ -406,7 +406,7 @@ export default function DashboardShell({
                 featureNameEn="Committees"
                 featureNameBn="কমিটি"
                 locale={locale}
-                onDashboardClick={() => setActiveTab(isAdmin ? "overview" : "members")}
+                onDashboardClick={() => handleTabChange(isAdmin ? "overview" : "members")}
               />
             )}
 
@@ -415,7 +415,7 @@ export default function DashboardShell({
                 featureNameEn="Admins"
                 featureNameBn="অ্যাডমিন"
                 locale={locale}
-                onDashboardClick={() => setActiveTab(isAdmin ? "overview" : "members")}
+                onDashboardClick={() => handleTabChange(isAdmin ? "overview" : "members")}
               />
             )}
 
@@ -424,7 +424,7 @@ export default function DashboardShell({
                 featureNameEn="Notices & Welfare"
                 featureNameBn="নোটিশ ও কল্যাণ"
                 locale={locale}
-                onDashboardClick={() => setActiveTab(isAdmin ? "overview" : "members")}
+                onDashboardClick={() => handleTabChange(isAdmin ? "overview" : "members")}
               />
             )}
 
@@ -433,7 +433,7 @@ export default function DashboardShell({
                 featureNameEn="Expenses"
                 featureNameBn="ব্যয় হিসাব"
                 locale={locale}
-                onDashboardClick={() => setActiveTab(isAdmin ? "overview" : "members")}
+                onDashboardClick={() => handleTabChange(isAdmin ? "overview" : "members")}
               />
             )}
           </main>
