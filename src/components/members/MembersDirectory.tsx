@@ -294,7 +294,7 @@ export default function MembersDirectory({
 
           {/* Minimal Stat Cards (2x2 on Mobile, 4-col on Desktop) */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 pt-1 relative z-10">
-            {/* Card 1: Total Members */}
+            {/* Card 1: Total */}
             <div
               onClick={() => {
                 setRoleFilter("ALL");
@@ -308,7 +308,7 @@ export default function MembersDirectory({
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider truncate whitespace-nowrap">
-                  {isBn ? "মোট সদস্য" : "Total Members"}
+                  {isBn ? "মোট" : "Total"}
                 </p>
                 <p className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-tight mt-0.5 truncate">
                   {stats.totalMembers || meta.total || members.length}
