@@ -200,17 +200,7 @@ export function ImageCropModal({
             {isBn ? "ছবি সরিয়ে ঠিক করুন" : "Drag image to adjust"}
           </h2>
 
-          {/* Quick Save button in header */}
-          <button
-            type="button"
-            onClick={handleConfirm}
-            disabled={!croppedAreaPixels || isProcessing}
-            aria-label={isBn ? "ছবি সংরক্ষণ করুন" : "Save cropped photo"}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#006a4e] hover:bg-[#004d38] active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs sm:text-sm font-bold shadow-xs transition-all shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f2b705]"
-          >
-            <Check className="w-4 h-4 stroke-[2.5]" />
-            <span>{isBn ? "সংরক্ষণ" : "Save"}</span>
-          </button>
+          <div className="w-8 sm:w-9 shrink-0" aria-hidden="true" />
         </header>
 
         {/* Crop Area */}
