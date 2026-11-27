@@ -6,8 +6,6 @@ import { format } from "date-fns";
 import {
   Search,
   Filter,
-  ChevronLeft,
-  ChevronRight,
   Eye,
   Plus,
   Calendar,
@@ -29,6 +27,7 @@ import { formatMoney, formatDate } from "@/lib/format";
 import { ReceiptButton, ReceiptPreviewModal } from "./receipt-preview";
 import { ExpenseFormSheet } from "./expense-form-sheet";
 import { DatePickerButton } from "./date-picker-button";
+import UserPaginationBar from "@/components/dashboard/UserPaginationBar";
 
 interface ExpensesTableProps {
   fundId?: string;
@@ -49,7 +48,7 @@ export function ExpensesTable({
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [page, setPage] = useState(1);
-  const limit = 10;
+  const [limit, setLimit] = useState(10);
 
   const effectiveFundId = fundId || (fundFilter !== "ALL" ? fundFilter : undefined);
 
@@ -585,44 +584,28 @@ export function ExpensesTable({
         )}
       </div>
 
-      {/* Pagination Controls - Spaced Below Table with Generous Breathing Room */}
-      {totalPages > 1 && (
-        <div className="mt-4 px-4 py-3 sm:px-5 sm:py-3.5 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-          <span className="text-slate-500 font-medium">
-            {isBn
-              ? `মোট ${total} টির মধ্যে ${(page - 1) * limit + 1}-${Math.min(
-                  page * limit,
-                  total
-                )} টি প্রদর্শিত`
-              : `Showing ${(page - 1) * limit + 1}-${Math.min(
-                  page * limit,
-                  total
-                )} of ${total}`}
-          </span>
-
-          <div className="flex items-center gap-1.5">
-            <button
-              type="button"
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page <= 1}
-              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 disabled:opacity-40 font-bold text-slate-700 transition-colors shadow-2xs cursor-pointer"
-            >
-              <ChevronLeft className="w-3.5 h-3.5" />
-              <span>{isBn ? "আগের" : "Prev"}</span>
-            </button>
-            <span className="px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200/80 font-black text-slate-800 tabular-nums">
-              {page} / {totalPages}
-            </span>
-            <button
-              type="button"
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page >= totalPages}
-              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 disabled:opacity-40 font-bold text-slate-700 transition-colors shadow-2xs cursor-pointer"
-            >
-              <span>{isBn ? "পরের" : "Next"}</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
+      {/* Pagination Controls - Themed matching standard application UserPaginationBar */}
+      {total > 0 && (
+        <div className="mt-4">
+          <UserPaginationBar
+            meta={{
+              total,
+              page,
+              limit,
+              totalPages,
+              hasNextPage: page < totalPages,
+              hasPreviousPage: page > 1,
+            }}
+            limit={limit}
+            loading={isLoading}
+            isBn={isBn}
+            entityLabel={isBn ? "টি ব্যয়" : "expenses"}
+            onPageChange={(nextPage) => setPage(nextPage)}
+            onLimitChange={(nextLimit) => {
+              setLimit(nextLimit);
+              setPage(1);
+            }}
+          />
         </div>
       )}
 
