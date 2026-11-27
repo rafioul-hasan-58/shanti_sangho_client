@@ -36,7 +36,7 @@ export default function UserDeleteConfirmModal({
         err instanceof Error
           ? err.message
           : isBn
-            ? "ব্যবহারকারী মুছে ফেলা যায়নি।"
+            ? "ইউজার মুছে ফেলা যায়নি।"
             : "Failed to delete user."
       );
     } finally {
@@ -59,7 +59,7 @@ export default function UserDeleteConfirmModal({
           </div>
           <div>
             <h4 className="text-base font-black text-[var(--text)]">
-              {isBn ? "ব্যবহারকারী স্থায়ীভাবে মুছবেন?" : "Delete User Permanently?"}
+              {isBn ? "ইউজার স্থায়ীভাবে মুছবেন?" : "Delete User Permanently?"}
             </h4>
             <p className="text-xs text-slate-600 mt-1">
               {isBn

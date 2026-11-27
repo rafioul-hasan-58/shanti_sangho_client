@@ -157,7 +157,7 @@ export default function UserEditModal({
         err instanceof Error
           ? err.message
           : isBn
-            ? "ব্যবহারকারীর তথ্য আপডেট করা যায়নি।"
+            ? "ইউজারর তথ্য আপডেট করা যায়নি।"
             : "Failed to update user."
       );
     } finally {
@@ -457,8 +457,8 @@ export default function UserEditModal({
             {submitting
               ? isBn ? "সংরক্ষণ হচ্ছে..." : "Saving..."
               : isUploadingPhoto
-              ? isBn ? "ছবি আপলোড হচ্ছে..." : "Uploading Photo..."
-              : isBn ? "পরিবর্তন সংরক্ষণ করুন" : "Save Changes"}
+                ? isBn ? "ছবি আপলোড হচ্ছে..." : "Uploading Photo..."
+                : isBn ? "পরিবর্তন সংরক্ষণ করুন" : "Save Changes"}
           </button>
         </div>
       </form>

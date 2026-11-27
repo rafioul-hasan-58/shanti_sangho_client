@@ -140,277 +140,276 @@ export default function DashboardShell({
   return (
     <>
       <div
-        className={`${
-          embeddedInAdminLayout
+        className={`${embeddedInAdminLayout
             ? "w-full"
             : "min-h-screen bg-[#f7f4ea] flex flex-col md:flex-row"
-        } font-sans text-slate-800`}
+          } font-sans text-slate-800`}
       >
         {/* MODULAR DASHBOARD SIDEBAR (Skipped when rendered inside AdminLayout) */}
-      {!embeddedInAdminLayout && (
-        <DashboardSidebar
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          locale={locale}
-          user={user}
-          isAdmin={Boolean(isAdmin)}
-          displayName={displayName}
-          pendingCount={pendingMembers.length}
-          mobileOpen={mobileSidebarOpen}
-          setMobileOpen={setMobileSidebarOpen}
-          onLogout={logout}
-        />
-      )}
-
-      {/* ======================================================== */}
-      {/* MAIN CONTENT AREA                                         */}
-      {/* ======================================================== */}
-      <div className={`flex-1 min-w-0 flex flex-col ${!embeddedInAdminLayout ? "pb-24 md:pb-6" : ""}`}>
-        {/* Mobile Top Header (Skipped when rendered inside AdminLayout) */}
         {!embeddedInAdminLayout && (
-          <header className="md:hidden sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-4 py-2.5 flex items-center justify-between gap-4 shadow-2xs">
-            {/* Left: Brand Logo + Club Name + Subtitle (Current Theme Green) */}
-            <Link href={`/${locale}`} className="flex items-center gap-2.5 select-none">
-              <div className="relative h-10 w-10 shrink-0 rounded-2xl bg-gradient-to-tr from-[#006a4e] to-[#059669] p-1.5 flex items-center justify-center shadow-xs">
-                <Image
-                  src="/logo.png"
-                  alt={BRAND_NAME_EN}
-                  fill
-                  className="object-contain p-0.5 drop-shadow-xs"
-                />
-              </div>
-              <div className="text-left">
-                <h2 className="font-black text-sm text-slate-900 tracking-tight leading-tight">
-                  {isBn ? "সাভারচালা শান্তি সংঘ" : BRAND_NAME_EN}
-                </h2>
-                <p className="text-[10px] font-bold text-[#006a4e] leading-tight">
-                  {isBn ? "ক্লাব পোর্টাল হাব" : "Club Portal Hub"}
-                </p>
-              </div>
-            </Link>
-
-            {/* Right: Language Switcher + Hamburger Drawer Button */}
-            <div className="flex items-center gap-2">
-              <LanguageSwitcher locale={locale as any} variant="toggle" />
-
-              <button
-                type="button"
-                onClick={() => setMobileSidebarOpen(true)}
-                aria-label="Open navigation drawer"
-                className="p-2 rounded-2xl text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
-              >
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              </button>
-            </div>
-          </header>
+          <DashboardSidebar
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            locale={locale}
+            user={user}
+            isAdmin={Boolean(isAdmin)}
+            displayName={displayName}
+            pendingCount={pendingMembers.length}
+            mobileOpen={mobileSidebarOpen}
+            setMobileOpen={setMobileSidebarOpen}
+            onLogout={logout}
+          />
         )}
 
-        {/* Dashboard Main Body */}
-        <main className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto w-full">
-          {/* ===================================================== */}
-          {/* TAB 1: OVERVIEW (Admin Only)                          */}
-          {/* ===================================================== */}
-          {activeTab === "overview" && isAdmin && (
-            <AdminOverviewView
-              adminName={user?.name || "Admin"}
-              adminVerified={isAdminVerified(user?.adminVerified)}
-              locale={locale}
-              onReviewPending={() => setActiveTab("admin_users_pending")}
-            />
+        {/* ======================================================== */}
+        {/* MAIN CONTENT AREA                                         */}
+        {/* ======================================================== */}
+        <div className={`flex-1 min-w-0 flex flex-col ${!embeddedInAdminLayout ? "pb-24 md:pb-6" : ""}`}>
+          {/* Mobile Top Header (Skipped when rendered inside AdminLayout) */}
+          {!embeddedInAdminLayout && (
+            <header className="md:hidden sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-4 py-2.5 flex items-center justify-between gap-4 shadow-2xs">
+              {/* Left: Brand Logo + Club Name + Subtitle (Current Theme Green) */}
+              <Link href={`/${locale}`} className="flex items-center gap-2.5 select-none">
+                <div className="relative h-10 w-10 shrink-0 rounded-2xl bg-gradient-to-tr from-[#006a4e] to-[#059669] p-1.5 flex items-center justify-center shadow-xs">
+                  <Image
+                    src="/logo.png"
+                    alt={BRAND_NAME_EN}
+                    fill
+                    className="object-contain p-0.5 drop-shadow-xs"
+                  />
+                </div>
+                <div className="text-left">
+                  <h2 className="font-black text-sm text-slate-900 tracking-tight leading-tight">
+                    {isBn ? "সাভারচালা শান্তি সংঘ" : BRAND_NAME_EN}
+                  </h2>
+                  <p className="text-[10px] font-bold text-[#006a4e] leading-tight">
+                    {isBn ? "ক্লাব পোর্টাল হাব" : "Club Portal Hub"}
+                  </p>
+                </div>
+              </Link>
+
+              {/* Right: Language Switcher + Hamburger Drawer Button */}
+              <div className="flex items-center gap-2">
+                <LanguageSwitcher locale={locale as any} variant="toggle" />
+
+                <button
+                  type="button"
+                  onClick={() => setMobileSidebarOpen(true)}
+                  aria-label="Open navigation drawer"
+                  className="p-2 rounded-2xl text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+                >
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                </button>
+              </div>
+            </header>
           )}
 
-          {/* ===================================================== */}
-          {/* TAB: MEMBERS DIRECTORY (Read-only for regular members)*/}
-          {/* ===================================================== */}
-          {activeTab === "members" && !isAdmin && (
-            <MembersDirectory locale={locale as any} inDashboard />
-          )}
-
-          {/* ===================================================== */}
-          {/* TAB 2: PROFILE & SETTINGS                             */}
-          {/* ===================================================== */}
-          {activeTab === "profile" && (
-            <ProfileSettingsView locale={locale} />
-          )}
-
-          {/* ===================================================== */}
-          {/* TAB 3: SPORTS & SPL (Cooking)                        */}
-          {/* ===================================================== */}
-          {activeTab === "sports" && (
-            <FeatureCooking
-              featureNameEn="Sports & SPL"
-              featureNameBn="স্পোর্টস ও এসপিএল"
-              locale={locale}
-              onDashboardClick={() => setActiveTab(isAdmin ? "overview" : "members")}
-            />
-          )}
-
-          {/* ===================================================== */}
-          {/* TAB 4A: ADMIN: USER MANAGEMENT (All & Pending Sub-tabs) */}
-          {/* ===================================================== */}
-          {(activeTab === "admin_users" ||
-            activeTab === "admin_users_all" ||
-            activeTab === "admin_users_pending") &&
-            isAdmin && (
-              <AdminUsersView
+          {/* Dashboard Main Body */}
+          <main className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto w-full">
+            {/* ===================================================== */}
+            {/* TAB 1: OVERVIEW (Admin Only)                          */}
+            {/* ===================================================== */}
+            {activeTab === "overview" && isAdmin && (
+              <AdminOverviewView
+                adminName={user?.name || "Admin"}
+                adminVerified={isAdminVerified(user?.adminVerified)}
                 locale={locale}
-                currentUserId={user?.id}
-                subTab={activeTab === "admin_users_pending" ? "pending" : "all"}
-                onSubTabChange={(next) =>
-                  setActiveTab(
-                    next === "pending" ? "admin_users_pending" : "admin_users"
-                  )
-                }
+                onReviewPending={() => setActiveTab("admin_users_pending")}
               />
             )}
 
-          {/* ===================================================== */}
-          {/* TAB 4: ADMIN: MEMBER APPROVALS (Admin Only)          */}
-          {/* ===================================================== */}
-          {activeTab === "admin_members" && isAdmin && (
-            <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-xs space-y-5">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
-                <div>
-                  <div className="inline-flex items-center gap-1.5 text-xs font-black text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-full mb-1">
-                    <span>👑</span>
-                    <span>{isBn ? "অ্যাডমিন ম্যানেজমেন্ট" : "Admin Management"}</span>
-                  </div>
-                  <h3 className="text-lg font-black text-slate-900">
-                    {isBn ? "নতুন সদস্য রেজিস্ট্রেশন অনুমোদন" : "Pending Member Registrations"}
-                  </h3>
-                  <p className="text-xs text-slate-400">
-                    {isBn ? "আবেদনকারীদের যাচাই করে ক্লাবের সদস্য তালিকায় যুক্ত করুন" : "Review and approve new club membership registrations"}
-                  </p>
-                </div>
+            {/* ===================================================== */}
+            {/* TAB: MEMBERS DIRECTORY (Read-only for regular members)*/}
+            {/* ===================================================== */}
+            {activeTab === "members" && !isAdmin && (
+              <MembersDirectory locale={locale as any} inDashboard />
+            )}
 
-                <span className="bg-amber-100 text-amber-800 text-xs font-black px-3 py-1 rounded-full self-start sm:self-auto">
-                  {pendingMembers.length} {isBn ? "টি আবেদন অপেক্ষমাণ" : "Pending Applications"}
-                </span>
-              </div>
+            {/* ===================================================== */}
+            {/* TAB 2: PROFILE & SETTINGS                             */}
+            {/* ===================================================== */}
+            {activeTab === "profile" && (
+              <ProfileSettingsView locale={locale} />
+            )}
 
-              {pendingMembers.length === 0 ? (
-                <div className="py-12 text-center text-slate-400 text-sm">
-                  <p className="text-3xl mb-2">🎉</p>
-                  <p>{isBn ? "কোনো নতুন আবেদন অপেক্ষমাণ নেই!" : "No pending registration requests!"}</p>
-                </div>
-              ) : (
-                <div className="divide-y divide-slate-100">
-                  {pendingMembers.map((member) => (
-                    <div key={member.id} className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                      <div>
-                        <h4 className="font-bold text-sm text-slate-900">{member.name}</h4>
-                        <p className="text-xs text-slate-500">{member.email} • {member.phone}</p>
-                        <p className="text-[10px] text-slate-400 mt-0.5">{isBn ? "আবেদনের তারিখ:" : "Date:"} {member.date}</p>
-                      </div>
+            {/* ===================================================== */}
+            {/* TAB 3: SPORTS & SPL (Cooking)                        */}
+            {/* ===================================================== */}
+            {activeTab === "sports" && (
+              <FeatureCooking
+                featureNameEn="Sports & SPL"
+                featureNameBn="স্পোর্টস ও এসপিএল"
+                locale={locale}
+                onDashboardClick={() => setActiveTab(isAdmin ? "overview" : "members")}
+              />
+            )}
 
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => handleApprove(member.id)}
-                          className="px-4 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-2xs transition-colors cursor-pointer"
-                        >
-                          {isBn ? "✓ অনুমোদন করুন" : "Approve"}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleApprove(member.id)}
-                          className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 text-xs font-bold transition-colors cursor-pointer"
-                        >
-                          {isBn ? "বাতিল" : "Decline"}
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+            {/* ===================================================== */}
+            {/* TAB 4A: ADMIN: USER MANAGEMENT (All & Pending Sub-tabs) */}
+            {/* ===================================================== */}
+            {(activeTab === "admin_users" ||
+              activeTab === "admin_users_all" ||
+              activeTab === "admin_users_pending") &&
+              isAdmin && (
+                <AdminUsersView
+                  locale={locale}
+                  currentUserId={user?.id}
+                  subTab={activeTab === "admin_users_pending" ? "pending" : "all"}
+                  onSubTabChange={(next) =>
+                    setActiveTab(
+                      next === "pending" ? "admin_users_pending" : "admin_users"
+                    )
+                  }
+                />
               )}
-            </div>
-          )}
 
-          {/* ===================================================== */}
-          {/* TAB 5: ADMIN: LIVE SCORE (Cooking)                   */}
-          {/* ===================================================== */}
-          {activeTab === "admin_live" && isAdmin && (
-            <FeatureCooking
-              featureNameEn="Live Score"
-              featureNameBn="লাইভ স্কোর"
-              locale={locale}
-              onDashboardClick={() => setActiveTab(isAdmin ? "overview" : "members")}
-            />
-          )}
+            {/* ===================================================== */}
+            {/* TAB 4: ADMIN: MEMBER APPROVALS (Admin Only)          */}
+            {/* ===================================================== */}
+            {activeTab === "admin_members" && isAdmin && (
+              <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-xs space-y-5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+                  <div>
+                    <div className="inline-flex items-center gap-1.5 text-xs font-black text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-full mb-1">
+                      <span>👑</span>
+                      <span>{isBn ? "অ্যাডমিন ম্যানেজমেন্ট" : "Admin Management"}</span>
+                    </div>
+                    <h3 className="text-lg font-black text-slate-900">
+                      {isBn ? "নতুন সদস্য রেজিস্ট্রেশন অনুমোদন" : "Pending Member Registrations"}
+                    </h3>
+                    <p className="text-xs text-slate-400">
+                      {isBn ? "আবেদনকারীদের যাচাই করে ক্লাবের সদস্য তালিকায় যুক্ত করুন" : "Review and approve new club membership registrations"}
+                    </p>
+                  </div>
 
-          {/* ===================================================== */}
-          {/* TAB 6: ADMIN: CLUB FINANCE                           */}
-          {/* ===================================================== */}
-          {activeTab === "admin_finance" && isAdmin && (
-            <div className="py-2">
-              <FinanceOverviewClient locale={locale} />
-            </div>
-          )}
+                  <span className="bg-amber-100 text-amber-800 text-xs font-black px-3 py-1 rounded-full self-start sm:self-auto">
+                    {pendingMembers.length} {isBn ? "টি আবেদন অপেক্ষমাণ" : "Pending Applications"}
+                  </span>
+                </div>
 
-          {/* ===================================================== */}
-          {/* COOKING FEATURE TABS (Leadership / Notices / Expenses) */}
-          {/* ===================================================== */}
-          {activeTab === "leadership_pioneers" && (
-            <FeatureCooking
-              featureNameEn="Pioneers"
-              featureNameBn="অগ্রপথিক"
-              locale={locale}
-              onDashboardClick={() => setActiveTab(isAdmin ? "overview" : "members")}
-            />
-          )}
+                {pendingMembers.length === 0 ? (
+                  <div className="py-12 text-center text-slate-400 text-sm">
+                    <p className="text-3xl mb-2">🎉</p>
+                    <p>{isBn ? "কোনো নতুন আবেদন পেন্ডিংনেই!" : "No pending registration requests!"}</p>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-slate-100">
+                    {pendingMembers.map((member) => (
+                      <div key={member.id} className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                          <h4 className="font-bold text-sm text-slate-900">{member.name}</h4>
+                          <p className="text-xs text-slate-500">{member.email} • {member.phone}</p>
+                          <p className="text-[10px] text-slate-400 mt-0.5">{isBn ? "আবেদনের তারিখ:" : "Date:"} {member.date}</p>
+                        </div>
 
-          {activeTab === "leadership_committee" && (
-            <FeatureCooking
-              featureNameEn="Committee"
-              featureNameBn="কমিটি"
-              locale={locale}
-              onDashboardClick={() => setActiveTab(isAdmin ? "overview" : "members")}
-            />
-          )}
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleApprove(member.id)}
+                            className="px-4 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-2xs transition-colors cursor-pointer"
+                          >
+                            {isBn ? "✓ অনুমোদন করুন" : "Approve"}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleApprove(member.id)}
+                            className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 text-xs font-bold transition-colors cursor-pointer"
+                          >
+                            {isBn ? "বাতিল" : "Decline"}
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
-          {activeTab === "committee" && (
-            <FeatureCooking
-              featureNameEn="Committees"
-              featureNameBn="কমিটি"
-              locale={locale}
-              onDashboardClick={() => setActiveTab(isAdmin ? "overview" : "members")}
-            />
-          )}
+            {/* ===================================================== */}
+            {/* TAB 5: ADMIN: LIVE SCORE (Cooking)                   */}
+            {/* ===================================================== */}
+            {activeTab === "admin_live" && isAdmin && (
+              <FeatureCooking
+                featureNameEn="Live Score"
+                featureNameBn="লাইভ স্কোর"
+                locale={locale}
+                onDashboardClick={() => setActiveTab(isAdmin ? "overview" : "members")}
+              />
+            )}
 
-          {activeTab === "leadership_admins" && (
-            <FeatureCooking
-              featureNameEn="Admins"
-              featureNameBn="অ্যাডমিন"
-              locale={locale}
-              onDashboardClick={() => setActiveTab(isAdmin ? "overview" : "members")}
-            />
-          )}
+            {/* ===================================================== */}
+            {/* TAB 6: ADMIN: CLUB FINANCE                           */}
+            {/* ===================================================== */}
+            {activeTab === "admin_finance" && isAdmin && (
+              <div className="py-2">
+                <FinanceOverviewClient locale={locale} />
+              </div>
+            )}
 
-          {activeTab === "notices" && (
-            <FeatureCooking
-              featureNameEn="Notices & Welfare"
-              featureNameBn="নোটিশ ও কল্যাণ"
-              locale={locale}
-              onDashboardClick={() => setActiveTab(isAdmin ? "overview" : "members")}
-            />
-          )}
+            {/* ===================================================== */}
+            {/* COOKING FEATURE TABS (Leadership / Notices / Expenses) */}
+            {/* ===================================================== */}
+            {activeTab === "leadership_pioneers" && (
+              <FeatureCooking
+                featureNameEn="Pioneers"
+                featureNameBn="অগ্রপথিক"
+                locale={locale}
+                onDashboardClick={() => setActiveTab(isAdmin ? "overview" : "members")}
+              />
+            )}
 
-          {activeTab === "admin_expenses" && isAdmin && (
-            <FeatureCooking
-              featureNameEn="Expenses"
-              featureNameBn="ব্যয় হিসাব"
-              locale={locale}
-              onDashboardClick={() => setActiveTab(isAdmin ? "overview" : "members")}
-            />
-          )}
-        </main>
+            {activeTab === "leadership_committee" && (
+              <FeatureCooking
+                featureNameEn="Committee"
+                featureNameBn="কমিটি"
+                locale={locale}
+                onDashboardClick={() => setActiveTab(isAdmin ? "overview" : "members")}
+              />
+            )}
+
+            {activeTab === "committee" && (
+              <FeatureCooking
+                featureNameEn="Committees"
+                featureNameBn="কমিটি"
+                locale={locale}
+                onDashboardClick={() => setActiveTab(isAdmin ? "overview" : "members")}
+              />
+            )}
+
+            {activeTab === "leadership_admins" && (
+              <FeatureCooking
+                featureNameEn="Admins"
+                featureNameBn="অ্যাডমিন"
+                locale={locale}
+                onDashboardClick={() => setActiveTab(isAdmin ? "overview" : "members")}
+              />
+            )}
+
+            {activeTab === "notices" && (
+              <FeatureCooking
+                featureNameEn="Notices & Welfare"
+                featureNameBn="নোটিশ ও কল্যাণ"
+                locale={locale}
+                onDashboardClick={() => setActiveTab(isAdmin ? "overview" : "members")}
+              />
+            )}
+
+            {activeTab === "admin_expenses" && isAdmin && (
+              <FeatureCooking
+                featureNameEn="Expenses"
+                featureNameBn="ব্যয় হিসাব"
+                locale={locale}
+                onDashboardClick={() => setActiveTab(isAdmin ? "overview" : "members")}
+              />
+            )}
+          </main>
+        </div>
       </div>
-    </div>
 
-    {/* Mobile Fixed Bottom Navigation when directly on user dashboard */}
-    {!embeddedInAdminLayout && <MobileBottomNav locale={locale} />}
-  </>
-);
+      {/* Mobile Fixed Bottom Navigation when directly on user dashboard */}
+      {!embeddedInAdminLayout && <MobileBottomNav locale={locale} />}
+    </>
+  );
 }

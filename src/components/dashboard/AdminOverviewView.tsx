@@ -170,7 +170,7 @@ export default function AdminOverviewView({
               <div className="flex items-center gap-2 flex-wrap mb-1.5">
                 <span className="inline-flex items-center gap-1.5 text-[11px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#f2b705]/20 text-[#8a6100] border border-[#f2b705]/40">
                   <span>⏳</span>
-                  <span>{isBn ? "অপেক্ষমাণ ব্যবহারকারী" : "Pending Users"}</span>
+                  <span>{isBn ? "পেন্ডিং ইউজার" : "Pending Users"}</span>
                 </span>
                 {!pendingLoading && (
                   <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#f7f4ea] text-[#004d38] border border-[#006a4e]/15">
@@ -181,7 +181,7 @@ export default function AdminOverviewView({
                 )}
               </div>
               <h3 className="text-lg font-black text-[#12231d] leading-snug">
-                {isBn ? "সাম্প্রতিক অপেক্ষমাণ ইউজার" : "Recent Pending Users"}
+                {isBn ? "সাম্প্রতিক পেন্ডিং ইউজার" : "Recent Pending Users"}
               </h3>
               <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
                 {isBn
@@ -225,7 +225,7 @@ export default function AdminOverviewView({
               <p className="text-2xl">🎉</p>
               <p className="text-sm font-bold text-[#12231d]">
                 {isBn
-                  ? "কোনো অপেক্ষমাণ ইউজার নেই!"
+                  ? "কোনো পেন্ডিংইউজার নেই!"
                   : "No pending users right now!"}
               </p>
               <p className="text-xs text-slate-500">

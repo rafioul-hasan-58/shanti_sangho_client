@@ -68,7 +68,7 @@ export default function UserPaginationBar({
     customEntityLabel ??
     (isPendingView
       ? isBn ? "অপেক্ষমাণ" : "Pending"
-      : isBn ? "ব্যবহারকারী" : "Users");
+      : isBn ? "ইউজার" : "Users");
 
   return (
     <div className="rounded-2xl border border-emerald-200/80 bg-emerald-50/45 px-3.5 sm:px-4 py-2.5 flex flex-col lg:flex-row lg:items-center justify-between gap-3 text-xs">
@@ -142,11 +142,10 @@ export default function UserPaginationBar({
                 disabled={loading}
                 onClick={() => onPageChange(item)}
                 aria-current={item === meta.page ? "page" : undefined}
-                className={`h-8 min-w-[32px] px-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer disabled:cursor-not-allowed ${
-                  item === meta.page
+                className={`h-8 min-w-[32px] px-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer disabled:cursor-not-allowed ${item === meta.page
                     ? "bg-[#006a4e] text-white shadow-xs shadow-[#006a4e]/25"
                     : "bg-white border border-emerald-200/80 text-[var(--text)] hover:bg-emerald-50 hover:border-[#006a4e]/35 hover:text-[#006a4e]"
-                }`}
+                  }`}
               >
                 {item}
               </button>

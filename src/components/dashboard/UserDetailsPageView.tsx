@@ -106,7 +106,7 @@ export default function UserDetailsPageView({
             err instanceof Error
               ? err.message
               : isBn
-                ? "ব্যবহারকারীর তথ্য লোড করা যায়নি।"
+                ? "ইউজারর তথ্য লোড করা যায়নি।"
                 : "Failed to load user details."
           );
         }
@@ -198,19 +198,19 @@ export default function UserDetailsPageView({
 
   const infoRows: Array<{ label: string; value: string }> = freshUser
     ? [
-        { label: isBn ? "ইমেইল" : "Email", value: freshUser.email || "—" },
-        { label: isBn ? "ফোন" : "Phone", value: freshUser.phoneNumber || "—" },
-        { label: isBn ? "হোয়াটসঅ্যাপ" : "WhatsApp", value: freshUser.whatsappNumber || "—" },
-        { label: isBn ? "পিতার নাম" : "Father's Name", value: freshUser.fatherName || "—" },
-        { label: isBn ? "মাতার নাম" : "Mother's Name", value: freshUser.motherName || "—" },
-        { label: isBn ? "রক্তের গ্রুপ" : "Blood Group", value: bloodLabel },
-        { label: isBn ? "পেশা" : "Profession", value: freshUser.profession || "—" },
-        { label: isBn ? "গ্রাম" : "Village", value: freshUser.village || "—" },
-        { label: isBn ? "বর্তমান ঠিকানা" : "Current Location", value: freshUser.currentLocation || "—" },
-        { label: isBn ? "অথ প্রোভাইডার" : "Auth Provider", value: freshUser.authProvider || "—" },
-        { label: isBn ? "যোগদানের তারিখ" : "Created At", value: formatIsoDate(freshUser.createdAt) },
-        { label: isBn ? "সর্বশেষ আপডেট" : "Updated At", value: formatIsoDate(freshUser.updatedAt) },
-      ]
+      { label: isBn ? "ইমেইল" : "Email", value: freshUser.email || "—" },
+      { label: isBn ? "ফোন" : "Phone", value: freshUser.phoneNumber || "—" },
+      { label: isBn ? "হোয়াটসঅ্যাপ" : "WhatsApp", value: freshUser.whatsappNumber || "—" },
+      { label: isBn ? "পিতার নাম" : "Father's Name", value: freshUser.fatherName || "—" },
+      { label: isBn ? "মাতার নাম" : "Mother's Name", value: freshUser.motherName || "—" },
+      { label: isBn ? "রক্তের গ্রুপ" : "Blood Group", value: bloodLabel },
+      { label: isBn ? "পেশা" : "Profession", value: freshUser.profession || "—" },
+      { label: isBn ? "গ্রাম" : "Village", value: freshUser.village || "—" },
+      { label: isBn ? "বর্তমান ঠিকানা" : "Current Location", value: freshUser.currentLocation || "—" },
+      { label: isBn ? "অথ প্রোভাইডার" : "Auth Provider", value: freshUser.authProvider || "—" },
+      { label: isBn ? "যোগদানের তারিখ" : "Created At", value: formatIsoDate(freshUser.createdAt) },
+      { label: isBn ? "সর্বশেষ আপডেট" : "Updated At", value: formatIsoDate(freshUser.updatedAt) },
+    ]
     : [];
 
   return (
@@ -252,11 +252,10 @@ export default function UserDetailsPageView({
       <main className="mx-auto max-w-5xl px-4 py-6 sm:py-8 space-y-6">
         {feedback && (
           <div
-            className={`flex items-center justify-between gap-3 rounded-2xl px-4 py-3 text-xs font-bold border ${
-              feedback.type === "error"
+            className={`flex items-center justify-between gap-3 rounded-2xl px-4 py-3 text-xs font-bold border ${feedback.type === "error"
                 ? "bg-[#f42a41]/10 border-[#f42a41]/30 text-[var(--accent)]"
                 : "bg-[#006a4e]/10 border-[#006a4e]/25 text-[#006a4e]"
-            }`}
+              }`}
           >
             <span>{feedback.text}</span>
             <button
@@ -349,11 +348,10 @@ export default function UserDetailsPageView({
                         setMobileMenuOpen(false);
                         void handleToggleSuspend();
                       }}
-                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer disabled:opacity-40 ${
-                        isBlocked
+                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer disabled:opacity-40 ${isBlocked
                           ? "text-emerald-700 hover:bg-emerald-50"
                           : "text-amber-800 hover:bg-amber-50"
-                      }`}
+                        }`}
                     >
                       {isBlocked ? (
                         <CheckCircle2 className="w-4 h-4 text-emerald-600 stroke-[2.2]" />
@@ -394,9 +392,8 @@ export default function UserDetailsPageView({
                       />
                       <span
                         title={isBn ? statusMeta.labelBn : statusMeta.labelEn}
-                        className={`absolute bottom-1 right-1 h-4 w-4 rounded-full ring-2 ring-white ${
-                          isBlocked ? "bg-rose-500" : "bg-emerald-500"
-                        }`}
+                        className={`absolute bottom-1 right-1 h-4 w-4 rounded-full ring-2 ring-white ${isBlocked ? "bg-rose-500" : "bg-emerald-500"
+                          }`}
                       />
                     </div>
 
@@ -487,11 +484,10 @@ export default function UserDetailsPageView({
                       type="button"
                       disabled={isSelf || busy}
                       onClick={() => void handleToggleSuspend()}
-                      className={`h-9 px-3.5 rounded-xl text-xs font-bold inline-flex items-center gap-1.5 transition-colors disabled:opacity-45 disabled:cursor-not-allowed cursor-pointer ${
-                        isBlocked
+                      className={`h-9 px-3.5 rounded-xl text-xs font-bold inline-flex items-center gap-1.5 transition-colors disabled:opacity-45 disabled:cursor-not-allowed cursor-pointer ${isBlocked
                           ? "bg-emerald-50 hover:bg-emerald-100 text-[#006a4e] border border-emerald-200"
                           : "bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200"
-                      }`}
+                        }`}
                     >
                       {isBlocked ? (
                         <CheckCircle2 className="w-4 h-4 text-emerald-600 stroke-[2.2]" />

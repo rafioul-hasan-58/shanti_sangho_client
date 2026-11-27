@@ -159,7 +159,7 @@ export default function AdminUsersView({
           err instanceof Error
             ? err.message
             : isBn
-              ? "ব্যবহারকারীর তালিকা লোড করা যায়নি।"
+              ? "ইউজারর তালিকা লোড করা যায়নি।"
               : "Failed to load users.",
       });
     } finally {
@@ -284,7 +284,7 @@ export default function AdminUsersView({
           err instanceof Error
             ? err.message
             : isBn
-              ? "ব্যবহারকারী অনুমোদন করা যায়নি।"
+              ? "ইউজার অনুমোদন করা যায়নি।"
               : "Failed to approve user.",
       });
     } finally {
@@ -308,7 +308,7 @@ export default function AdminUsersView({
         title={isBn ? "সদস্য ব্যবস্থাপনা" : "Member Management"}
         subtitle={
           isBn
-            ? "সাভারচালা শান্তি সংঘের নিবন্ধিত সদস্য, অপেক্ষমাণ অনুমোদন, রোল ও অ্যাকাউন্ট স্ট্যাটাস পরিচালনা করুন।"
+            ? "সাভারচালা শান্তি সংঘের নিবন্ধিত সদস্য, পেন্ডিংঅনুমোদন, রোল ও অ্যাকাউন্ট স্ট্যাটাস পরিচালনা করুন।"
             : `${FULL_BRAND_NAME_EN} member directory, pending registration approvals, roles & access control.`
         }
         rightContent={
@@ -365,11 +365,10 @@ export default function AdminUsersView({
             <button
               type="button"
               onClick={() => switchSubTab("all")}
-              className={`px-3 sm:px-4 py-2 rounded-xl text-xs font-extrabold inline-flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                !isPendingView
-                  ? "bg-[#006a4e] text-white shadow-xs"
-                  : "text-[var(--text)] hover:text-[#006a4e]"
-              }`}
+              className={`px-3 sm:px-4 py-2 rounded-xl text-xs font-extrabold inline-flex items-center justify-center gap-2 transition-all cursor-pointer ${!isPendingView
+                ? "bg-[#006a4e] text-white shadow-xs"
+                : "text-[var(--text)] hover:text-[#006a4e]"
+                }`}
             >
               <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -379,16 +378,15 @@ export default function AdminUsersView({
             <button
               type="button"
               onClick={() => switchSubTab("pending")}
-              className={`px-3 sm:px-4 py-2 rounded-xl text-xs font-extrabold inline-flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                isPendingView
-                  ? "bg-[#006a4e] text-white shadow-xs"
-                  : "text-[var(--text)] hover:text-[#006a4e]"
-              }`}
+              className={`px-3 sm:px-4 py-2 rounded-xl text-xs font-extrabold inline-flex items-center justify-center gap-2 transition-all cursor-pointer ${isPendingView
+                ? "bg-[#006a4e] text-white shadow-xs"
+                : "text-[var(--text)] hover:text-[#006a4e]"
+                }`}
             >
               <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <span className="truncate">{isBn ? "অপেক্ষমাণ সদস্য" : "Pending Members"}</span>
+              <span className="truncate">{isBn ? "পেন্ডিংসদস্য" : "Pending Members"}</span>
             </button>
           </div>
 
@@ -399,135 +397,134 @@ export default function AdminUsersView({
           </span>
         </div>
 
-      {isMockFallback && (
-        <div className="rounded-2xl bg-[#f2b705]/15 border border-[#f2b705]/40 px-4 py-2.5 text-xs font-semibold text-[#876200]">
-          {isBn
-            ? "ব্যাকএন্ড সার্ভারের সাথে সংযোগ পাওয়া যায়নি—নমুনা তালিকা দেখানো হচ্ছে।"
-            : "Backend API unreachable — displaying sample preview data."}
-        </div>
-      )}
+        {isMockFallback && (
+          <div className="rounded-2xl bg-[#f2b705]/15 border border-[#f2b705]/40 px-4 py-2.5 text-xs font-semibold text-[#876200]">
+            {isBn
+              ? "ব্যাকএন্ড সার্ভারের সাথে সংযোগ পাওয়া যায়নি—নমুনা তালিকা দেখানো হচ্ছে।"
+              : "Backend API unreachable — displaying sample preview data."}
+          </div>
+        )}
 
-      {feedback && (
-        <div
-          className={`flex items-center justify-between gap-3 rounded-2xl px-4 py-2.5 text-xs font-bold border ${
-            feedback.type === "error"
+        {feedback && (
+          <div
+            className={`flex items-center justify-between gap-3 rounded-2xl px-4 py-2.5 text-xs font-bold border ${feedback.type === "error"
               ? "bg-[#f42a41]/10 border-[#f42a41]/30 text-[var(--accent)]"
               : "bg-[#006a4e]/10 border-[#006a4e]/25 text-[var(--primary)]"
-          }`}
-        >
-          <span>{feedback.text}</span>
-          <button
-            type="button"
-            onClick={() => setFeedback(null)}
-            className="opacity-70 hover:opacity-100 cursor-pointer"
+              }`}
           >
-            ✕
-          </button>
-        </div>
-      )}
+            <span>{feedback.text}</span>
+            <button
+              type="button"
+              onClick={() => setFeedback(null)}
+              className="opacity-70 hover:opacity-100 cursor-pointer"
+            >
+              ✕
+            </button>
+          </div>
+        )}
 
-      {/* Search, Status, Role, Membership, Blood Group, Email Verified, Sort & Limit */}
-      <UserFilterBar
-        filters={filters}
-        isBn={isBn}
-        hideStatusFilter={isPendingView}
-        onChange={handleFilterChange}
-        onReset={handleResetFilters}
-      />
+        {/* Search, Status, Role, Membership, Blood Group, Email Verified, Sort & Limit */}
+        <UserFilterBar
+          filters={filters}
+          isBn={isBn}
+          hideStatusFilter={isPendingView}
+          onChange={handleFilterChange}
+          onReset={handleResetFilters}
+        />
 
-      {/* Top Pagination Bar */}
-      <UserPaginationBar
-        meta={meta}
-        limit={filters.limit}
-        loading={loading}
-        isBn={isBn}
-        isPendingView={isPendingView}
-        onPageChange={(nextPage) => setPage(nextPage)}
-        onLimitChange={handleLimitChange}
-      />
+        {/* Top Pagination Bar */}
+        <UserPaginationBar
+          meta={meta}
+          limit={filters.limit}
+          loading={loading}
+          isBn={isBn}
+          isPendingView={isPendingView}
+          onPageChange={(nextPage) => setPage(nextPage)}
+          onLimitChange={handleLimitChange}
+        />
 
-      {/* Users List: Loading / Empty / Desktop Table + Mobile Cards */}
-      {loading ? (
-        <div className="space-y-3 animate-pulse">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-16 rounded-2xl bg-slate-100" />
-          ))}
-        </div>
-      ) : users.length === 0 ? (
-        <div className="py-12 text-center rounded-2xl border border-dashed border-slate-200 bg-slate-50/50 text-sm text-slate-500">
-          {isBn ? "কোনো ব্যবহারকারী পাওয়া যায়নি।" : "No users match your filters."}
-        </div>
-      ) : (
-        <>
-          <UserManagementTable
-            users={users}
-            isBn={isBn}
-            currentUserId={currentUserId}
-            busyUserId={busyUserId}
-            isPendingView={isPendingView}
-            onApprove={handleApproveUser}
-            onRoleChange={handleRoleChange}
-            onToggleBlock={handleToggleBlock}
-            onView={handleViewUser}
-            onEdit={(u) => setEditingUser(u)}
-            onDelete={(u) => setDeletingUser(u)}
-          />
-          <UserManagementCards
-            users={users}
-            isBn={isBn}
-            currentUserId={currentUserId}
-            busyUserId={busyUserId}
-            isPendingView={isPendingView}
-            onApprove={handleApproveUser}
-            onToggleBlock={handleToggleBlock}
-            onView={handleViewUser}
-            onEdit={(u) => setEditingUser(u)}
-            onDelete={(u) => setDeletingUser(u)}
-          />
-        </>
-      )}
+        {/* Users List: Loading / Empty / Desktop Table + Mobile Cards */}
+        {loading ? (
+          <div className="space-y-3 animate-pulse">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-16 rounded-2xl bg-slate-100" />
+            ))}
+          </div>
+        ) : users.length === 0 ? (
+          <div className="py-12 text-center rounded-2xl border border-dashed border-slate-200 bg-slate-50/50 text-sm text-slate-500">
+            {isBn ? "কোনো ইউজার পাওয়া যায়নি।" : "No users match your filters."}
+          </div>
+        ) : (
+          <>
+            <UserManagementTable
+              users={users}
+              isBn={isBn}
+              currentUserId={currentUserId}
+              busyUserId={busyUserId}
+              isPendingView={isPendingView}
+              onApprove={handleApproveUser}
+              onRoleChange={handleRoleChange}
+              onToggleBlock={handleToggleBlock}
+              onView={handleViewUser}
+              onEdit={(u) => setEditingUser(u)}
+              onDelete={(u) => setDeletingUser(u)}
+            />
+            <UserManagementCards
+              users={users}
+              isBn={isBn}
+              currentUserId={currentUserId}
+              busyUserId={busyUserId}
+              isPendingView={isPendingView}
+              onApprove={handleApproveUser}
+              onToggleBlock={handleToggleBlock}
+              onView={handleViewUser}
+              onEdit={(u) => setEditingUser(u)}
+              onDelete={(u) => setDeletingUser(u)}
+            />
+          </>
+        )}
 
-      {/* Bottom Pagination Bar */}
-      <UserPaginationBar
-        meta={meta}
-        limit={filters.limit}
-        loading={loading}
-        isBn={isBn}
-        isPendingView={isPendingView}
-        onPageChange={(nextPage) => setPage(nextPage)}
-        onLimitChange={handleLimitChange}
-      />
+        {/* Bottom Pagination Bar */}
+        <UserPaginationBar
+          meta={meta}
+          limit={filters.limit}
+          loading={loading}
+          isBn={isBn}
+          isPendingView={isPendingView}
+          onPageChange={(nextPage) => setPage(nextPage)}
+          onLimitChange={handleLimitChange}
+        />
 
-      {/* Modals */}
-      <UserEditModal
-        user={editingUser}
-        isBn={isBn}
-        isSelf={Boolean(currentUserId && editingUser?.id === currentUserId)}
-        onClose={() => setEditingUser(null)}
-        onSaved={(updated, message) => {
-          setUsers((prev) =>
-            prev.map((u) => (u.id === updated.id ? updated : u))
-          );
-          setEditingUser(null);
-          setFeedback({ type: "success", text: message });
-        }}
-      />
+        {/* Modals */}
+        <UserEditModal
+          user={editingUser}
+          isBn={isBn}
+          isSelf={Boolean(currentUserId && editingUser?.id === currentUserId)}
+          onClose={() => setEditingUser(null)}
+          onSaved={(updated, message) => {
+            setUsers((prev) =>
+              prev.map((u) => (u.id === updated.id ? updated : u))
+            );
+            setEditingUser(null);
+            setFeedback({ type: "success", text: message });
+          }}
+        />
 
-      <UserDeleteConfirmModal
-        user={deletingUser}
-        isBn={isBn}
-        onClose={() => setDeletingUser(null)}
-        onDeleted={(deleted, message) => {
-          setDeletingUser(null);
-          setFeedback({ type: "success", text: message });
-          if (users.length === 1 && page > 1) {
-            setPage((p) => p - 1);
-          } else {
-            setUsers((prev) => prev.filter((u) => u.id !== deleted.id));
-            void loadUsers();
-          }
-        }}
-      />
+        <UserDeleteConfirmModal
+          user={deletingUser}
+          isBn={isBn}
+          onClose={() => setDeletingUser(null)}
+          onDeleted={(deleted, message) => {
+            setDeletingUser(null);
+            setFeedback({ type: "success", text: message });
+            if (users.length === 1 && page > 1) {
+              setPage((p) => p - 1);
+            } else {
+              setUsers((prev) => prev.filter((u) => u.id !== deleted.id));
+              void loadUsers();
+            }
+          }}
+        />
       </div>
     </div>
   );
