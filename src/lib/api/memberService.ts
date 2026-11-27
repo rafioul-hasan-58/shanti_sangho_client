@@ -14,7 +14,6 @@
 import { apiRequest, type ApiResponse } from "@/lib/api";
 import { normalizeRole, normalizeUserStatus } from "@/lib/authRole";
 import { toPrismaBloodGroup } from "@/lib/bloodGroup";
-import { MOCK_MANAGED_USERS } from "@/lib/mock/dashboard";
 import type {
   ManagedUser,
   Member,
@@ -179,75 +178,20 @@ export function buildMembersQueryString(params: MembersQueryParams = {}): string
 
 export const buildUsersQueryString = buildMembersQueryString;
 
-/** Query mock members as a graceful fallback during offline development. */
+/** Empty fallback for members queries - no dummy/mock data permitted. */
 export function queryMockMembers(params: MembersQueryParams = {}): UsersListResponse {
-  const page = Math.max(1, params.page ?? 1);
-  const limit = Math.max(1, Math.min(100, params.limit ?? 10));
-  const search = (params.searchTerm ?? params.search ?? "").trim().toLowerCase();
-  const role = params.role && params.role !== ("ALL" as any) ? params.role : null;
-  const status = params.status && params.status !== ("ALL" as any) ? params.status : null;
-  const membershipType =
-    params.membershipType && params.membershipType !== ("ALL" as any)
-      ? params.membershipType
-      : null;
-  const bloodGroup =
-    params.bloodGroup && params.bloodGroup !== ("ALL" as any)
-      ? toPrismaBloodGroup(params.bloodGroup)
-      : null;
-  const emailVerified =
-    typeof params.emailVerified === "boolean" ? params.emailVerified : null;
-  const adminVerified =
-    typeof params.adminVerified === "boolean" ? params.adminVerified : null;
-
-  const filtered = MOCK_MANAGED_USERS.filter((u) => {
-    if (search) {
-      const haystack = `${u.fullName} ${u.email} ${u.phoneNumber ?? ""} ${u.village ?? ""}`.toLowerCase();
-      if (!haystack.includes(search)) return false;
-    }
-    if (role && u.role !== role) return false;
-    if (status && u.status !== status) return false;
-    if (membershipType && u.membershipType !== membershipType) return false;
-    if (bloodGroup && toPrismaBloodGroup(u.bloodGroup) !== bloodGroup) return false;
-    if (emailVerified !== null && Boolean(u.emailVerified) !== emailVerified) return false;
-    if (adminVerified !== null && Boolean(u.adminVerified) !== adminVerified) return false;
-    return true;
-  });
-
-  const sortBy = params.sortBy ?? "createdAt";
-  const sortOrder = params.sortOrder ?? (params as any).sort ?? "desc";
-
-  const sorted = [...filtered].sort((a, b) => {
-    let cmp = 0;
-    if (sortBy === "createdAt" || sortBy === "updatedAt") {
-      const da = new Date(a[sortBy] ?? 0).getTime();
-      const db = new Date(b[sortBy] ?? 0).getTime();
-      cmp = da - db;
-    } else {
-      const sa = String(a[sortBy] ?? "").toLowerCase();
-      const sb = String(b[sortBy] ?? "").toLowerCase();
-      cmp = sa.localeCompare(sb);
-    }
-    return sortOrder === "asc" ? cmp : -cmp;
-  });
-
-  const total = sorted.length;
-  const totalPages = Math.max(1, Math.ceil(total / limit));
-  const safePage = Math.min(page, totalPages);
-  const start = (safePage - 1) * limit;
-  const slice = sorted.slice(start, start + limit).map((u) => ({ ...u }));
-
   return {
-    users: slice,
-    members: slice,
+    users: [],
+    members: [],
     meta: {
-      total,
-      page: safePage,
-      limit,
-      totalPages,
-      hasNextPage: safePage < totalPages,
-      hasPreviousPage: safePage > 1,
+      total: 0,
+      page: params.page ?? 1,
+      limit: params.limit ?? 10,
+      totalPages: 1,
+      hasNextPage: false,
+      hasPreviousPage: false,
     },
-    isMockFallback: true,
+    isMockFallback: false,
   };
 }
 
@@ -350,25 +294,20 @@ export async function fetchPublicMembers(
     ...params,
     adminVerified: true,
   };
-  try {
-    const res = await fetchMembers(publicParams);
-    // Ensure all returned members are adminVerified in public directory
-    const verifiedUsers = res.users.filter((u) => Boolean(u.adminVerified));
-    return {
-      ...res,
-      users: verifiedUsers,
-      members: verifiedUsers,
-      meta: {
-        ...res.meta,
-        total: res.isMockFallback
-          ? verifiedUsers.length
-          : res.meta?.total ?? verifiedUsers.length,
-      },
-    };
-  } catch (err) {
-    console.warn("fetchMembers network error, using local fallback:", err);
-    return queryMockMembers(publicParams);
-  }
+  // Real database fetch via GET /api/v1/members/get-all?adminVerified=true
+  // Strictly no mock or dummy members permitted
+  const res = await fetchMembers(publicParams);
+  const verifiedUsers = (res.users || []).filter((u) => Boolean(u.adminVerified));
+  return {
+    ...res,
+    users: verifiedUsers,
+    members: verifiedUsers,
+    meta: {
+      ...res.meta,
+      total: res.meta?.total ?? verifiedUsers.length,
+    },
+    isMockFallback: false,
+  };
 }
 
 /**
