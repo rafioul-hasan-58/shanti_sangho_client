@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { Users, ShieldCheck, Award, Droplet } from "lucide-react";
+import { Users, ShieldCheck, Award, Crown } from "lucide-react";
 import type { Locale } from "@/i18n/config";
 import UserAvatar from "@/components/layout/UserAvatar";
 import RoleBadge from "@/components/layout/RoleBadge";
@@ -13,6 +13,7 @@ import { isAdminVerified } from "@/lib/authRole";
 import { BLOOD_GROUP_OPTIONS } from "@/lib/bloodGroup";
 import { fetchPublicMembers } from "@/lib/api/memberService";
 import { ROLE_OPTIONS } from "@/components/dashboard/userManagementConfig";
+import { committeeMembers } from "@/data/committee";
 import type {
   ManagedUser,
   SortOrder,
@@ -74,7 +75,7 @@ export default function MembersDirectory({
     totalMembers: 0,
     adminCount: 0,
     permanentCount: 0,
-    donorCount: 0,
+    committeeCount: committeeMembers.length,
   });
 
   // Load directory stats directly from database
@@ -94,9 +95,7 @@ export default function MembersDirectory({
         totalMembers: allRes.meta?.total ?? adminVerifiedUsers.length,
         adminCount: adminRes.meta?.total ?? explicitAdmins,
         permanentCount: adminVerifiedUsers.filter((u) => u.membershipType === "PERMANENT").length,
-        donorCount: adminVerifiedUsers.filter(
-          (u) => Boolean(u.bloodGroup && (u.bloodGroup as string) !== "UNKNOWN")
-        ).length,
+        committeeCount: committeeMembers.length,
       });
     } catch {
       // Graceful fallback from current loaded members
@@ -257,13 +256,23 @@ export default function MembersDirectory({
           : "mx-auto max-w-7xl px-3.5 sm:px-6 lg:px-8 py-8 sm:py-14"
       }
     >
-      {/* Header Minimal Card (Inspired by User's Reference UI) */}
+      {/* Header Minimal Card (Themed after Dashboard Welcome Card) */}
       {!inDashboard ? (
-        <div className="rounded-3xl bg-gradient-to-br from-emerald-50/60 via-white to-slate-50/70 border border-emerald-200/80 p-5 sm:p-7 shadow-xs mb-6 sm:mb-8 space-y-5">
+        <div
+          style={{
+            background:
+              "linear-gradient(135deg, #004d38 0%, #006a4e 50%, #00a67e 100%)",
+          }}
+          className="relative overflow-hidden rounded-3xl p-5 sm:p-7 md:p-8 text-white shadow-md border border-emerald-900/20 mb-6 sm:mb-8 space-y-5"
+        >
+          {/* Subtle Ambient Decorative Glows */}
+          <div className="absolute -right-8 -bottom-10 w-56 h-56 rounded-full bg-white/5 blur-2xl pointer-events-none" />
+          <div className="absolute right-12 top-6 w-32 h-32 rounded-full bg-[#f2b705]/10 blur-xl pointer-events-none" />
+
           {/* Top Info Header */}
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold text-[#006a4e] bg-emerald-100/70 border border-emerald-200/80 shadow-2xs">
-              <span className="text-emerald-600">✨</span>
+          <div className="relative z-10 space-y-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/20 border border-[#f2b705]/40 text-[#f2b705] text-[11px] sm:text-xs font-bold tracking-wide">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#f2b705] animate-pulse" />
               <span>
                 {isBn
                   ? "সাভারচালা শান্তি সংঘ সদস্য ডিরেক্টরি"
@@ -271,12 +280,12 @@ export default function MembersDirectory({
               </span>
             </div>
 
-            <h1 className="font-display text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2 flex-wrap">
+            <h1 className="font-display text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight flex items-center gap-2 flex-wrap">
               <span>{isBn ? "আমাদের সম্মানিত সদস্যবৃন্দ" : "Our Respected Members"}</span>
               <span className="text-xl sm:text-2xl">👥</span>
             </h1>
 
-            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-sans max-w-2xl">
+            <p className="text-xs sm:text-sm text-emerald-50/90 leading-relaxed font-sans max-w-2xl font-medium">
               {isBn
                 ? "২০০৭ সাল থেকে সাভারচালা শান্তি সংঘের অগ্রযাত্রায় নিবেদিত সকল নিবন্ধিত ও সক্রিয় সদস্যদের তালিকা।"
                 : `Registered and active members powering ${FULL_BRAND_NAME_EN} since 2007.`}
@@ -284,7 +293,7 @@ export default function MembersDirectory({
           </div>
 
           {/* Minimal Stat Cards (2x2 on Mobile, 4-col on Desktop) */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 pt-1">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 pt-1 relative z-10">
             {/* Card 1: Total Members */}
             <div
               onClick={() => {
@@ -292,83 +301,80 @@ export default function MembersDirectory({
                 setMembershipFilter("ALL");
                 setPage(1);
               }}
-              className="p-3.5 sm:p-4 rounded-2xl bg-white border border-slate-200/70 shadow-2xs flex items-center gap-3 transition-all hover:shadow-xs hover:border-emerald-300 cursor-pointer"
+              className="p-3 sm:p-4 rounded-2xl bg-white border border-white/40 shadow-xs flex items-center gap-2.5 sm:gap-3 transition-all hover:shadow-md hover:scale-[1.01] active:scale-[0.99] cursor-pointer min-w-0"
             >
-              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-emerald-50 text-[#006a4e] border border-emerald-100 flex items-center justify-center shrink-0">
-                <Users className="w-5 h-5 text-[#006a4e]" />
+              <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-2xl bg-emerald-50 text-[#006a4e] border border-emerald-100 flex items-center justify-center shrink-0">
+                <Users className="w-4 h-4 sm:w-5 sm:h-5 text-[#006a4e]" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider truncate">
+                <p className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider truncate whitespace-nowrap">
                   {isBn ? "মোট সদস্য" : "Total Members"}
                 </p>
-                <p className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-tight mt-0.5">
+                <p className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-tight mt-0.5 truncate">
                   {stats.totalMembers || meta.total || members.length}
                 </p>
               </div>
             </div>
 
-            {/* Card 2: Total Admins */}
-            <div
-              onClick={() => {
-                setRoleFilter("ADMIN");
-                setPage(1);
-              }}
-              className="p-3.5 sm:p-4 rounded-2xl bg-white border border-slate-200/70 shadow-2xs flex items-center gap-3 transition-all hover:shadow-xs hover:border-purple-300 cursor-pointer"
-            >
-              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-purple-50 text-purple-700 border border-purple-100 flex items-center justify-center shrink-0">
-                <ShieldCheck className="w-5 h-5 text-purple-600" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider truncate">
-                  {isBn ? "অ্যাডমিনবৃন্দ" : "Total Admins"}
-                </p>
-                <p className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-tight mt-0.5">
-                  {stats.adminCount || members.filter((u) => u.role === "ADMIN" || u.role === "SUPER_ADMIN").length}
-                </p>
-              </div>
-            </div>
-
-            {/* Card 3: Permanent Members */}
+            {/* Card 2: Permanent Members */}
             <div
               onClick={() => {
                 setMembershipFilter("PERMANENT");
                 setPage(1);
               }}
-              className="p-3.5 sm:p-4 rounded-2xl bg-white border border-slate-200/70 shadow-2xs flex items-center gap-3 transition-all hover:shadow-xs hover:border-sky-300 cursor-pointer"
+              className="p-3 sm:p-4 rounded-2xl bg-white border border-white/40 shadow-xs flex items-center gap-2.5 sm:gap-3 transition-all hover:shadow-md hover:scale-[1.01] active:scale-[0.99] cursor-pointer min-w-0"
             >
-              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-sky-50 text-sky-700 border border-sky-100 flex items-center justify-center shrink-0">
-                <Award className="w-5 h-5 text-sky-600" />
+              <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-2xl bg-emerald-50 text-[#006a4e] border border-emerald-100 flex items-center justify-center shrink-0">
+                <Award className="w-4 h-4 sm:w-5 sm:h-5 text-[#006a4e]" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider truncate">
+                <p className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider truncate whitespace-nowrap">
                   {isBn ? "স্থায়ী সদস্য" : "Permanent"}
                 </p>
-                <p className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-tight mt-0.5">
+                <p className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-tight mt-0.5 truncate">
                   {stats.permanentCount || members.filter((u) => u.membershipType === "PERMANENT").length}
                 </p>
               </div>
             </div>
 
-            {/* Card 4: Blood Donors */}
+            {/* Card 3: Admin */}
             <div
               onClick={() => {
-                setBloodGroupFilter("A_POSITIVE");
+                setRoleFilter("ADMIN");
                 setPage(1);
               }}
-              className="p-3.5 sm:p-4 rounded-2xl bg-white border border-slate-200/70 shadow-2xs flex items-center gap-3 transition-all hover:shadow-xs hover:border-rose-300 cursor-pointer"
+              className="p-3 sm:p-4 rounded-2xl bg-white border border-white/40 shadow-xs flex items-center gap-2.5 sm:gap-3 transition-all hover:shadow-md hover:scale-[1.01] active:scale-[0.99] cursor-pointer min-w-0"
             >
-              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-rose-50 text-rose-600 border border-rose-100 flex items-center justify-center shrink-0">
-                <Droplet className="w-5 h-5 text-rose-500" />
+              <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-2xl bg-purple-50 text-purple-700 border border-purple-100 flex items-center justify-center shrink-0">
+                <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider truncate">
-                  {isBn ? "রক্তদাতা" : "Blood Donors"}
+                <p className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider truncate whitespace-nowrap">
+                  {isBn ? "অ্যাডমিন" : "Admin"}
                 </p>
-                <p className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-tight mt-0.5">
-                  {stats.donorCount || members.filter((u) => Boolean(u.bloodGroup && (u.bloodGroup as string) !== "UNKNOWN")).length}
+                <p className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-tight mt-0.5 truncate">
+                  {stats.adminCount || members.filter((u) => u.role === "ADMIN" || u.role === "SUPER_ADMIN").length}
                 </p>
               </div>
             </div>
+
+            {/* Card 4: Committee */}
+            <Link
+              href={`/${locale}#committee`}
+              className="p-3 sm:p-4 rounded-2xl bg-white border border-white/40 shadow-xs flex items-center gap-2.5 sm:gap-3 transition-all hover:shadow-md hover:scale-[1.01] active:scale-[0.99] cursor-pointer min-w-0 group"
+            >
+              <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-2xl bg-amber-50 text-amber-700 border border-amber-100 flex items-center justify-center shrink-0 group-hover:bg-amber-100 transition-colors">
+                <Crown className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider truncate whitespace-nowrap">
+                  {isBn ? "কমিটি" : "Committee"}
+                </p>
+                <p className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-tight mt-0.5 truncate">
+                  {stats.committeeCount || committeeMembers.length}
+                </p>
+              </div>
+            </Link>
           </div>
         </div>
       ) : (
@@ -641,7 +647,7 @@ export default function MembersDirectory({
                   key={u.id}
                   type="button"
                   onClick={() => handleSelectMember(u, idx)}
-                  className={`relative text-left rounded-2xl border p-2.5 pt-3.5 sm:p-3.5 sm:pt-4 shadow-sm flex flex-col justify-between gap-2.5 min-w-0 transition-all hover:shadow-md active:scale-[0.99] cursor-pointer ${palette.card}`}
+                  className={`relative text-left rounded-2xl border p-2.5 pt-3.5 sm:p-3.5 sm:pt-4 shadow-sm flex flex-col justify-between gap-2.5 min-w-0 overflow-hidden transition-all hover:shadow-md active:scale-[0.99] cursor-pointer ${palette.card}`}
                 >
                   {/* Vivid Top Color Accent Strip clipped to card curve */}
                   <div
@@ -676,8 +682,8 @@ export default function MembersDirectory({
                   </div>
 
                   {/* Centered Profile Picture, Name, Email & Role */}
-                  <div className="flex flex-col items-center text-center min-w-0 w-full -mt-2">
-                    <div className="relative">
+                  <div className="flex flex-col items-center text-center min-w-0 w-full -mt-2 overflow-hidden px-1">
+                    <div className="relative shrink-0">
                       <UserAvatar
                         src={u.profileImage || u.picture}
                         name={u.fullName}
@@ -685,23 +691,26 @@ export default function MembersDirectory({
                       />
                     </div>
 
-                    <div className="mt-2 flex items-center justify-center gap-1 min-w-0 max-w-full">
-                      <h3 className="font-bold text-xs sm:text-sm text-[var(--text)] truncate">
+                    <div className="mt-2 flex items-center justify-center gap-1 w-full max-w-full min-w-0 px-0.5">
+                      <h3
+                        title={u.fullName}
+                        className="font-bold text-xs sm:text-sm text-[var(--text)] truncate min-w-0 text-center"
+                      >
                         {u.fullName}
                       </h3>
                       {isAdminVerified(u.adminVerified) && (
-                        <VerifiedTick isBn={isBn} className="w-3.5 h-3.5" />
+                        <VerifiedTick isBn={isBn} className="w-3.5 h-3.5 shrink-0" />
                       )}
                     </div>
 
                     <p
                       title={u.email || undefined}
-                      className="mt-0.5 w-full text-[10px] sm:text-xs font-medium text-slate-600 truncate whitespace-nowrap text-center"
+                      className="mt-0.5 w-full text-[10px] sm:text-xs font-medium text-slate-600 truncate whitespace-nowrap text-center min-w-0"
                     >
                       {u.email || u.village || "—"}
                     </p>
 
-                    <div className="mt-1.5 flex items-center justify-center gap-1 flex-wrap">
+                    <div className="mt-1.5 flex items-center justify-center gap-1 flex-wrap max-w-full min-w-0">
                       <RoleBadge role={u.role} isBn={isBn} />
                     </div>
                   </div>
@@ -786,13 +795,16 @@ export default function MembersDirectory({
                         />
                       </div>
 
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-1.5 min-w-0">
-                          <h3 className="font-display text-lg font-extrabold text-[var(--text)] group-hover:text-[#006a4e] transition-colors truncate">
+                      <div className="min-w-0 flex-1 overflow-hidden">
+                        <div className="flex items-center gap-1.5 min-w-0 w-full">
+                          <h3
+                            title={u.fullName}
+                            className="font-display text-lg font-extrabold text-[var(--text)] group-hover:text-[#006a4e] transition-colors truncate min-w-0"
+                          >
                             {u.fullName}
                           </h3>
                           {isAdminVerified(u.adminVerified) && (
-                            <VerifiedTick isBn={isBn} className="w-4 h-4" />
+                            <VerifiedTick isBn={isBn} className="w-4 h-4 shrink-0" />
                           )}
                         </div>
 
