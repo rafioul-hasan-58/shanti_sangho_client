@@ -134,51 +134,51 @@ export default function StatCard({
       </div>
 
       {/* Bottom Footer: Trend and / or Review Link */}
-      <div className={`relative mt-2.5 sm:mt-4 pt-2 sm:pt-3 border-t flex items-center justify-between gap-1.5 sm:gap-2 flex-wrap ${theme.divider}`}>
-        {trend ? (
-          <div className="flex items-center gap-1 sm:gap-1.5 text-[10px] sm:text-xs font-bold">
-            <span
-              className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 sm:px-2 rounded-md ${
-                isGood
-                  ? "bg-[#006a4e]/10 text-[var(--primary)]"
-                  : "bg-[#f42a41]/10 text-[var(--accent)]"
-              }`}
-            >
-              {isPositive ? (
-                <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[2.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                </svg>
-              ) : (
-                <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[2.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 17h8m0 0v-8m0 8l-8-8-4 4-6-6" />
-                </svg>
-              )}
-              <span>
-                {isPositive ? "+" : ""}
-                {trend.value}%
+      {(trend || actionLink) && (
+        <div className={`relative mt-2.5 sm:mt-4 pt-2 sm:pt-3 border-t flex items-center justify-between gap-1.5 sm:gap-2 flex-wrap ${theme.divider}`}>
+          {trend && (
+            <div className="flex items-center gap-1 sm:gap-1.5 text-[10px] sm:text-xs font-bold">
+              <span
+                className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 sm:px-2 rounded-md ${
+                  isGood
+                    ? "bg-[#006a4e]/10 text-[var(--primary)]"
+                    : "bg-[#f42a41]/10 text-[var(--accent)]"
+                }`}
+              >
+                {isPositive ? (
+                  <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[2.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                  </svg>
+                ) : (
+                  <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[2.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 17h8m0 0v-8m0 8l-8-8-4 4-6-6" />
+                  </svg>
+                )}
+                <span>
+                  {isPositive ? "+" : ""}
+                  {trend.value}%
+                </span>
               </span>
-            </span>
-            <span className="text-[10px] sm:text-[11px] text-slate-500 font-medium">
-              {trend.label || "vs last month"}
-            </span>
-          </div>
-        ) : (
-          <div />
-        )}
+              <span className="text-[10px] sm:text-[11px] text-slate-500 font-medium">
+                {trend.label || "vs last month"}
+              </span>
+            </div>
+          )}
 
-        {actionLink && (
-          <Link
-            href={actionLink.href}
-            onClick={onActionClick}
-            className={`inline-flex items-center gap-0.5 sm:gap-1 text-[11px] sm:text-xs font-extrabold hover:underline transition-colors ${theme.action}`}
-          >
-            <span>{actionLink.label}</span>
-            <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-            </svg>
-          </Link>
-        )}
-      </div>
+          {actionLink && (
+            <Link
+              href={actionLink.href}
+              onClick={onActionClick}
+              className={`inline-flex items-center gap-0.5 sm:gap-1 text-[11px] sm:text-xs font-extrabold hover:underline transition-colors ${theme.action}`}
+            >
+              <span>{actionLink.label}</span>
+              <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
+          )}
+        </div>
+      )}
     </div>
   );
 }
