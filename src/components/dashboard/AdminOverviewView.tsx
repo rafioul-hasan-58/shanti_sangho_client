@@ -5,7 +5,6 @@ import dynamic from "next/dynamic";
 import WelcomeCard from "@/components/dashboard/WelcomeCard";
 import StatCard from "@/components/dashboard/StatCard";
 import UserAvatar from "@/components/layout/UserAvatar";
-import VerifiedTick from "@/components/common/VerifiedTick";
 
 // Dynamically import ExpenseChart with SSR disabled so Recharts is never evaluated during SSR
 const ExpenseChart = dynamic(
@@ -20,16 +19,15 @@ const ExpenseChart = dynamic(
     ),
   }
 );
-import { isAdminVerified } from "@/lib/authRole";
 import { getDashboardStats } from "@/lib/api/dashboard";
-import { fetchMembers } from "@/lib/api/memberService";
+import {
+  fetchMembers,
+  updateMemberById,
+  deleteMemberById,
+} from "@/lib/api/memberService";
 import type { DashboardStats, ManagedUser } from "@/lib/types/dashboard";
 import { formatBDT } from "@/lib/constants/categories";
 import { formatBloodGroupDisplay } from "@/lib/bloodGroup";
-import {
-  MEMBERSHIP_BADGE_MAP,
-  STATUS_BADGE_MAP,
-} from "./userManagementConfig";
 
 interface AdminOverviewViewProps {
   adminName?: string;
@@ -54,6 +52,46 @@ export default function AdminOverviewView({
   const [pendingUsers, setPendingUsers] = useState<ManagedUser[]>([]);
   const [totalPendingCount, setTotalPendingCount] = useState<number | null>(null);
   const [pendingLoading, setPendingLoading] = useState(true);
+  const [busyUserId, setBusyUserId] = useState<string | null>(null);
+
+  const handleApproveUser = async (userId: string) => {
+    try {
+      setBusyUserId(userId);
+      await updateMemberById(userId, { adminVerified: true, status: "ACTIVE" });
+      setPendingUsers((prev) => prev.filter((u) => u.id !== userId));
+      setTotalPendingCount((prev) => (prev !== null ? Math.max(0, prev - 1) : null));
+      setStats((prev) =>
+        prev ? { ...prev, pendingMembers: Math.max(0, prev.pendingMembers - 1) } : null
+      );
+    } catch (err) {
+      console.error("Failed to approve user:", err);
+    } finally {
+      setBusyUserId(null);
+    }
+  };
+
+  const handleRemoveUser = async (userId: string) => {
+    const confirmed = window.confirm(
+      isBn
+        ? "আপনি কি নিশ্চিতভাবে এই ইউজারকে তালিকা থেকে মুছে ফেলতে চান?"
+        : "Are you sure you want to remove this user?"
+    );
+    if (!confirmed) return;
+
+    try {
+      setBusyUserId(userId);
+      await deleteMemberById(userId);
+      setPendingUsers((prev) => prev.filter((u) => u.id !== userId));
+      setTotalPendingCount((prev) => (prev !== null ? Math.max(0, prev - 1) : null));
+      setStats((prev) =>
+        prev ? { ...prev, pendingMembers: Math.max(0, prev.pendingMembers - 1) } : null
+      );
+    } catch (err) {
+      console.error("Failed to remove user:", err);
+    } finally {
+      setBusyUserId(null);
+    }
+  };
 
   useEffect(() => {
     getDashboardStats()
@@ -149,15 +187,18 @@ export default function AdminOverviewView({
       <section aria-label="Pending user requests">
         <div className="bg-white rounded-3xl p-5 sm:p-6 border border-[#006a4e]/15 shadow-xs space-y-5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
-            <h3 className="text-lg font-black text-[#12231d] leading-snug">
-              {isBn ? "সাম্প্রতিক পেন্ডিং ইউজার" : "Recent Pending Users"}
-            </h3>
+            <div className="flex items-center gap-2.5 min-w-0">
+              <span className="flex h-2.5 w-2.5 rounded-full bg-amber-500 ring-4 ring-amber-100 animate-pulse shrink-0" />
+              <h3 className="text-base sm:text-lg font-black text-slate-900 tracking-tight truncate">
+                {isBn ? "সাম্প্রতিক পেন্ডিং ইউজার" : "Recent Pending Users"}
+              </h3>
+            </div>
 
             {onReviewPending && (
               <button
                 type="button"
                 onClick={onReviewPending}
-                className="group inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-2xl bg-[#006a4e] hover:bg-[#004d38] text-white text-xs sm:text-sm font-extrabold shadow-sm shadow-[#006a4e]/20 transition-colors cursor-pointer shrink-0 leading-relaxed"
+                className="group inline-flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100/90 active:scale-95 text-[#006a4e] border border-emerald-200/90 text-xs sm:text-sm font-extrabold shadow-2xs transition-all cursor-pointer shrink-0"
               >
                 <span>
                   {isBn ? "সব পেন্ডিং ইউজার দেখুন" : "View All Pending Users"}
@@ -207,189 +248,223 @@ export default function AdminOverviewView({
                       <th className="py-3.5 px-4">{isBn ? "সদস্য" : "User"}</th>
                       <th className="py-3.5 px-4">{isBn ? "যোগাযোগ" : "Contact"}</th>
                       <th className="py-3.5 px-4">{isBn ? "রক্ত ও এলাকা" : "Blood & Area"}</th>
-                      <th className="py-3.5 px-4">{isBn ? "মেম্বারশিপ ও অবস্থা" : "Membership & Status"}</th>
-                      <th className="py-3.5 px-4 text-right">{isBn ? "যোগদান" : "Joined"}</th>
+                      <th className="py-3.5 px-4">{isBn ? "অবস্থা" : "Status"}</th>
+                      <th className="py-3.5 px-4">{isBn ? "যোগদান" : "Joined"}</th>
+                      <th className="py-3.5 px-4 text-right">{isBn ? "অ্যাকশন" : "Actions"}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 text-sm">
-                    {pendingUsers.map((pendingUser) => {
-                      const statusMeta =
-                        STATUS_BADGE_MAP[pendingUser.status] ??
-                        STATUS_BADGE_MAP.ACTIVE;
-                      const membershipMeta = pendingUser.membershipType
-                        ? MEMBERSHIP_BADGE_MAP[pendingUser.membershipType]
-                        : null;
-
-                      return (
-                        <tr
-                          key={pendingUser.id}
-                          className="hover:bg-[#f7f4ea]/55 transition-colors"
-                        >
-                          <td className="py-3.5 px-4">
-                            <div className="flex items-center gap-3 min-w-0">
-                              <UserAvatar
-                                src={pendingUser.profileImage || pendingUser.picture}
-                                name={pendingUser.fullName}
-                                className="h-9 w-9 shrink-0 ring-1 ring-[#006a4e]/20"
-                              />
-                              <div className="min-w-0">
-                                <div className="flex items-center gap-1.5 min-w-0">
-                                  <p className="font-bold text-[#12231d] truncate max-w-[200px]">
-                                    {pendingUser.fullName}
-                                  </p>
-                                  {isAdminVerified(pendingUser.adminVerified) && (
-                                    <VerifiedTick isBn={isBn} className="w-3.5 h-3.5" />
-                                  )}
-                                </div>
-                                {pendingUser.profession && (
-                                  <p className="text-[11px] text-slate-400 truncate max-w-[200px]">
-                                    {pendingUser.profession}
-                                  </p>
-                                )}
-                              </div>
-                            </div>
-                          </td>
-
-                          <td className="py-3.5 px-4 text-xs">
-                            <p className="font-semibold text-slate-700 truncate max-w-[210px]">
-                              {pendingUser.email || "—"}
-                            </p>
-                            {pendingUser.phoneNumber && (
-                              <p className="text-slate-400 mt-0.5">
-                                {pendingUser.phoneNumber}
+                    {pendingUsers.map((pendingUser) => (
+                      <tr
+                        key={pendingUser.id}
+                        className="hover:bg-[#f7f4ea]/55 transition-colors"
+                      >
+                        <td className="py-3.5 px-4">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <UserAvatar
+                              src={pendingUser.profileImage || pendingUser.picture}
+                              name={pendingUser.fullName}
+                              className="h-9 w-9 shrink-0 ring-1 ring-[#006a4e]/20"
+                            />
+                            <div className="min-w-0">
+                              <p className="font-bold text-[#12231d] truncate max-w-[200px]">
+                                {pendingUser.fullName}
                               </p>
-                            )}
-                          </td>
-
-                          <td className="py-3.5 px-4 text-xs">
-                            <div className="flex items-center gap-1.5 flex-wrap">
-                              {pendingUser.bloodGroup &&
-                                pendingUser.bloodGroup !== "UNKNOWN" && (
-                                  <span className="font-bold text-rose-700 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-md">
-                                    🩸 {formatBloodGroupDisplay(pendingUser.bloodGroup)}
-                                  </span>
-                                )}
-                              <span className="text-slate-600 font-medium truncate max-w-[150px]">
-                                {pendingUser.village ||
-                                  pendingUser.currentLocation ||
-                                  "—"}
-                              </span>
+                              {pendingUser.profession && (
+                                <p className="text-[11px] text-slate-400 truncate max-w-[200px]">
+                                  {pendingUser.profession}
+                                </p>
+                              )}
                             </div>
-                          </td>
+                          </div>
+                        </td>
 
-                          <td className="py-3.5 px-4 text-xs">
-                            <div className="flex items-center gap-1.5 flex-wrap">
-                              <span
-                                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-extrabold border ${statusMeta.className}`}
-                              >
-                                {isBn ? statusMeta.labelBn : statusMeta.labelEn}
-                              </span>
-                              {!pendingUser.adminVerified && (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#f2b705]/20 text-[#8a6100] border border-[#f2b705]/40">
-                                  {isBn ? "অযাচাইকৃত" : "Unverified"}
+                        <td className="py-3.5 px-4 text-xs">
+                          <p className="font-semibold text-slate-700 truncate max-w-[210px]">
+                            {pendingUser.email || "—"}
+                          </p>
+                          {pendingUser.phoneNumber && (
+                            <p className="text-slate-400 mt-0.5">
+                              {pendingUser.phoneNumber}
+                            </p>
+                          )}
+                        </td>
+
+                        <td className="py-3.5 px-4 text-xs">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            {pendingUser.bloodGroup &&
+                              pendingUser.bloodGroup !== "UNKNOWN" && (
+                                <span className="font-bold text-rose-700 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-md">
+                                  🩸 {formatBloodGroupDisplay(pendingUser.bloodGroup)}
                                 </span>
                               )}
-                              {membershipMeta && (
-                                <span
-                                  className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border ${membershipMeta.className}`}
+                            <span className="text-slate-600 font-medium truncate max-w-[150px]">
+                              {pendingUser.village ||
+                                pendingUser.currentLocation ||
+                                "—"}
+                            </span>
+                          </div>
+                        </td>
+
+                        <td className="py-3.5 px-4 text-xs">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200/80">
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                            <span>{isBn ? "অনুমোদন প্রয়োজন" : "Approval Needed"}</span>
+                          </span>
+                        </td>
+
+                        <td className="py-3.5 px-4 text-xs font-semibold text-slate-500 whitespace-nowrap">
+                          {pendingUser.joinedAt || "—"}
+                        </td>
+
+                        <td className="py-3.5 px-4 text-right">
+                          <div className="flex items-center justify-end gap-1.5">
+                            {/* Tick Button (Approve) */}
+                            <button
+                              type="button"
+                              title={isBn ? "অনুমোদন করুন" : "Approve Member"}
+                              aria-label={isBn ? "অনুমোদন করুন" : "Approve Member"}
+                              disabled={busyUserId === pendingUser.id}
+                              onClick={() => handleApproveUser(pendingUser.id)}
+                              className="h-8 w-8 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white flex items-center justify-center shadow-2xs transition-all cursor-pointer disabled:opacity-50"
+                            >
+                              {busyUserId === pendingUser.id ? (
+                                <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                              ) : (
+                                <svg
+                                  className="w-4 h-4"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                  strokeWidth={2.5}
                                 >
-                                  {isBn
-                                    ? membershipMeta.labelBn
-                                    : membershipMeta.labelEn}
-                                </span>
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M5 13l4 4L19 7"
+                                  />
+                                </svg>
                               )}
-                            </div>
-                          </td>
+                            </button>
 
-                          <td className="py-3.5 px-4 text-right text-xs font-semibold text-slate-500 whitespace-nowrap">
-                            {pendingUser.joinedAt || "—"}
-                          </td>
-                        </tr>
-                      );
-                    })}
+                            {/* Cross Button (Remove) */}
+                            <button
+                              type="button"
+                              title={isBn ? "মুছে ফেলুন" : "Remove Member"}
+                              aria-label={isBn ? "মুছে ফেলুন" : "Remove Member"}
+                              disabled={busyUserId === pendingUser.id}
+                              onClick={() => handleRemoveUser(pendingUser.id)}
+                              className="h-8 w-8 rounded-xl bg-rose-50 hover:bg-rose-100 active:scale-95 text-rose-600 border border-rose-200/90 flex items-center justify-center transition-all cursor-pointer disabled:opacity-50"
+                            >
+                              <svg
+                                className="w-4 h-4"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                strokeWidth={2.5}
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  d="M6 18L18 6M6 6l12 12"
+                                />
+                              </svg>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
 
               {/* Mobile Cards View */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:hidden">
-                {pendingUsers.map((pendingUser) => {
-                  const statusMeta =
-                    STATUS_BADGE_MAP[pendingUser.status] ??
-                    STATUS_BADGE_MAP.ACTIVE;
-                  const membershipMeta = pendingUser.membershipType
-                    ? MEMBERSHIP_BADGE_MAP[pendingUser.membershipType]
-                    : null;
-
-                  return (
-                    <div
-                      key={pendingUser.id}
-                      className="rounded-2xl border border-[#006a4e]/15 bg-[#f7f4ea]/60 p-4 space-y-2.5"
-                    >
-                      <div className="flex items-start justify-between gap-2.5">
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          <UserAvatar
-                            src={pendingUser.profileImage || pendingUser.picture}
-                            name={pendingUser.fullName}
-                            className="h-10 w-10 shrink-0 ring-1 ring-[#006a4e]/20"
-                          />
-                          <div className="min-w-0">
-                            <div className="flex items-center gap-1.5 min-w-0">
-                              <h4 className="text-sm font-extrabold text-[#12231d] truncate leading-snug">
-                                {pendingUser.fullName}
-                              </h4>
-                              {isAdminVerified(pendingUser.adminVerified) && (
-                                <VerifiedTick isBn={isBn} className="w-3.5 h-3.5" />
-                              )}
-                            </div>
-                            <p className="text-[11px] text-slate-500 truncate">
-                              {pendingUser.email || pendingUser.phoneNumber || "—"}
-                            </p>
-                          </div>
-                        </div>
-
-                        {pendingUser.joinedAt && (
-                          <span className="text-[10px] font-semibold text-slate-400 shrink-0">
-                            {pendingUser.joinedAt}
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="flex items-center gap-1.5 flex-wrap pt-1 border-t border-[#006a4e]/10">
-                        <span
-                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold border ${statusMeta.className}`}
-                        >
-                          {isBn ? statusMeta.labelBn : statusMeta.labelEn}
-                        </span>
-                        {!pendingUser.adminVerified && (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#f2b705]/20 text-[#8a6100] border border-[#f2b705]/40">
-                            {isBn ? "অযাচাইকৃত" : "Unverified"}
-                          </span>
-                        )}
-                        {membershipMeta && (
-                          <span
-                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border ${membershipMeta.className}`}
-                          >
-                            {isBn
-                              ? membershipMeta.labelBn
-                              : membershipMeta.labelEn}
-                          </span>
-                        )}
-                        {pendingUser.bloodGroup &&
-                          pendingUser.bloodGroup !== "UNKNOWN" && (
-                            <span className="text-[10px] font-bold text-rose-700 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-full">
-                              🩸 {formatBloodGroupDisplay(pendingUser.bloodGroup)}
-                            </span>
-                          )}
-                        {pendingUser.village && (
-                          <span className="text-[10px] text-slate-500 truncate max-w-[130px]">
-                            📍 {pendingUser.village}
-                          </span>
-                        )}
+                {pendingUsers.map((pendingUser) => (
+                  <div
+                    key={pendingUser.id}
+                    className="rounded-2xl border border-slate-200/80 bg-white hover:border-emerald-200/80 p-3.5 sm:p-4 space-y-3 shadow-2xs transition-all"
+                  >
+                    {/* Line 1: Profile avatar, name, and full email (break-all, no overflow) */}
+                    <div className="flex items-start gap-3 min-w-0">
+                      <UserAvatar
+                        src={pendingUser.profileImage || pendingUser.picture}
+                        name={pendingUser.fullName}
+                        className="h-10 w-10 shrink-0 ring-2 ring-emerald-100 shadow-2xs mt-0.5"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <h4 className="text-sm font-extrabold text-slate-900 leading-snug">
+                          {pendingUser.fullName}
+                        </h4>
+                        <p className="text-xs text-slate-600 font-medium break-all mt-0.5 leading-snug">
+                          {pendingUser.email || pendingUser.phoneNumber || "—"}
+                        </p>
                       </div>
                     </div>
-                  );
-                })}
+
+                    {/* Line 2: Approval Needed status & Approve / Remove action buttons */}
+                    <div className="flex items-center justify-between gap-2 pt-2.5 border-t border-slate-100">
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200/80 shrink-0">
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse shrink-0" />
+                        <span>{isBn ? "অনুমোদন প্রয়োজন" : "Approval Needed"}</span>
+                      </span>
+
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        {/* Tick Button (Approve) */}
+                        <button
+                          type="button"
+                          title={isBn ? "অনুমোদন করুন" : "Approve Member"}
+                          aria-label={isBn ? "অনুমোদন করুন" : "Approve Member"}
+                          disabled={busyUserId === pendingUser.id}
+                          onClick={() => handleApproveUser(pendingUser.id)}
+                          className="h-8 w-8 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white flex items-center justify-center shadow-2xs transition-all cursor-pointer disabled:opacity-50"
+                        >
+                          {busyUserId === pendingUser.id ? (
+                            <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          ) : (
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              strokeWidth={2.5}
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M5 13l4 4L19 7"
+                              />
+                            </svg>
+                          )}
+                        </button>
+
+                        {/* Cross Button (Remove) */}
+                        <button
+                          type="button"
+                          title={isBn ? "মুছে ফেলুন" : "Remove Member"}
+                          aria-label={isBn ? "মুছে ফেলুন" : "Remove Member"}
+                          disabled={busyUserId === pendingUser.id}
+                          onClick={() => handleRemoveUser(pendingUser.id)}
+                          className="h-8 w-8 rounded-xl bg-rose-50 hover:bg-rose-100 active:scale-95 text-rose-600 border border-rose-200/90 flex items-center justify-center transition-all cursor-pointer disabled:opacity-50"
+                        >
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={2.5}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M6 18L18 6M6 6l12 12"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </>
           )}
