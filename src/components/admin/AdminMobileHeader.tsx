@@ -90,7 +90,7 @@ export default function AdminMobileHeader({ locale }: AdminMobileHeaderProps) {
   return (
     <>
       {/* 1. Mobile Top Header Bar (< md) */}
-      <header className="md:hidden sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-[#006a4e]/15 px-3.5 py-2.5 flex items-center justify-between gap-2 shadow-2xs">
+      <header className="md:hidden sticky top-0 z-30 bg-gradient-to-r from-[#E8F5EF] to-[#DCEFE5] backdrop-blur-md border-b border-[#D1E5D9] px-3.5 py-2.5 flex items-center justify-between gap-2 shadow-2xs">
         {/* Brand & Portal Title */}
         <Link
           href={withLocaleHref("/admin/dashboard", locale)}
@@ -105,10 +105,10 @@ export default function AdminMobileHeader({ locale }: AdminMobileHeaderProps) {
             />
           </div>
           <div className="min-w-0 text-left">
-            <p className="text-xs font-black text-[#12231d] truncate leading-tight">
+            <p className="text-xs font-black text-[#064E3B] truncate leading-tight">
               {isBn ? ADMIN_UI_COPY.brandBn : ADMIN_UI_COPY.brandEn}
             </p>
-            <p className="text-[10px] font-bold text-[#006a4e] leading-tight">
+            <p className="text-[10px] font-bold text-[#064E3B]/80 leading-tight">
               {isBn ? ADMIN_UI_COPY.portalBn : ADMIN_UI_COPY.portalEn}
             </p>
           </div>
@@ -116,14 +116,18 @@ export default function AdminMobileHeader({ locale }: AdminMobileHeaderProps) {
 
         {/* Right Actions: Language Switcher + Hamburger Button */}
         <div className="flex items-center gap-2 shrink-0">
-          <LanguageSwitcher locale={locale as Locale} variant="toggle" />
+          <LanguageSwitcher
+            locale={locale as Locale}
+            variant="toggle"
+            className="!bg-[#F4FAF6] hover:!bg-[#E8F5EF] !text-[#064E3B] !border-[#C2E2D0] shadow-2xs"
+          />
 
           {/* Hamburger Menu Toggle Button */}
           <button
             type="button"
             onClick={() => setDrawerOpen(true)}
             aria-label={isBn ? "মেনু খুলুন" : "Open navigation menu"}
-            className="p-2 rounded-xl text-slate-700 hover:text-[#006a4e] hover:bg-[#006a4e]/10 active:scale-95 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[#f2b705]"
+            className="p-2 rounded-xl text-[#064E3B] hover:bg-[#064E3B]/10 active:bg-[#064E3B]/15 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[#f2b705]"
           >
             <Menu className="w-5 h-5 stroke-[2.2]" />
           </button>

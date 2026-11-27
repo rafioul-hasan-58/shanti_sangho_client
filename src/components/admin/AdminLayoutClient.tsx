@@ -81,7 +81,7 @@ export default function AdminLayoutClient({
         {/* Main Content Area */}
         <div className="flex-1 min-w-0 flex flex-col pb-24 md:pb-6 overflow-x-hidden">
           {/* Mobile Top Header matching Dashboard */}
-          <header className="md:hidden sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-4 py-2.5 flex items-center justify-between gap-4 shadow-2xs">
+          <header className="md:hidden sticky top-0 z-30 bg-gradient-to-r from-[#E8F5EF] to-[#DCEFE5] backdrop-blur-md border-b border-[#D1E5D9] px-4 py-2.5 flex items-center justify-between gap-4 shadow-2xs">
             <Link
               href={`/${locale}`}
               className="flex items-center gap-2.5 select-none"
@@ -95,23 +95,27 @@ export default function AdminLayoutClient({
                 />
               </div>
               <div className="text-left">
-                <h2 className="font-black text-sm text-slate-900 tracking-tight leading-tight">
+                <h2 className="font-black text-sm text-[#064E3B] tracking-tight leading-tight">
                   {isBn ? "সাভারচালা শান্তি সংঘ" : BRAND_NAME_EN}
                 </h2>
-                <p className="text-[10px] font-bold text-[#006a4e] leading-tight">
+                <p className="text-[10px] font-bold text-[#064E3B]/80 leading-tight">
                   {isBn ? "ক্লাব পোর্টাল হাব" : "Club Portal Hub"}
                 </p>
               </div>
             </Link>
 
             <div className="flex items-center gap-2">
-              <LanguageSwitcher locale={locale as any} variant="toggle" />
+              <LanguageSwitcher
+                locale={locale as any}
+                variant="toggle"
+                className="!bg-[#F4FAF6] hover:!bg-[#E8F5EF] !text-[#064E3B] !border-[#C2E2D0] shadow-2xs"
+              />
 
               <button
                 type="button"
                 onClick={() => setMobileSidebarOpen(true)}
                 aria-label={isBn ? "মেনু খুলুন" : "Open navigation drawer"}
-                className="p-2 rounded-2xl text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+                className="p-2 rounded-2xl text-[#064E3B] hover:bg-[#064E3B]/10 active:bg-[#064E3B]/15 transition-colors cursor-pointer"
               >
                 <svg
                   className="w-6 h-6"
