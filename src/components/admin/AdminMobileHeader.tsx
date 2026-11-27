@@ -96,7 +96,7 @@ export default function AdminMobileHeader({ locale }: AdminMobileHeaderProps) {
           href={withLocaleHref("/admin/dashboard", locale)}
           className="flex items-center gap-2.5 min-w-0 focus-visible:ring-2 focus-visible:ring-[#f2b705] rounded-xl"
         >
-          <div className="relative h-8 w-8 shrink-0 rounded-xl bg-white/10 border border-white/20 p-1 flex items-center justify-center shadow-xs">
+          <div className="relative h-8 w-8 shrink-0 rounded-xl bg-[#e8f5ef] border border-[#c2e2d0] p-1 flex items-center justify-center shadow-xs">
             <Image
               src="/logo.png"
               alt={ADMIN_UI_COPY.brandEn}
@@ -158,7 +158,7 @@ export default function AdminMobileHeader({ locale }: AdminMobileHeaderProps) {
                 onClick={() => setDrawerOpen(false)}
                 className="flex items-center gap-2.5 min-w-0"
               >
-                <div className="relative h-9 w-9 shrink-0 rounded-xl bg-[#006a4e] p-1 flex items-center justify-center shadow-xs">
+                <div className="relative h-9 w-9 shrink-0 rounded-xl bg-[#e8f5ef] border border-[#c2e2d0] p-1 flex items-center justify-center shadow-xs">
                   <Image
                     src="/logo.png"
                     alt={ADMIN_UI_COPY.brandEn}

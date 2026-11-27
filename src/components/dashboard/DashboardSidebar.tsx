@@ -240,7 +240,7 @@ export default function DashboardSidebar({
             onClick={() => setMobileOpen(false)}
             className="flex items-center gap-3 group select-none"
           >
-            <div className="relative h-10 w-10 sm:h-11 sm:w-11 shrink-0 rounded-2xl bg-gradient-to-tr from-[#006a4e] to-[#059669] p-2 flex items-center justify-center shadow-xs">
+            <div className="relative h-10 w-10 sm:h-11 sm:w-11 shrink-0 rounded-2xl bg-[#e8f5ef] border border-[#c2e2d0] p-1.5 flex items-center justify-center shadow-xs">
               <Image
                 src="/logo.png"
                 alt={BRAND_NAME_EN}

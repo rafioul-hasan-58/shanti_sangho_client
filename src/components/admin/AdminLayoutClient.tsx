@@ -86,7 +86,7 @@ export default function AdminLayoutClient({
               href={`/${locale}`}
               className="flex items-center gap-2.5 select-none"
             >
-              <div className="relative h-10 w-10 shrink-0 rounded-2xl bg-white/10 border border-white/20 p-1.5 flex items-center justify-center shadow-xs">
+              <div className="relative h-10 w-10 shrink-0 rounded-2xl bg-[#e8f5ef] border border-[#c2e2d0] p-1.5 flex items-center justify-center shadow-xs">
                 <Image
                   src="/logo.png"
                   alt={BRAND_NAME_EN}
