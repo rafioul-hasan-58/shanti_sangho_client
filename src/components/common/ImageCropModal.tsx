@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useCallback, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 import Cropper, { type Area, type Point } from "react-easy-crop";
 import { X, Plus, Minus, Check, RotateCcw } from "lucide-react";
@@ -27,6 +28,11 @@ export function ImageCropModal({
 }: ImageCropModalProps) {
   const pathname = usePathname();
   const isBn = locale ? locale === "bn" : !pathname?.startsWith("/en");
+
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
   const [zoom, setZoom] = useState<number>(1);
@@ -162,18 +168,18 @@ export function ImageCropModal({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose, handleConfirm, handleZoomIn, handleZoomOut]);
 
-  if (!isOpen || !imageSrc) return null;
+  if (!isOpen || !imageSrc || !mounted) return null;
 
-  return (
+  return createPortal(
     <div
       role="dialog"
       aria-modal="true"
       aria-labelledby="crop-modal-title"
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/85 backdrop-blur-sm transition-opacity duration-200"
+      className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-black/95 backdrop-blur-sm transition-opacity duration-200 p-0 sm:p-4"
     >
       <div
         ref={modalRef}
-        className="w-full h-[100dvh] sm:h-auto sm:max-h-[92vh] sm:max-w-xl sm:rounded-2xl bg-neutral-900 border border-neutral-800 text-neutral-100 flex flex-col shadow-2xl overflow-hidden motion-reduce:transition-none transition-all duration-200"
+        className="w-full h-full sm:h-auto sm:max-h-[92vh] sm:max-w-xl sm:rounded-2xl bg-neutral-900 border-0 sm:border sm:border-neutral-800 text-neutral-100 flex flex-col shadow-2xl overflow-hidden motion-reduce:transition-none transition-all duration-200"
       >
         {/* Header: Close (X) on left, clean localized Title in the center, Save button on right */}
         <header className="flex items-center justify-between px-3 sm:px-4 py-2.5 sm:py-3.5 border-b border-neutral-800 bg-neutral-900/95 z-20 shrink-0">
@@ -312,6 +318,7 @@ export function ImageCropModal({
           </div>
         </footer>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
