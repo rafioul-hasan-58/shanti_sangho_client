@@ -172,9 +172,14 @@ export default function MembersDirectory({
               <span>👥</span>
               <span>{isBn ? "সদস্য ডিরেক্টরি" : "Member Directory"}</span>
             </div>
-            <h1 className="font-display text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-              {isBn ? "ক্লাব সদস্যবৃন্দ" : "Club Members"}
-            </h1>
+            <div className="flex items-center gap-2">
+              <h1 className="font-display text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                {isBn ? "ক্লাব সদস্যবৃন্দ" : "Club Members"}
+              </h1>
+              <span className="px-2 py-0.5 rounded-full text-xs font-extrabold bg-emerald-100/90 text-[#006a4e]">
+                {meta.total}
+              </span>
+            </div>
             <p className="text-xs sm:text-sm text-slate-500 font-sans mt-0.5">
               {isBn
                 ? "সাভারচালা শান্তি সংঘের সকল নিবন্ধিত সদস্যের তথ্য ডিরেক্টরি"
@@ -187,51 +192,40 @@ export default function MembersDirectory({
       {/* Search & Filter Toolbar */}
       <div className="rounded-3xl bg-white border border-emerald-200/80 p-3.5 sm:p-5 shadow-xs mb-6 space-y-3">
         {/* Row 1: Search Input (left) + Total Member Badge (right) aligned seamlessly */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          <div className="relative flex-1 min-w-0">
-            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#006a4e]/70">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
+        {/* Row 1: Full-Width Search Input */}
+        <div className="relative w-full">
+          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#006a4e]/70">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+          </div>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder={
+              isBn
+                ? "নাম, গ্রাম, ফোন বা পেশা দিয়ে খুঁজুন..."
+                : "Search name, village, profession..."
+            }
+            className="w-full h-10 pl-10 pr-9 rounded-xl border border-emerald-200/80 bg-emerald-50/55 text-pitch text-xs sm:text-sm placeholder-slate-400 focus:bg-white focus:border-[#006a4e] focus:ring-2 focus:ring-[#006a4e]/15 transition-all outline-none"
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery("")}
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-pitch cursor-pointer"
+              aria-label={isBn ? "অনুসন্ধান মুছুন" : "Clear search"}
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
-            </div>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={
-                isBn
-                  ? "নাম, গ্রাম, ফোন বা পেশা দিয়ে খুঁজুন..."
-                  : "Search name, village, profession..."
-              }
-              className="w-full h-10 pl-10 pr-9 rounded-xl border border-emerald-200/80 bg-emerald-50/55 text-pitch text-xs sm:text-sm placeholder-slate-400 focus:bg-white focus:border-[#006a4e] focus:ring-2 focus:ring-[#006a4e]/15 transition-all outline-none"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery("")}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-pitch cursor-pointer"
-                aria-label={isBn ? "অনুসন্ধান মুছুন" : "Clear search"}
-              >
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            )}
-          </div>
-
-          <div
-            title={isBn ? "মোট সক্রিয় সদস্য" : "Total Active Members"}
-            className="shrink-0 h-10 px-3 rounded-xl bg-emerald-50/70 border border-emerald-200/80 text-xs font-extrabold text-[#006a4e] inline-flex items-center gap-1.5 shadow-2xs select-none"
-          >
-            <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
-            <span className="whitespace-nowrap">
-              {isBn ? `মোট: ${meta.total} জন` : `Total: ${meta.total}`}
-            </span>
-          </div>
+            </button>
+          )}
         </div>
 
         {/* Lines 2 & 3:
