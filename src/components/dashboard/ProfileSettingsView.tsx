@@ -1015,44 +1015,44 @@ export default function ProfileSettingsView({ locale = "bn" }: ProfileSettingsVi
         {/* 4. STICKY BOTTOM BAR (Active on changes / saving / saved) */}
         {/* ========================================================= */}
         {(isProfileDirty || isSavingProfile || profileSaveSuccess) && (
-          <div className="sticky bottom-4 z-30 p-4 rounded-2xl bg-white/95 backdrop-blur-md border border-emerald-200/90 shadow-xl flex items-center justify-between gap-3 animate-fadeIn">
-            <div className="text-xs">
+          <div className="sticky bottom-20 md:bottom-6 z-40 p-3.5 sm:p-4 rounded-2xl bg-white/95 backdrop-blur-md border border-emerald-200/90 shadow-xl shadow-emerald-950/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-fadeIn">
+            <div className="text-xs sm:text-sm min-w-0">
               {profileSaveSuccess && !isProfileDirty ? (
-                <span className="text-emerald-700 font-bold flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                <span className="text-emerald-700 font-bold flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                   <span>{isBn ? "সকল তথ্য সফলভাবে সংরক্ষিত হয়েছে!" : "All changes saved successfully!"}</span>
                 </span>
               ) : (
-                <span className="text-slate-600 font-semibold flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                  <span>
+                <span className="text-slate-700 font-bold flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse shrink-0" />
+                  <span className="leading-snug">
                     {isBn
                       ? "অসংরক্ষিত পরিবর্তন রয়েছে। সংরক্ষণ করতে ক্লিক করুন।"
-                      : "You have unsaved changes."}
+                      : "You have unsaved changes. Click save to apply."}
                   </span>
                 </span>
               )}
             </div>
 
-            <div className="flex items-center gap-2.5 shrink-0">
-              {/* Cancel Button (Ghost) */}
+            <div className="flex items-center gap-2 sm:gap-2.5 shrink-0 w-full sm:w-auto">
+              {/* Cancel Button */}
               {isProfileDirty && !isSavingProfile && (
                 <button
                   type="button"
                   onClick={handleCancelChanges}
-                  className="px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs transition-colors cursor-pointer inline-flex items-center gap-1.5"
+                  className="flex-1 sm:flex-initial px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs sm:text-sm transition-colors cursor-pointer inline-flex items-center justify-center gap-1.5 shadow-2xs"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
                   <span>{isBn ? "বাতিল" : "Cancel"}</span>
                 </button>
               )}
 
-              {/* Save Button (Primary Emerald) */}
+              {/* Save Button */}
               {(isProfileDirty || isSavingProfile) && (
                 <button
                   type="submit"
                   disabled={isSavingProfile}
-                  className="px-5 py-2.5 rounded-xl bg-[#006a4e] hover:bg-[#005a42] active:scale-95 text-white font-extrabold text-xs sm:text-sm shadow-md shadow-[#006a4e]/20 transition-all cursor-pointer inline-flex items-center justify-center gap-2 disabled:opacity-60"
+                  className="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-[#006a4e] hover:bg-[#005a42] active:scale-95 text-white font-extrabold text-xs sm:text-sm shadow-md shadow-[#006a4e]/20 transition-all cursor-pointer inline-flex items-center justify-center gap-2 disabled:opacity-60"
                 >
                   {isSavingProfile ? (
                     <>
