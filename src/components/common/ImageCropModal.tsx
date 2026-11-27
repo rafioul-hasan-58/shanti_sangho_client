@@ -43,6 +43,9 @@ export function ImageCropModal({
       setCroppedAreaPixels(null);
       previousActiveElement.current = document.activeElement as HTMLElement | null;
 
+      const origOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+
       // Trap initial focus inside modal
       setTimeout(() => {
         const firstFocusable = modalRef.current?.querySelector<HTMLElement>(
@@ -50,6 +53,10 @@ export function ImageCropModal({
         );
         firstFocusable?.focus();
       }, 50);
+
+      return () => {
+        document.body.style.overflow = origOverflow;
+      };
     } else {
       // Restore focus on close
       previousActiveElement.current?.focus();
@@ -162,14 +169,14 @@ export function ImageCropModal({
       role="dialog"
       aria-modal="true"
       aria-labelledby="crop-modal-title"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm transition-opacity duration-200"
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/85 backdrop-blur-sm transition-opacity duration-200"
     >
       <div
         ref={modalRef}
-        className="w-full h-full sm:h-auto sm:max-h-[94vh] sm:max-w-xl sm:rounded-2xl bg-neutral-900 border border-neutral-800 text-neutral-100 flex flex-col shadow-2xl overflow-hidden motion-reduce:transition-none transition-all duration-200"
+        className="w-full h-[100dvh] sm:h-auto sm:max-h-[92vh] sm:max-w-xl sm:rounded-2xl bg-neutral-900 border border-neutral-800 text-neutral-100 flex flex-col shadow-2xl overflow-hidden motion-reduce:transition-none transition-all duration-200"
       >
-        {/* Header: Close (X) on left, clean localized Title in the center, spacer on right */}
-        <header className="flex items-center justify-between px-3 sm:px-4 py-3 sm:py-3.5 border-b border-neutral-800 bg-neutral-900/95 z-20">
+        {/* Header: Close (X) on left, clean localized Title in the center, Save button on right */}
+        <header className="flex items-center justify-between px-3 sm:px-4 py-2.5 sm:py-3.5 border-b border-neutral-800 bg-neutral-900/95 z-20 shrink-0">
           <button
             type="button"
             onClick={onClose}
@@ -187,11 +194,21 @@ export function ImageCropModal({
             {isBn ? "ছবি সরিয়ে ঠিক করুন" : "Drag image to adjust"}
           </h2>
 
-          <div className="w-8 sm:w-9 shrink-0" aria-hidden="true" />
+          {/* Quick Save button in header */}
+          <button
+            type="button"
+            onClick={handleConfirm}
+            disabled={!croppedAreaPixels || isProcessing}
+            aria-label={isBn ? "ছবি সংরক্ষণ করুন" : "Save cropped photo"}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#006a4e] hover:bg-[#004d38] active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs sm:text-sm font-bold shadow-xs transition-all shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f2b705]"
+          >
+            <Check className="w-4 h-4 stroke-[2.5]" />
+            <span>{isBn ? "সংরক্ষণ" : "Save"}</span>
+          </button>
         </header>
 
         {/* Crop Area */}
-        <div className="relative flex-1 min-h-[300px] sm:min-h-[420px] bg-neutral-950 overflow-hidden select-none">
+        <div className="relative flex-1 min-h-0 bg-neutral-950 overflow-hidden select-none">
           <Cropper
             image={imageSrc}
             crop={crop}
@@ -239,7 +256,7 @@ export function ImageCropModal({
         </div>
 
         {/* Slim Zoom Slider */}
-        <div className="px-5 py-2.5 bg-neutral-900 border-t border-neutral-800/80 flex items-center gap-3 select-none">
+        <div className="px-5 py-2.5 bg-neutral-900 border-t border-neutral-800/80 flex items-center gap-3 select-none shrink-0">
           <span className="text-xs font-medium text-neutral-400">1x</span>
           <input
             type="range"
@@ -258,8 +275,8 @@ export function ImageCropModal({
           </span>
         </div>
 
-        {/* Footer Actions: Reset on left, Cancel and Round Confirm on right */}
-        <footer className="px-3 sm:px-4 py-2.5 sm:py-3 bg-neutral-900 border-t border-neutral-800 flex items-center justify-between gap-2 sm:gap-3">
+        {/* Footer Actions: Reset on left, Cancel and Primary Save Button with clear label on right */}
+        <footer className="px-3 sm:px-4 py-2.5 sm:py-3 bg-neutral-900 border-t border-neutral-800 flex items-center justify-between gap-2 sm:gap-3 shrink-0">
           <button
             type="button"
             onClick={handleReset}
@@ -285,11 +302,12 @@ export function ImageCropModal({
               type="button"
               onClick={handleConfirm}
               disabled={!croppedAreaPixels || isProcessing}
-              aria-label={isBn ? "ক্রপ নিশ্চিত করুন" : "Confirm crop"}
-              title="Confirm (Enter)"
-              className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#006a4e] hover:bg-[#004d38] active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed text-white flex items-center justify-center shadow-lg transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f2b705]"
+              aria-label={isBn ? "ছবি সংরক্ষণ করুন" : "Save photo"}
+              title="Save (Enter)"
+              className="inline-flex items-center gap-1.5 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-[#006a4e] hover:bg-[#004d38] active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs sm:text-sm font-extrabold shadow-lg transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f2b705]"
             >
-              <Check className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.5]" />
+              <Check className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
+              <span>{isBn ? "সংরক্ষণ করুন" : "Save Photo"}</span>
             </button>
           </div>
         </footer>
