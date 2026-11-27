@@ -35,8 +35,6 @@ import {
 } from "./MemberCardShared";
 import MemberDetailsModal from "./MemberDetailsModal";
 
-type QuickTabKey = "ALL" | "PLAYER_QUOTA" | "ADMIN";
-
 const DEFAULT_META: UsersPaginationMeta = {
   total: 0,
   page: 1,
@@ -64,7 +62,6 @@ export default function MembersDirectory({
 
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [activeTab, setActiveTab] = useState<QuickTabKey>("ALL");
   const [roleFilter, setRoleFilter] = useState<Role | "ALL">("ALL");
   const [membershipFilter, setMembershipFilter] = useState<MembershipType | "ALL">("ALL");
   const [bloodGroupFilter, setBloodGroupFilter] = useState<BloodGroup | "ALL">("ALL");
@@ -127,25 +124,9 @@ export default function MembersDirectory({
     void loadMembers();
   }, [loadMembers]);
 
-  const handleQuickTab = (key: QuickTabKey) => {
-    setActiveTab(key);
-    setPage(1);
-    if (key === "ALL") {
-      setRoleFilter("ALL");
-      setMembershipFilter("ALL");
-    } else if (key === "PLAYER_QUOTA") {
-      setRoleFilter("ALL");
-      setMembershipFilter("PLAYER_QUOTA");
-    } else if (key === "ADMIN") {
-      setMembershipFilter("ALL");
-      setRoleFilter("ADMIN");
-    }
-  };
-
   const handleResetFilters = () => {
     setSearchQuery("");
     setDebouncedSearch("");
-    setActiveTab("ALL");
     setRoleFilter("ALL");
     setMembershipFilter("ALL");
     setBloodGroupFilter("ALL");
@@ -158,12 +139,6 @@ export default function MembersDirectory({
     roleFilter !== "ALL" ||
     membershipFilter !== "ALL" ||
     bloodGroupFilter !== "ALL";
-
-  const quickTabs: Array<{ key: QuickTabKey; labelBn: string; labelEn: string }> = [
-    { key: "ALL", labelBn: "সকল সদস্য", labelEn: "All Members" },
-    { key: "PLAYER_QUOTA", labelBn: "খেলোয়াড় কোটা", labelEn: "Player Quota" },
-    { key: "ADMIN", labelBn: "অ্যাডমিন", labelEn: "Admins" },
-  ];
 
   return (
     <div
@@ -259,29 +234,35 @@ export default function MembersDirectory({
           </div>
         </div>
 
-        {/* Row 2: 3 Equal-Width Filter Buttons Filling 100% of the Line with No Scroll */}
-        <div className="grid grid-cols-3 gap-1.5 sm:gap-2.5 w-full">
-          {quickTabs.map((tab) => {
-            const active = activeTab === tab.key;
-            return (
-              <button
-                key={tab.key}
-                type="button"
-                onClick={() => handleQuickTab(tab.key)}
-                className={`w-full h-9 px-1.5 sm:px-3 rounded-xl text-[11px] sm:text-xs font-extrabold inline-flex items-center justify-center text-center transition-all cursor-pointer border truncate ${
-                  active
-                    ? "bg-[#006a4e] border-[#006a4e] text-white shadow-2xs"
-                    : "bg-emerald-50/55 border-emerald-200/80 text-[var(--text)] hover:bg-emerald-100/60 hover:text-[#006a4e]"
-                }`}
-              >
-                <span className="truncate">{isBn ? tab.labelBn : tab.labelEn}</span>
-              </button>
-            );
-          })}
-        </div>
+        {/* Lines 2 & 3:
+            Mobile: Line 2 = Membership Filter (All, Permanent, Player Quota) + Role Filter;
+                    Line 3 = Blood Group Filter + Sort Button
+            Desktop: Single clean wrapped flex toolbar
+        */}
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap sm:items-center gap-2 pt-1 border-t border-emerald-100/80">
+          {/* Line 2 - Left: Membership Type with 3 options: All, Permanent, Player Quota */}
+          <ThemedSelect
+            ariaLabel={isBn ? "মেম্বারশিপ ফিল্টার" : "Filter by membership"}
+            value={membershipFilter}
+            isFiltered={membershipFilter !== "ALL"}
+            className="w-full sm:w-auto h-9"
+            icon={
+              <svg className={ICON_CLS} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0" />
+              </svg>
+            }
+            onChange={(val) => {
+              setMembershipFilter(val as MembershipType | "ALL");
+              setPage(1);
+            }}
+            options={[
+              { value: "ALL", label: isBn ? "সব মেম্বারশিপ" : "All Memberships" },
+              { value: "PERMANENT", label: isBn ? "স্থায়ী সদস্য" : "Permanent" },
+              { value: "PLAYER_QUOTA", label: isBn ? "খেলোয়াড় কোটা" : "Player Quota" },
+            ]}
+          />
 
-        {/* Row 3: Strict 2-Column Symmetrical Grid on Mobile, Clean Flow Bar on Desktop */}
-        <div className="grid grid-cols-2 sm:flex sm:flex-wrap sm:items-center gap-2 pt-2 border-t border-emerald-100/80">
+          {/* Line 2 - Right: All Role */}
           <ThemedSelect
             ariaLabel={isBn ? "রোল ফিল্টার" : "Filter by role"}
             value={roleFilter}
@@ -293,8 +274,7 @@ export default function MembersDirectory({
               </svg>
             }
             onChange={(val) => {
-              setRoleFilter(val);
-              setActiveTab(val === "ADMIN" ? "ADMIN" : "ALL");
+              setRoleFilter(val as Role | "ALL");
               setPage(1);
             }}
             options={[
@@ -306,6 +286,7 @@ export default function MembersDirectory({
             ]}
           />
 
+          {/* Line 3 - Left: Blood Group */}
           <ThemedSelect
             ariaLabel={isBn ? "রক্তের গ্রুপ ফিল্টার" : "Filter by blood group"}
             value={bloodGroupFilter}
@@ -317,7 +298,7 @@ export default function MembersDirectory({
               </svg>
             }
             onChange={(val) => {
-              setBloodGroupFilter(val);
+              setBloodGroupFilter(val as BloodGroup | "ALL");
               setPage(1);
             }}
             options={[
@@ -332,6 +313,7 @@ export default function MembersDirectory({
             ]}
           />
 
+          {/* Line 3 - Right: Sort Button */}
           <button
             type="button"
             onClick={() => {
@@ -355,6 +337,7 @@ export default function MembersDirectory({
             <span>{sortOrder === "desc" ? (isBn ? "নতুন আগে" : "Newest") : (isBn ? "পুরনো আগে" : "Oldest")}</span>
           </button>
 
+          {/* Reset Button (shows below when any filter is active) */}
           {hasActiveFilters && (
             <button
               type="button"
