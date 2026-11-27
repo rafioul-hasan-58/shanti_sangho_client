@@ -90,13 +90,13 @@ export default function AdminMobileHeader({ locale }: AdminMobileHeaderProps) {
   return (
     <>
       {/* 1. Mobile Top Header Bar (< md) */}
-      <header className="md:hidden sticky top-0 z-30 bg-gradient-to-r from-[#E8F5EF] to-[#DCEFE5] backdrop-blur-md border-b border-[#D1E5D9] px-3.5 py-2.5 flex items-center justify-between gap-2 shadow-2xs">
+      <header className="md:hidden sticky top-0 z-30 bg-[#006a4e] border-b border-white/20 px-3.5 py-2.5 flex items-center justify-between gap-2 shadow-md">
         {/* Brand & Portal Title */}
         <Link
           href={withLocaleHref("/admin/dashboard", locale)}
           className="flex items-center gap-2.5 min-w-0 focus-visible:ring-2 focus-visible:ring-[#f2b705] rounded-xl"
         >
-          <div className="relative h-8 w-8 shrink-0 rounded-xl bg-[#006a4e] p-1 flex items-center justify-center shadow-xs">
+          <div className="relative h-8 w-8 shrink-0 rounded-xl bg-white/10 border border-white/20 p-1 flex items-center justify-center shadow-xs">
             <Image
               src="/logo.png"
               alt={ADMIN_UI_COPY.brandEn}
@@ -105,10 +105,10 @@ export default function AdminMobileHeader({ locale }: AdminMobileHeaderProps) {
             />
           </div>
           <div className="min-w-0 text-left">
-            <p className="text-xs font-black text-[#064E3B] truncate leading-tight">
+            <p className="text-xs font-black text-white truncate leading-tight">
               {isBn ? ADMIN_UI_COPY.brandBn : ADMIN_UI_COPY.brandEn}
             </p>
-            <p className="text-[10px] font-bold text-[#064E3B]/80 leading-tight">
+            <p className="text-[10px] font-bold text-white/80 leading-tight">
               {isBn ? ADMIN_UI_COPY.portalBn : ADMIN_UI_COPY.portalEn}
             </p>
           </div>
@@ -119,7 +119,7 @@ export default function AdminMobileHeader({ locale }: AdminMobileHeaderProps) {
           <LanguageSwitcher
             locale={locale as Locale}
             variant="toggle"
-            className="!bg-[#F4FAF6] hover:!bg-[#E8F5EF] !text-[#064E3B] !border-[#C2E2D0] shadow-2xs"
+            className="!bg-white/15 hover:!bg-white/25 !text-white !border-white/20 shadow-2xs"
           />
 
           {/* Hamburger Menu Toggle Button */}
@@ -127,7 +127,7 @@ export default function AdminMobileHeader({ locale }: AdminMobileHeaderProps) {
             type="button"
             onClick={() => setDrawerOpen(true)}
             aria-label={isBn ? "মেনু খুলুন" : "Open navigation menu"}
-            className="p-2 rounded-xl text-[#064E3B] hover:bg-[#064E3B]/10 active:bg-[#064E3B]/15 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[#f2b705]"
+            className="p-2 rounded-xl text-white hover:bg-white/15 active:bg-white/20 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[#f2b705]"
           >
             <Menu className="w-5 h-5 stroke-[2.2]" />
           </button>

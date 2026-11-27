@@ -195,10 +195,10 @@ export default function DashboardShell({
         <div className={`flex-1 min-w-0 flex flex-col ${!embeddedInAdminLayout ? "pb-24 md:pb-6" : ""}`}>
           {/* Mobile Top Header (Skipped when rendered inside AdminLayout) */}
           {!embeddedInAdminLayout && (
-            <header className="md:hidden sticky top-0 z-30 bg-gradient-to-r from-[#E8F5EF] to-[#DCEFE5] backdrop-blur-md border-b border-[#D1E5D9] px-4 py-2.5 flex items-center justify-between gap-4 shadow-2xs">
-              {/* Left: Brand Logo + Club Name + Subtitle (Current Theme Green) */}
+            <header className="md:hidden sticky top-0 z-30 bg-[#006a4e] border-b border-white/20 px-4 py-2.5 flex items-center justify-between gap-4 shadow-md">
+              {/* Left: Brand Logo + Club Name + Subtitle (Matching Home Green Theme) */}
               <Link href={`/${locale}`} className="flex items-center gap-2.5 select-none">
-                <div className="relative h-10 w-10 shrink-0 rounded-2xl bg-gradient-to-tr from-[#006a4e] to-[#059669] p-1.5 flex items-center justify-center shadow-xs">
+                <div className="relative h-10 w-10 shrink-0 rounded-2xl bg-white/10 border border-white/20 p-1.5 flex items-center justify-center shadow-xs">
                   <Image
                     src="/logo.png"
                     alt={BRAND_NAME_EN}
@@ -207,10 +207,10 @@ export default function DashboardShell({
                   />
                 </div>
                 <div className="text-left">
-                  <h2 className="font-black text-sm text-[#064E3B] tracking-tight leading-tight">
+                  <h2 className="font-black text-sm text-white tracking-tight leading-tight">
                     {isBn ? "সাভারচালা শান্তি সংঘ" : BRAND_NAME_EN}
                   </h2>
-                  <p className="text-[10px] font-bold text-[#064E3B]/80 leading-tight">
+                  <p className="text-[10px] font-bold text-white/80 leading-tight">
                     {isBn ? "ক্লাব পোর্টাল হাব" : "Club Portal Hub"}
                   </p>
                 </div>
@@ -221,14 +221,14 @@ export default function DashboardShell({
                 <LanguageSwitcher
                   locale={locale as any}
                   variant="toggle"
-                  className="!bg-[#F4FAF6] hover:!bg-[#E8F5EF] !text-[#064E3B] !border-[#C2E2D0] shadow-2xs"
+                  className="!bg-white/15 hover:!bg-white/25 !text-white !border-white/20 shadow-2xs"
                 />
 
                 <button
                   type="button"
                   onClick={() => setMobileSidebarOpen(true)}
                   aria-label="Open navigation drawer"
-                  className="p-2 rounded-2xl text-[#064E3B] hover:bg-[#064E3B]/10 active:bg-[#064E3B]/15 transition-colors cursor-pointer"
+                  className="p-2 rounded-2xl text-white hover:bg-white/15 active:bg-white/20 transition-colors cursor-pointer"
                 >
                   <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
