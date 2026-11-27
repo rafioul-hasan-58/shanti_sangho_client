@@ -91,7 +91,7 @@ export default async function MemberPersonPage({ params }: PageProps) {
     const member = await fetchMemberById(name);
     if (member) {
       return (
-        <main className="min-h-screen bg-[#faf8f2]">
+        <main className="min-h-screen bg-chalk">
           <MemberFullPageView
             member={member}
             locale={locale}

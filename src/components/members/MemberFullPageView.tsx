@@ -11,10 +11,8 @@ import {
   MessageCircle,
   ExternalLink,
   MapPin,
-  Clock,
   Briefcase,
   User as UserIcon,
-  ShieldCheck,
   Droplet,
   Home,
   Award,
@@ -29,11 +27,8 @@ import { isAdminVerified } from "@/lib/authRole";
 import type { ManagedUser } from "@/lib/types/dashboard";
 import {
   getMemberBloodLabel,
-  isMemberGoogleLogin,
-  MemberAuthProviderIcon,
   PlayerQuotaBadgeIcon,
 } from "./MemberCardShared";
-import { formatRegistrationTime } from "@/lib/format";
 import { formatBloodGroupDisplay } from "@/lib/bloodGroup";
 import { MEMBERSHIP_BADGE_MAP } from "@/components/dashboard/userManagementConfig";
 
@@ -69,12 +64,7 @@ export default function MemberFullPageView({
     Boolean(member.bloodGroup) &&
     member.bloodGroup !== "UNKNOWN" &&
     bloodLabel !== "N/A";
-  const isGoogle = isMemberGoogleLogin(member);
   const isPlayerQuota = member.membershipType === "PLAYER_QUOTA";
-  const registrationTime = formatRegistrationTime(
-    member.createdAt || member.joinedAt,
-    isBn
-  );
 
   const phoneDisplay = member.phoneNumber || member.whatsappNumber;
   const whatsappClean = (member.whatsappNumber || member.phoneNumber)?.replace(
@@ -96,12 +86,8 @@ export default function MemberFullPageView({
     }
   };
 
-  const memberIdDisplay = member.id
-    ? `#SS-${member.id.slice(-6).toUpperCase()}`
-    : "#SS-MEMBER";
-
   return (
-    <div className="min-h-screen bg-[#fbfaf7] text-slate-900 pb-12 sm:pb-16 animate-in fade-in duration-200">
+    <div className="min-h-screen bg-chalk text-slate-900 pb-12 sm:pb-16 animate-in fade-in duration-200">
       {/* Global CSS override ensuring website footer is removed on this profile page */}
       <style dangerouslySetInnerHTML={{ __html: `
         body.member-details-active footer {
@@ -197,14 +183,6 @@ export default function MemberFullPageView({
                     name={member.fullName}
                     className="h-24 w-24 sm:h-32 sm:w-32 rounded-2xl sm:rounded-3xl ring-4 ring-white shadow-md bg-white object-cover"
                   />
-                  {isAdminVerified(member.adminVerified) && (
-                    <div
-                      title={isBn ? "যাচাইকৃত সদস্য" : "Verified Member"}
-                      className="absolute -bottom-1 -right-1 p-1 rounded-xl bg-white shadow-sm ring-1 ring-emerald-500"
-                    >
-                      <VerifiedTick isBn={isBn} className="w-5 h-5 sm:w-6 sm:h-6" />
-                    </div>
-                  )}
                 </div>
 
                 {/* Primary Titles and Badges */}
@@ -213,6 +191,9 @@ export default function MemberFullPageView({
                     <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight leading-snug">
                       {member.fullName}
                     </h1>
+                    {isAdminVerified(member.adminVerified) && (
+                      <VerifiedTick isBn={isBn} className="w-5 h-5 sm:w-6 sm:h-6 shrink-0 inline-block" />
+                    )}
                   </div>
 
                   {member.name && member.name !== member.fullName && (
@@ -234,7 +215,7 @@ export default function MemberFullPageView({
                     </span>
                   </div>
 
-                  {/* Badges row: Membership Status, Member Type, Google Indicator */}
+                  {/* Badges row: Membership Status & Role */}
                   <div className="flex flex-wrap items-center gap-1.5 pt-1.5">
                     <RoleBadge role={member.role} isBn={isBn} />
 
@@ -251,56 +232,8 @@ export default function MemberFullPageView({
                           : "Permanent Member"}
                       </span>
                     )}
-
-                    {/* Google Account Indicator */}
-                    {isGoogle ? (
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-50 border border-slate-200/90 text-slate-700">
-                        <MemberAuthProviderIcon isGoogle={true} isBn={isBn} />
-                        <span>{isBn ? "গুগল অ্যাকাউন্ট" : "Google Account"}</span>
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-50 border border-slate-200/90 text-slate-700">
-                        <MemberAuthProviderIcon isGoogle={false} isBn={isBn} />
-                        <span>{isBn ? "ইমেইল অ্যাকাউন্ট" : "Email Account"}</span>
-                      </span>
-                    )}
                   </div>
                 </div>
-              </div>
-
-              {/* Right Side: Header Quick Action Buttons */}
-              <div className="flex flex-wrap items-center gap-2 pt-2 sm:pt-0 shrink-0">
-                {member.email && (
-                  <a
-                    href={`mailto:${member.email}`}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#006a4e] hover:bg-[#00523c] text-white text-xs sm:text-sm font-bold shadow-2xs transition-all active:scale-95"
-                  >
-                    <Mail className="w-4 h-4" />
-                    <span>{isBn ? "ইমেইল পাঠান" : "Email Member"}</span>
-                  </a>
-                )}
-
-                {whatsappClean && (
-                  <a
-                    href={`https://wa.me/${whatsappClean}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-[#006a4e] border border-emerald-200/90 text-xs sm:text-sm font-bold shadow-2xs transition-all active:scale-95"
-                  >
-                    <MessageCircle className="w-4 h-4 text-emerald-600" />
-                    <span>WhatsApp</span>
-                  </a>
-                )}
-
-                {phoneDisplay && (
-                  <a
-                    href={`tel:${phoneDisplay}`}
-                    className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs sm:text-sm font-bold shadow-2xs transition-all active:scale-95"
-                  >
-                    <Phone className="w-4 h-4 text-slate-500" />
-                    <span>{isBn ? "কল করুন" : "Call"}</span>
-                  </a>
-                )}
               </div>
             </div>
           </div>
@@ -318,7 +251,7 @@ export default function MemberFullPageView({
                   <span>{isBn ? "পরিচিতি ও সংক্ষিপ্ত বক্তব্য" : "About & Statement"}</span>
                 </div>
                 {member.summary && (
-                  <p className="text-sm sm:text-base text-slate-700 italic font-medium leading-relaxed bg-[#fbfaf7] p-4 rounded-2xl border-l-3 border-[#006a4e]">
+                  <p className="text-sm sm:text-base text-slate-700 italic font-medium leading-relaxed bg-slate-50/70 p-4 rounded-2xl border-l-3 border-[#006a4e]">
                     “{member.summary}”
                   </p>
                 )}
@@ -332,23 +265,15 @@ export default function MemberFullPageView({
 
             {/* CARD 1: Personal & Membership Details */}
             <div className="rounded-3xl bg-white p-5 sm:p-7 border border-slate-200/80 shadow-xs space-y-5">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3.5">
-                <div className="flex items-center gap-2 text-slate-900 font-extrabold text-sm sm:text-base">
-                  <UserIcon className="w-4 h-4 text-[#006a4e]" />
-                  <span>{isBn ? "ব্যক্তিগত ও মেম্বারশিপ বিবরণ" : "Personal & Membership Details"}</span>
-                </div>
-
-                {/* Membership ID styled as a compact badge */}
-                <span className="inline-flex items-center gap-1 font-mono text-xs font-extrabold text-[#006a4e] bg-emerald-50 border border-emerald-200/80 px-2.5 py-1 rounded-lg">
-                  <IdCard className="w-3.5 h-3.5" />
-                  <span>{memberIdDisplay}</span>
-                </span>
+              <div className="flex items-center gap-2 text-slate-900 font-extrabold text-sm sm:text-base border-b border-slate-100 pb-3.5">
+                <UserIcon className="w-4 h-4 text-[#006a4e]" />
+                <span>{isBn ? "ব্যক্তিগত ও মেম্বারশিপ বিবরণ" : "Personal & Membership Details"}</span>
               </div>
 
               {/* Responsive Grid: 1 Col Mobile, 2 Col Desktop */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
                 {/* 1. Full Name */}
-                <div className="p-3.5 rounded-2xl bg-[#fbfaf7] border border-slate-200/70 space-y-1">
+                <div className="p-3.5 rounded-2xl bg-slate-50/70 border border-slate-200/70 space-y-1">
                   <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
                     <UserIcon className="w-3.5 h-3.5 text-slate-400" />
                     <span>{isBn ? "পূর্ণ নাম" : "Full Name"}</span>
@@ -359,7 +284,7 @@ export default function MemberFullPageView({
                 </div>
 
                 {/* 2. Profession */}
-                <div className="p-3.5 rounded-2xl bg-[#fbfaf7] border border-slate-200/70 space-y-1">
+                <div className="p-3.5 rounded-2xl bg-slate-50/70 border border-slate-200/70 space-y-1">
                   <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
                     <Briefcase className="w-3.5 h-3.5 text-slate-400" />
                     <span>{isBn ? "পেশা" : "Profession"}</span>
@@ -370,7 +295,7 @@ export default function MemberFullPageView({
                 </div>
 
                 {/* 3. Club Role */}
-                <div className="p-3.5 rounded-2xl bg-[#fbfaf7] border border-slate-200/70 space-y-1">
+                <div className="p-3.5 rounded-2xl bg-slate-50/70 border border-slate-200/70 space-y-1">
                   <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
                     <Award className="w-3.5 h-3.5 text-slate-400" />
                     <span>{isBn ? "ক্লাব রোল / পদবী" : "Club Role"}</span>
@@ -380,40 +305,8 @@ export default function MemberFullPageView({
                   </div>
                 </div>
 
-                {/* 4. Registration Time */}
-                <div className="p-3.5 rounded-2xl bg-[#fbfaf7] border border-slate-200/70 space-y-1">
-                  <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5 text-slate-400" />
-                    <span>{isBn ? "নিবন্ধন সময়" : "Registration Time"}</span>
-                  </p>
-                  <p className="font-extrabold text-slate-900 text-sm">
-                    {registrationTime}
-                  </p>
-                </div>
-
-                {/* 5. Verification Status */}
-                <div className="p-3.5 rounded-2xl bg-[#fbfaf7] border border-slate-200/70 space-y-1">
-                  <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                    <ShieldCheck className="w-3.5 h-3.5 text-slate-400" />
-                    <span>{isBn ? "যাচাইকরণ অবস্থা" : "Verification Status"}</span>
-                  </p>
-                  <div className="pt-0.5">
-                    {isAdminVerified(member.adminVerified) ? (
-                      <span className="inline-flex items-center gap-1.5 text-xs font-extrabold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
-                        <span>{isBn ? "অ্যাডমিন যাচাইকৃত" : "Admin Verified"}</span>
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md">
-                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-                        <span>{isBn ? "অপেক্ষমাণ" : "Pending Verification"}</span>
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                {/* 6. Membership Type */}
-                <div className="p-3.5 rounded-2xl bg-[#fbfaf7] border border-slate-200/70 space-y-1">
+                {/* 4. Membership Type */}
+                <div className="p-3.5 rounded-2xl bg-slate-50/70 border border-slate-200/70 space-y-1">
                   <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
                     <IdCard className="w-3.5 h-3.5 text-slate-400" />
                     <span>{isBn ? "মেম্বারশিপ টাইপ" : "Membership Type"}</span>
@@ -435,7 +328,7 @@ export default function MemberFullPageView({
 
                 {/* Father's Name (if available) */}
                 {member.fatherName && (
-                  <div className="p-3.5 rounded-2xl bg-[#fbfaf7] border border-slate-200/70 space-y-1">
+                  <div className="p-3.5 rounded-2xl bg-slate-50/70 border border-slate-200/70 space-y-1">
                     <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                       {isBn ? "পিতার নাম" : "Father's Name"}
                     </p>
@@ -447,7 +340,7 @@ export default function MemberFullPageView({
 
                 {/* Mother's Name (if available) */}
                 {member.motherName && (
-                  <div className="p-3.5 rounded-2xl bg-[#fbfaf7] border border-slate-200/70 space-y-1">
+                  <div className="p-3.5 rounded-2xl bg-slate-50/70 border border-slate-200/70 space-y-1">
                     <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                       {isBn ? "মাতার নাম" : "Mother's Name"}
                     </p>
@@ -515,7 +408,7 @@ export default function MemberFullPageView({
                 </div>
 
                 {/* Current Location Box */}
-                <div className="p-4 rounded-2xl bg-[#fbfaf7] border border-slate-200/80 space-y-1.5">
+                <div className="p-4 rounded-2xl bg-slate-50/70 border border-slate-200/70 space-y-1.5">
                   <div className="flex items-center gap-2 text-xs font-bold text-slate-700 uppercase tracking-wider">
                     <Navigation className="w-3.5 h-3.5 text-[#006a4e]" />
                     <span>{isBn ? "বর্তমান অবস্থান" : "Current Location"}</span>
@@ -592,7 +485,7 @@ export default function MemberFullPageView({
 
               <div className="space-y-3 text-xs">
                 {/* 1. Email Address */}
-                <div className="p-3.5 rounded-2xl bg-[#fbfaf7] border border-slate-200/70 flex items-start gap-3">
+                <div className="p-3.5 rounded-2xl bg-slate-50/70 border border-slate-200/70 flex items-start gap-3">
                   <div className="w-7 h-7 rounded-xl bg-emerald-50 text-[#006a4e] flex items-center justify-center shrink-0 mt-0.5">
                     <Mail className="w-3.5 h-3.5" />
                   </div>
@@ -616,7 +509,7 @@ export default function MemberFullPageView({
                 </div>
 
                 {/* 2. Phone Number */}
-                <div className="p-3.5 rounded-2xl bg-[#fbfaf7] border border-slate-200/70 flex items-start gap-3">
+                <div className="p-3.5 rounded-2xl bg-slate-50/70 border border-slate-200/70 flex items-start gap-3">
                   <div className="w-7 h-7 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center shrink-0 mt-0.5">
                     <Phone className="w-3.5 h-3.5" />
                   </div>
@@ -640,7 +533,7 @@ export default function MemberFullPageView({
                 </div>
 
                 {/* 3. WhatsApp */}
-                <div className="p-3.5 rounded-2xl bg-[#fbfaf7] border border-slate-200/70 flex items-start gap-3">
+                <div className="p-3.5 rounded-2xl bg-slate-50/70 border border-slate-200/70 flex items-start gap-3">
                   <div className="w-7 h-7 rounded-xl bg-[#25D366]/15 text-[#128C7E] flex items-center justify-center shrink-0 mt-0.5">
                     <MessageCircle className="w-3.5 h-3.5" />
                   </div>
@@ -667,7 +560,7 @@ export default function MemberFullPageView({
 
                 {/* 4. Facebook */}
                 {member.facebookProfile && (
-                  <div className="p-3.5 rounded-2xl bg-[#fbfaf7] border border-slate-200/70 flex items-start gap-3">
+                  <div className="p-3.5 rounded-2xl bg-slate-50/70 border border-slate-200/70 flex items-start gap-3">
                     <div className="w-7 h-7 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 mt-0.5">
                       <ExternalLink className="w-3.5 h-3.5" />
                     </div>
