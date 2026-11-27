@@ -33,7 +33,7 @@ import {
   isMemberGoogleLogin,
   IoIosArrowForward,
 } from "./MemberCardShared";
-import MemberDetailsModal from "./MemberDetailsModal";
+import MemberFullPageView from "./MemberFullPageView";
 
 const DEFAULT_META: UsersPaginationMeta = {
   total: 0,
@@ -73,6 +73,48 @@ export default function MembersDirectory({
     user: ManagedUser;
     paletteIndex: number;
   } | null>(null);
+
+  const handleSelectMember = (user: ManagedUser, idx: number) => {
+    setSelectedMember({ user, paletteIndex: idx });
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      url.searchParams.set("member", user.id);
+      window.history.pushState({ memberId: user.id }, "", url.toString());
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  // Auto-select member from URL ?member=ID if present
+  useEffect(() => {
+    if (typeof window === "undefined" || loading || members.length === 0) return;
+    const params = new URLSearchParams(window.location.search);
+    const memberId = params.get("member");
+    if (memberId && !selectedMember) {
+      const foundIdx = members.findIndex((m) => m.id === memberId);
+      if (foundIdx !== -1) {
+        setSelectedMember({ user: members[foundIdx], paletteIndex: foundIdx });
+      }
+    }
+  }, [loading, members, selectedMember]);
+
+  // Handle browser back/forward buttons navigation
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const handlePopState = () => {
+      const params = new URLSearchParams(window.location.search);
+      const memberId = params.get("member");
+      if (!memberId) {
+        setSelectedMember(null);
+      } else {
+        const foundIdx = members.findIndex((m) => m.id === memberId);
+        if (foundIdx !== -1) {
+          setSelectedMember({ user: members[foundIdx], paletteIndex: foundIdx });
+        }
+      }
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [members]);
 
   // Debounce search input
   useEffect(() => {
@@ -139,6 +181,27 @@ export default function MembersDirectory({
     roleFilter !== "ALL" ||
     membershipFilter !== "ALL" ||
     bloodGroupFilter !== "ALL";
+
+  if (selectedMember) {
+    return (
+      <MemberFullPageView
+        member={selectedMember.user}
+        paletteIndex={selectedMember.paletteIndex}
+        locale={locale}
+        isBn={isBn}
+        onBack={() => {
+          setSelectedMember(null);
+          if (typeof window !== "undefined") {
+            const url = new URL(window.location.href);
+            if (url.searchParams.has("member")) {
+              url.searchParams.delete("member");
+              window.history.pushState({}, "", url.toString());
+            }
+          }
+        }}
+      />
+    );
+  }
 
   return (
     <div
@@ -434,7 +497,7 @@ export default function MembersDirectory({
                 <button
                   key={u.id}
                   type="button"
-                  onClick={() => setSelectedMember({ user: u, paletteIndex: idx })}
+                  onClick={() => handleSelectMember(u, idx)}
                   className={`relative text-left rounded-2xl border p-2.5 pt-3.5 sm:p-3.5 sm:pt-4 shadow-sm flex flex-col justify-between gap-2.5 min-w-0 transition-all hover:shadow-md active:scale-[0.99] cursor-pointer ${palette.card}`}
                 >
                   {/* Vivid Top Color Accent Strip clipped to card curve */}
@@ -532,7 +595,7 @@ export default function MembersDirectory({
               return (
                 <article
                   key={u.id}
-                  onClick={() => setSelectedMember({ user: u, paletteIndex: idx })}
+                  onClick={() => handleSelectMember(u, idx)}
                   className={`group relative rounded-3xl border p-6 shadow-xs hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between gap-4 min-w-0 cursor-pointer ${palette.card}`}
                 >
                   {/* Top Gradient Accent Bar */}
@@ -699,7 +762,7 @@ export default function MembersDirectory({
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setSelectedMember({ user: u, paletteIndex: idx });
+                        handleSelectMember(u, idx);
                       }}
                       className="ml-auto inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#006a4e] hover:bg-[#004d38] text-white text-xs font-bold shadow-2xs transition-colors cursor-pointer group"
                     >
@@ -751,14 +814,6 @@ export default function MembersDirectory({
           {isBn ? "সদস্য হিসেবে যোগ দিন" : "Join As Member"}
         </Link>
       </div>
-
-      {/* Member Profile Details Modal */}
-      <MemberDetailsModal
-        member={selectedMember?.user ?? null}
-        paletteIndex={selectedMember?.paletteIndex ?? 0}
-        isBn={isBn}
-        onClose={() => setSelectedMember(null)}
-      />
     </div>
   );
 }
