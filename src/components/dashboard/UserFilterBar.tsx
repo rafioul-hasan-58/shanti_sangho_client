@@ -73,121 +73,61 @@ export default function UserFilterBar({
     filters.emailVerified !== "ALL";
 
   return (
-    <div className="space-y-3">
-      {/* Row 1: Search & Status Quick Tabs (2-per-row on mobile) */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2.5 sm:gap-3">
-        <div className="relative flex-1 lg:max-w-md">
-          <svg
-            className="w-4 h-4 text-[#006a4e]/70 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
-          <input
-            type="text"
-            value={filters.search}
-            onChange={(e) => onChange("search", e.target.value)}
-            placeholder={
-              isBn
-                ? "নাম, ইমেইল, ফোন, গ্রাম বা পেশা..."
-                : "Search name, email, phone, village, profession..."
-            }
-            className="w-full h-10 pl-10 pr-4 rounded-xl border border-emerald-200/80 bg-emerald-50/55 text-sm text-[var(--text)] placeholder:text-slate-400 focus:bg-white focus:border-[#006a4e] focus:ring-2 focus:ring-[#006a4e]/15 outline-none transition-all"
+    <div className="space-y-2.5">
+      {/* Line 1: Searchbar (Full width, placeholder truncate so it never overflows) */}
+      <div className="relative w-full">
+        <svg
+          className="w-4 h-4 text-[#006a4e]/70 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
           />
-        </div>
-
-        {!hideStatusFilter && (
-          <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 sm:gap-1.5">
-            <button
-              type="button"
-              onClick={() => onChange("status", "ALL")}
-              className={`w-full min-w-0 sm:w-auto h-9 px-3 rounded-xl text-xs font-bold inline-flex items-center justify-center sm:justify-start gap-2 transition-colors cursor-pointer border ${
-                filters.status === "ALL"
-                  ? "bg-[#006a4e] border-[#006a4e] text-white shadow-2xs"
-                  : "bg-emerald-50/55 border-emerald-200/80 text-[var(--text)] hover:bg-emerald-100/60 hover:text-[#006a4e]"
-              }`}
-            >
-              <StatusFilterIcon status="ALL" />
-              <span>{isBn ? "সবাই" : "All"}</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() =>
-                onChange(
-                  "status",
-                  filters.status === "ACTIVE" ? "SUSPENDED" : "ACTIVE"
-                )
-              }
-              title={
-                filters.status === "SUSPENDED"
-                  ? isBn
-                    ? "সক্রিয় সদস্য দেখাতে ক্লিক করুন"
-                    : "Click to show Active"
-                  : filters.status === "ACTIVE"
-                    ? isBn
-                      ? "স্থগিত সদস্য দেখাতে ক্লিক করুন"
-                      : "Click to show Suspended"
-                    : isBn
-                      ? "সক্রিয় / স্থগিত ফিল্টার করুন"
-                      : "Toggle Active / Suspended"
-              }
-              className={`w-full min-w-0 sm:w-auto h-9 px-3 rounded-xl text-xs font-extrabold inline-flex items-center justify-center sm:justify-start gap-2 transition-colors cursor-pointer border ${
-                filters.status === "SUSPENDED"
-                  ? "bg-[#f42a41] border-[#f42a41] text-white shadow-2xs"
-                  : filters.status === "ACTIVE"
-                    ? "bg-[#006a4e] border-[#006a4e] text-white shadow-2xs"
-                    : "bg-emerald-50/55 border-emerald-200/80 text-[#006a4e] hover:bg-emerald-100/60 hover:border-[#006a4e]/40"
-              }`}
-            >
-              <StatusFilterIcon
-                status={filters.status === "SUSPENDED" ? "SUSPENDED" : "ACTIVE"}
-              />
-              <span>
-                {filters.status === "SUSPENDED"
-                  ? isBn
-                    ? "স্থগিত"
-                    : "Suspended"
-                  : isBn
-                    ? "সক্রিয়"
-                    : "Active"}
-              </span>
-            </button>
-          </div>
+        </svg>
+        <input
+          type="text"
+          value={filters.search}
+          onChange={(e) => onChange("search", e.target.value)}
+          placeholder={
+            isBn
+              ? "নাম, ফোন, গ্রাম বা পেশা..."
+              : "Search name, phone, village..."
+          }
+          className="w-full h-10 pl-10 pr-9 rounded-xl border border-emerald-200/80 bg-emerald-50/55 text-xs sm:text-sm text-[var(--text)] placeholder:text-slate-400 placeholder:truncate focus:bg-white focus:border-[#006a4e] focus:ring-2 focus:ring-[#006a4e]/15 outline-none transition-all"
+        />
+        {filters.search && (
+          <button
+            type="button"
+            onClick={() => onChange("search", "")}
+            className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-700 cursor-pointer"
+            aria-label={isBn ? "সার্চ মুছুন" : "Clear search"}
+          >
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         )}
       </div>
 
-      {/* Row 2: Organized 2-column grid on mobile, clean wrapped bar on desktop */}
+      {/* Lines 2, 3, 4:
+          Mobile mode: 2 items per line
+            Line 2: Membership Type + Role
+            Line 3: Blood Group + Email
+            Line 4: Status (Active and other) + Sort
+          Desktop mode: Clean wrapped flex toolbar
+      */}
       <div className="grid grid-cols-2 sm:flex sm:flex-wrap sm:items-center gap-2">
-        <ThemedSelect
-          ariaLabel={isBn ? "রোল ফিল্টার" : "Filter by role"}
-          value={filters.role}
-          isFiltered={filters.role !== "ALL"}
-          className="w-full sm:w-auto"
-          icon={
-            <svg className={ICON_CLS} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-            </svg>
-          }
-          onChange={(val) => onChange("role", val)}
-          options={[
-            { value: "ALL", label: isBn ? "সব রোল" : "All Roles" },
-            ...ROLE_OPTIONS.map((r) => ({ value: r, label: r })),
-          ]}
-        />
-
+        {/* Line 2 - Left: Membership Type */}
         <ThemedSelect
           ariaLabel={isBn ? "মেম্বারশিপ ফিল্টার" : "Filter by membership"}
           value={filters.membershipType}
           isFiltered={filters.membershipType !== "ALL"}
-          className="w-full sm:w-auto"
+          className="w-full sm:w-auto h-9"
           icon={
             <svg className={ICON_CLS} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0" />
@@ -206,11 +146,33 @@ export default function UserFilterBar({
           ]}
         />
 
+        {/* Line 2 - Right: Role */}
+        <ThemedSelect
+          ariaLabel={isBn ? "রোল ফিল্টার" : "Filter by role"}
+          value={filters.role}
+          isFiltered={filters.role !== "ALL"}
+          className="w-full sm:w-auto h-9"
+          icon={
+            <svg className={ICON_CLS} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+          }
+          onChange={(val) => onChange("role", val)}
+          options={[
+            { value: "ALL", label: isBn ? "সব রোল" : "All Roles" },
+            ...ROLE_OPTIONS.map((r) => ({
+              value: r,
+              label: r === "USER" ? (isBn ? "সদস্য (Member)" : "Member") : r,
+            })),
+          ]}
+        />
+
+        {/* Line 3 - Left: Blood Group */}
         <ThemedSelect
           ariaLabel={isBn ? "রক্তের গ্রুপ ফিল্টার" : "Filter by blood group"}
           value={filters.bloodGroup}
           isFiltered={filters.bloodGroup !== "ALL"}
-          className="w-full sm:w-auto"
+          className="w-full sm:w-auto h-9"
           icon={
             <svg className={ICON_CLS} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 3.25C12 3.25 6 10 6 14.25a6 6 0 1012 0C18 10 12 3.25 12 3.25z" />
@@ -229,11 +191,12 @@ export default function UserFilterBar({
           ]}
         />
 
+        {/* Line 3 - Right: Email Verification */}
         <ThemedSelect
           ariaLabel={isBn ? "ইমেইল ভেরিফিকেশন" : "Email verification filter"}
           value={filters.emailVerified}
           isFiltered={filters.emailVerified !== "ALL"}
-          className="w-full sm:w-auto"
+          className="w-full sm:w-auto h-9"
           icon={
             <svg className={ICON_CLS} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -245,11 +208,29 @@ export default function UserFilterBar({
               value: "ALL",
               label: isBn ? "ইমেইল: সব" : "Email: All",
             },
-            { value: "true", label: isBn ? "ভেরিফায়েড" : "Verified Only" },
-            { value: "false", label: isBn ? "অভেরিফায়েড" : "Unverified Only" },
+            { value: "true", label: isBn ? "ভেরিফায়েড" : "Verified" },
+            { value: "false", label: isBn ? "অভেরিফায়েড" : "Unverified" },
           ]}
         />
 
+        {/* Line 4 - Left: Status (Active and other: All, Active, Suspended) */}
+        {!hideStatusFilter && (
+          <ThemedSelect
+            ariaLabel={isBn ? "স্ট্যাটাস ফিল্টার" : "Filter by status"}
+            value={filters.status}
+            isFiltered={filters.status !== "ALL"}
+            className="w-full sm:w-auto h-9"
+            icon={<StatusFilterIcon status={filters.status} />}
+            onChange={(val) => onChange("status", val)}
+            options={[
+              { value: "ALL", label: isBn ? "সব স্ট্যাটাস" : "All Status" },
+              { value: "ACTIVE", label: isBn ? "সক্রিয়" : "Active" },
+              { value: "SUSPENDED", label: isBn ? "স্থগিত" : "Suspended" },
+            ]}
+          />
+        )}
+
+        {/* Line 4 - Right: Sort Button */}
         <button
           type="button"
           onClick={() =>
@@ -257,17 +238,32 @@ export default function UserFilterBar({
           }
           title={
             filters.sortOrder === "desc"
-              ? isBn ? "নতুন থেকে পুরনো (সদস্য হওয়ার তারিখ অনুযায়ী)" : "Newest First (Sorted by Join Date)"
-              : isBn ? "পুরনো থেকে নতুন (সদস্য হওয়ার তারিখ অনুযায়ী)" : "Oldest First (Sorted by Join Date)"
+              ? isBn
+                ? "নতুন থেকে পুরনো (সদস্য হওয়ার তারিখ অনুযায়ী)"
+                : "Newest First (Sorted by Join Date)"
+              : isBn
+                ? "পুরনো থেকে নতুন (সদস্য হওয়ার তারিখ অনুযায়ী)"
+                : "Oldest First (Sorted by Join Date)"
           }
-          className="w-full min-w-0 sm:w-auto sm:ml-auto h-9 px-3 rounded-xl border border-emerald-200/80 bg-emerald-50/55 hover:bg-emerald-100/60 hover:border-[#006a4e]/40 text-xs font-extrabold text-[#006a4e] inline-flex items-center justify-center sm:justify-start gap-2 transition-colors cursor-pointer"
+          className={`${
+            hideStatusFilter ? "col-span-2" : "col-span-1"
+          } w-full min-w-0 sm:w-auto sm:ml-auto h-9 px-3 rounded-xl border border-emerald-200/80 bg-emerald-50/55 hover:bg-emerald-100/60 hover:border-[#006a4e]/40 text-xs font-extrabold text-[#006a4e] inline-flex items-center justify-center sm:justify-start gap-2 transition-colors cursor-pointer`}
         >
           <svg className={ICON_CLS} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
           </svg>
-          <span>{filters.sortOrder === "desc" ? (isBn ? "নতুন আগে" : "Newest") : (isBn ? "পুরনো আগে" : "Oldest")}</span>
+          <span>
+            {filters.sortOrder === "desc"
+              ? isBn
+                ? "নতুন আগে"
+                : "Newest"
+              : isBn
+                ? "পুরনো আগে"
+                : "Oldest"}
+          </span>
         </button>
 
+        {/* Reset button if active filters */}
         {hasActiveFilters && (
           <button
             type="button"
@@ -277,7 +273,7 @@ export default function UserFilterBar({
             <svg className={ICON_CLS} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
-            <span>{isBn ? "রিসেট" : "Reset"}</span>
+            <span>{isBn ? "ফিল্টার মুছুন" : "Reset"}</span>
           </button>
         )}
       </div>
