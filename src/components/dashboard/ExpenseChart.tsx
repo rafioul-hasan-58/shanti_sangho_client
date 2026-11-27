@@ -218,13 +218,21 @@ export default function ExpenseChart({ locale = "en" }: ExpenseChartProps) {
     }
   };
 
-  // Range text label (e.g. "Jun 2026 – Nov 2026" or "2022 – 2026")
+  // Range text label (e.g. "Jun 26 - Nov 26" or "2022 – 2026")
   const rangeLabel = useMemo(() => {
     if (mode === "monthly") {
       if (monthlyData.length === 0) return endMonth;
       const start = monthlyData[0].month;
       const end = monthlyData[monthlyData.length - 1].month;
-      return `${formatMonthLabel(start, isBn)} – ${formatMonthLabel(end, isBn)}`;
+      const formatCompactMonth = (mStr: string) => {
+        const [y, m] = mStr.split("-").map(Number);
+        if (!y || !m) return mStr;
+        const d = new Date(y, m - 1, 1);
+        return isBn
+          ? d.toLocaleDateString("bn-BD", { month: "short", year: "2-digit" })
+          : d.toLocaleDateString("en-US", { month: "short", year: "2-digit" });
+      };
+      return `${formatCompactMonth(start)} – ${formatCompactMonth(end)}`;
     }
 
     if (yearlyData.length === 0) return String(endYear);
@@ -237,7 +245,7 @@ export default function ExpenseChart({ locale = "en" }: ExpenseChartProps) {
   const isPrevDisabled = mode === "monthly" ? !canGoPrevMonthly : !canGoPrevYearly;
 
   return (
-    <div className="bg-white rounded-2xl p-5 sm:p-7 border border-slate-200/80 shadow-xs space-y-6">
+    <div className="bg-white rounded-2xl p-4 sm:p-7 border border-slate-200/80 shadow-xs space-y-6">
       {/* 1. SECTION HEADER & TIME MODE TABS */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-100">
         <div>
@@ -313,7 +321,7 @@ export default function ExpenseChart({ locale = "en" }: ExpenseChartProps) {
               </svg>
             </button>
 
-            <span className="text-[11px] sm:text-xs font-extrabold text-slate-800 px-1 truncate flex-1 text-center select-none">
+            <span className="text-[10px] sm:text-xs font-black text-slate-800 px-1 whitespace-nowrap flex-1 text-center select-none tracking-tight">
               {rangeLabel}
             </span>
 
