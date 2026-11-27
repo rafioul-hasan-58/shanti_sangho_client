@@ -1,7 +1,8 @@
 "use client";
 
+import { Suspense } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import {
   MOBILE_BOTTOM_NAV_ITEMS,
   isAdminPathActive,
@@ -16,15 +17,10 @@ interface MobileBottomNavProps {
   locale: string;
 }
 
-/**
- * Mobile bottom navigation bar (`< md`) with 4 primary tabs:
- * 1. Dashboard (/admin/dashboard or /dashboard)
- * 2. Finance (/admin/finance)
- * 3. User (/admin/members)
- * 4. Profile (/admin/profile or /dashboard?tab=profile) with round avatar icon
- */
-export default function MobileBottomNav({ locale }: MobileBottomNavProps) {
+function MobileBottomNavInner({ locale }: MobileBottomNavProps) {
   const pathname = usePathname() || "";
+  const searchParams = useSearchParams();
+  const currentTab = searchParams?.get("tab");
   const { user } = useAuth();
   const { role } = useRole();
   const resolvedRole = normalizeRole(user?.role ?? role);
@@ -37,22 +33,19 @@ export default function MobileBottomNav({ locale }: MobileBottomNavProps) {
 
   const isProfileActive =
     isAdminPathActive(pathname, "/admin/profile") ||
-    (pathname.includes("/dashboard") &&
-      typeof window !== "undefined" &&
-      window.location.search.includes("tab=profile"));
+    (pathname.includes("/dashboard") && currentTab === "profile");
 
   const isUserActive =
     isAdminPathActive(pathname, "/admin/members") ||
     (pathname.includes("/dashboard") &&
-      typeof window !== "undefined" &&
-      (window.location.search.includes("tab=admin_users") ||
-        window.location.search.includes("tab=members")));
+      (currentTab === "admin_users" ||
+        currentTab === "admin_users_all" ||
+        currentTab === "admin_users_pending" ||
+        currentTab === "members"));
 
   const isFinanceActive =
     isAdminPathActive(pathname, "/admin/finance") ||
-    (pathname.includes("/dashboard") &&
-      typeof window !== "undefined" &&
-      window.location.search.includes("tab=admin_finance"));
+    (pathname.includes("/dashboard") && currentTab === "admin_finance");
 
   const isDashboardActive =
     (isAdminPathActive(pathname, "/admin/dashboard") ||
@@ -93,7 +86,7 @@ export default function MobileBottomNav({ locale }: MobileBottomNavProps) {
             targetHref = "/admin/finance";
           } else if (item.id === "members") {
             isTabActive = isUserActive;
-            targetHref = "/dashboard?tab=admin_users";
+            targetHref = isAdmin ? "/dashboard?tab=admin_users" : "/dashboard?tab=members";
           } else if (item.id === "profile") {
             isTabActive = isProfileActive;
             targetHref = "/dashboard?tab=profile";
@@ -143,5 +136,20 @@ export default function MobileBottomNav({ locale }: MobileBottomNavProps) {
         })}
       </div>
     </nav>
+  );
+}
+
+/**
+ * Mobile bottom navigation bar (`< md`) with 4 primary tabs:
+ * 1. Dashboard (/admin/dashboard or /dashboard)
+ * 2. Finance (/admin/finance)
+ * 3. User (/dashboard?tab=admin_users or /dashboard?tab=members)
+ * 4. Profile (/dashboard?tab=profile) with round avatar icon
+ */
+export default function MobileBottomNav({ locale }: MobileBottomNavProps) {
+  return (
+    <Suspense fallback={null}>
+      <MobileBottomNavInner locale={locale} />
+    </Suspense>
   );
 }

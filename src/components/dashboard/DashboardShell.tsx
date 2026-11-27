@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { Dictionary } from "@/i18n/getDictionary";
 import { useAuth } from "@/context/AuthContext";
 import { useRole } from "@/context/RoleContext";
@@ -59,6 +59,7 @@ export default function DashboardShell({
 }: Props) {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { user, logout, updateProfile } = useAuth();
   const { role, setRole } = useRole();
   const isBn = locale === "bn";
@@ -74,40 +75,44 @@ export default function DashboardShell({
   const roleMeta = getRoleDisplayMeta(resolvedRole);
   const isAdmin = hasDashboardAccess(resolvedRole);
 
-  const [activeTab, setActiveTab] = useState<TabType>(() => {
-    if (initialTab) return initialTab;
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      const tab = params.get("tab") as TabType | null;
-      if (
-        tab &&
-        [
-          "overview",
-          "profile",
-          "sports",
-          "members",
-          "committee",
-          "notices",
-          "leadership_pioneers",
-          "leadership_committee",
-          "leadership_admins",
-          "admin_users",
-          "admin_users_all",
-          "admin_users_pending",
-          "admin_members",
-          "admin_live",
-          "admin_finance",
-          "admin_expenses",
-        ].includes(tab)
-      ) {
-        if (tab === "overview" && !isAdmin) {
-          return "members";
-        }
-        if (tab === "members" && isAdmin) {
-          return "admin_users";
-        }
-        return tab;
+  const resolveTab = (tab: string | null | undefined): TabType => {
+    if (
+      tab &&
+      [
+        "overview",
+        "profile",
+        "sports",
+        "members",
+        "committee",
+        "notices",
+        "leadership_pioneers",
+        "leadership_committee",
+        "leadership_admins",
+        "admin_users",
+        "admin_users_all",
+        "admin_users_pending",
+        "admin_members",
+        "admin_live",
+        "admin_finance",
+        "admin_expenses",
+      ].includes(tab)
+    ) {
+      if (tab === "overview" && !isAdmin) {
+        return "members";
       }
+      if (tab === "members" && isAdmin) {
+        return "admin_users";
+      }
+      return tab as TabType;
+    }
+    return isAdmin ? "overview" : "members";
+  };
+
+  const [activeTab, setActiveTab] = useState<TabType>(() => {
+    if (initialTab) return resolveTab(initialTab);
+    const queryTab = searchParams?.get("tab");
+    if (queryTab) return resolveTab(queryTab);
+    if (typeof window !== "undefined") {
       try {
         const stored = localStorage.getItem("auth_user");
         if (stored) {
@@ -122,6 +127,29 @@ export default function DashboardShell({
     }
     return isAdmin ? "overview" : "members";
   });
+
+  // Keep activeTab reactive whenever URL search param changes (e.g. mobile bottom nav clicks)
+  useEffect(() => {
+    const queryTab = searchParams?.get("tab");
+    if (queryTab) {
+      const resolved = resolveTab(queryTab);
+      setActiveTab(resolved);
+    } else if (!initialTab) {
+      setActiveTab(isAdmin ? "overview" : "members");
+    }
+  }, [searchParams, isAdmin, initialTab]);
+
+  const handleTabChange = (nextTab: TabType) => {
+    setActiveTab(nextTab);
+    if (!embeddedInAdminLayout) {
+      const targetUrl =
+        nextTab === "overview"
+          ? `/${locale}/dashboard`
+          : `/${locale}/dashboard?tab=${nextTab}`;
+      router.replace(targetUrl, { scroll: false });
+    }
+  };
+
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   const displayName = user?.name || (isBn ? "রাফিউল হাসান" : "Rafioul Hasan");
@@ -149,7 +177,7 @@ export default function DashboardShell({
         {!embeddedInAdminLayout && (
           <DashboardSidebar
             activeTab={activeTab}
-            setActiveTab={setActiveTab}
+            setActiveTab={handleTabChange}
             locale={locale}
             user={user}
             isAdmin={Boolean(isAdmin)}
