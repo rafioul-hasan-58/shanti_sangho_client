@@ -151,8 +151,8 @@ export default function AdminMobileHeader({ locale }: AdminMobileHeaderProps) {
             aria-label={isBn ? "অ্যাডমিন মেনু" : "Admin navigation menu"}
             className="relative z-10 w-[84vw] max-w-[320px] bg-white h-full shadow-2xl flex flex-col justify-between overflow-hidden animate-slideInLeft"
           >
-            {/* Drawer Header */}
-            <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-gradient-to-r from-emerald-50/80 to-transparent">
+            {/* Drawer Header (Matching Green Theme) */}
+            <div className="p-4 border-b border-white/20 bg-[#006a4e] flex items-center justify-between shadow-xs">
               <Link
                 href={withLocaleHref("/admin/dashboard", locale)}
                 onClick={() => setDrawerOpen(false)}
@@ -167,10 +167,10 @@ export default function AdminMobileHeader({ locale }: AdminMobileHeaderProps) {
                   />
                 </div>
                 <div className="min-w-0">
-                  <h2 className="text-sm font-black text-slate-900 leading-tight truncate">
+                  <h2 className="text-sm font-black text-white leading-tight truncate">
                     {isBn ? "সাভারচালা শান্তি সংঘ" : ADMIN_UI_COPY.brandEn}
                   </h2>
-                  <p className="text-[10px] font-bold text-[#006a4e] leading-tight">
+                  <p className="text-[10px] font-bold text-white/80 leading-tight">
                     {isBn ? "অ্যাডমিন কন্ট্রোল সেন্টার" : "Admin Control Center"}
                   </p>
                 </div>
@@ -181,7 +181,7 @@ export default function AdminMobileHeader({ locale }: AdminMobileHeaderProps) {
                 type="button"
                 onClick={() => setDrawerOpen(false)}
                 aria-label={isBn ? "বন্ধ করুন" : "Close menu"}
-                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+                className="p-1.5 rounded-xl text-white hover:bg-white/15 active:bg-white/20 transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5 stroke-[2.2]" />
               </button>

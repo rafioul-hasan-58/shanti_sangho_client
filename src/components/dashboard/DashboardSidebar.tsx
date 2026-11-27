@@ -233,8 +233,8 @@ export default function DashboardSidebar({
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        {/* 1. Header: Brand & Hub */}
-        <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
+        {/* 1. Header: Brand & Hub (Matching Green Dashboard Top Nav on Mobile) */}
+        <div className="p-4 sm:p-5 border-b border-white/20 md:border-slate-100 bg-[#006a4e] md:bg-white flex items-center justify-between transition-colors shadow-xs md:shadow-none">
           <Link
             href={`/${locale}`}
             onClick={() => setMobileOpen(false)}
@@ -249,10 +249,10 @@ export default function DashboardSidebar({
               />
             </div>
             <div>
-              <h2 className="font-black text-sm sm:text-base text-slate-900 group-hover:text-[#006a4e] transition-colors leading-tight tracking-tight">
+              <h2 className="font-black text-sm sm:text-base text-white md:text-slate-900 group-hover:text-emerald-100 md:group-hover:text-[#006a4e] transition-colors leading-tight tracking-tight">
                 {isBn ? "সাভারচালা শান্তি সংঘ" : BRAND_NAME_EN}
               </h2>
-              <p className="text-[11px] sm:text-xs font-semibold text-[#006a4e] mt-0.5">
+              <p className="text-[11px] sm:text-xs font-bold text-white/80 md:text-[#006a4e] mt-0.5 leading-tight">
                 {isBn ? "ক্লাব পোর্টাল হাব" : "Club Portal Hub"}
               </p>
             </div>
@@ -263,7 +263,7 @@ export default function DashboardSidebar({
             type="button"
             onClick={() => setMobileOpen(false)}
             aria-label="Close sidebar"
-            className="md:hidden text-slate-400 hover:text-slate-700 p-1.5 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer"
+            className="md:hidden text-white hover:bg-white/15 active:bg-white/20 p-1.5 rounded-xl transition-colors cursor-pointer"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />

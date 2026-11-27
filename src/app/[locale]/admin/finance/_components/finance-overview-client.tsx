@@ -53,9 +53,9 @@ export function FinanceOverviewClient({ locale }: FinanceOverviewClientProps) {
   if (authLoading || isLoading) {
     return (
       <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="h-8 w-48 bg-slate-200/80 rounded-lg animate-pulse" />
-          <div className="h-10 w-64 bg-slate-200/80 rounded-xl animate-pulse" />
+        <div className="grid grid-cols-2 sm:flex sm:items-center sm:justify-between gap-2.5 sm:gap-4">
+          <div className="h-9 sm:h-8 w-full sm:w-48 bg-slate-200/80 rounded-xl sm:rounded-lg animate-pulse" />
+          <div className="h-9 sm:h-10 w-full sm:w-64 bg-slate-200/80 rounded-xl animate-pulse" />
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5 sm:gap-4">
           {[1, 2].map((i) => (
