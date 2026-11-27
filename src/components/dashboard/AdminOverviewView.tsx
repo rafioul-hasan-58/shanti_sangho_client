@@ -189,7 +189,7 @@ export default function AdminOverviewView({
         <div className="bg-white rounded-3xl p-5 sm:p-6 border border-[#006a4e]/15 shadow-xs space-y-5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
             <div className="flex items-center gap-2.5 min-w-0">
-              <span className="flex h-2.5 w-2.5 rounded-full bg-amber-500 ring-4 ring-amber-100 animate-pulse shrink-0" />
+              <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-500 ring-4 ring-emerald-100 animate-pulse shrink-0" />
               <h3 className="text-base sm:text-lg font-black text-slate-900 tracking-tight truncate">
                 {isBn ? "সাম্প্রতিক পেন্ডিং ইউজার" : "Recent Pending Users"}
               </h3>
@@ -308,8 +308,8 @@ export default function AdminOverviewView({
                         </td>
 
                         <td className="py-3.5 px-4 text-xs">
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200/80">
-                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-emerald-50 text-[#006a4e] border border-emerald-200/90">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
                             <span>{isBn ? "অনুমোদন প্রয়োজন" : "Approval Needed"}</span>
                           </span>
                         </td>
@@ -404,14 +404,14 @@ export default function AdminOverviewView({
                 {pendingUsers.map((pendingUser) => (
                   <div
                     key={pendingUser.id}
-                    className="rounded-2xl border border-slate-200/80 bg-white hover:border-emerald-200/80 p-3.5 sm:p-4 space-y-3 shadow-2xs transition-all"
+                    className="rounded-2xl border border-emerald-200/90 bg-gradient-to-br from-emerald-50/95 via-white to-[#eafaf2] p-3.5 sm:p-4 space-y-3 shadow-2xs transition-all"
                   >
                     {/* Line 1: Profile avatar, name, and full email (break-all, no overflow) */}
                     <div className="flex items-start gap-3 min-w-0">
                       <UserAvatar
                         src={pendingUser.profileImage || pendingUser.picture}
                         name={pendingUser.fullName}
-                        className="h-10 w-10 shrink-0 ring-2 ring-emerald-100 shadow-2xs mt-0.5"
+                        className="h-10 w-10 shrink-0 ring-2 ring-emerald-200 shadow-2xs mt-0.5"
                       />
                       <div className="min-w-0 flex-1">
                         <h4 className="text-sm font-extrabold text-slate-900 leading-snug">
@@ -424,16 +424,16 @@ export default function AdminOverviewView({
                     </div>
 
                     {/* Line 2: Approval Needed status & Registration time on left, Approve / Remove action buttons on right */}
-                    <div className="flex items-center justify-between gap-2 pt-2.5 border-t border-slate-100">
+                    <div className="flex items-center justify-between gap-2 pt-2.5 border-t border-emerald-100">
                       <div className="flex flex-col xs:flex-row xs:items-center gap-1.5 xs:gap-2.5 min-w-0">
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200/80 shrink-0 w-fit">
-                          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse shrink-0" />
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-emerald-100/60 text-[#006a4e] border border-emerald-300/70 shrink-0 w-fit">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse shrink-0" />
                           <span>{isBn ? "অনুমোদন প্রয়োজন" : "Approval Needed"}</span>
                         </span>
 
-                        <span className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-500 whitespace-nowrap">
+                        <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-800/80 whitespace-nowrap">
                           <svg
-                            className="w-3.5 h-3.5 text-slate-400 shrink-0"
+                            className="w-3.5 h-3.5 text-emerald-600/70 shrink-0"
                             fill="none"
                             viewBox="0 0 24 24"
                             stroke="currentColor"
@@ -462,7 +462,7 @@ export default function AdminOverviewView({
                           aria-label={isBn ? "অনুমোদন করুন" : "Approve Member"}
                           disabled={busyUserId === pendingUser.id}
                           onClick={() => handleApproveUser(pendingUser.id)}
-                          className="h-8 w-8 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white flex items-center justify-center shadow-2xs transition-all cursor-pointer disabled:opacity-50"
+                          className="h-8 w-8 rounded-xl bg-[#006a4e] hover:bg-[#00523c] active:scale-95 text-white flex items-center justify-center shadow-2xs transition-all cursor-pointer disabled:opacity-50"
                         >
                           {busyUserId === pendingUser.id ? (
                             <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -490,7 +490,7 @@ export default function AdminOverviewView({
                           aria-label={isBn ? "মুছে ফেলুন" : "Remove Member"}
                           disabled={busyUserId === pendingUser.id}
                           onClick={() => handleRemoveUser(pendingUser.id)}
-                          className="h-8 w-8 rounded-xl bg-rose-50 hover:bg-rose-100 active:scale-95 text-rose-600 border border-rose-200/90 flex items-center justify-center transition-all cursor-pointer disabled:opacity-50"
+                          className="h-8 w-8 rounded-xl bg-white hover:bg-rose-50 active:scale-95 text-slate-500 hover:text-rose-600 border border-slate-200 hover:border-rose-200 flex items-center justify-center transition-all cursor-pointer disabled:opacity-50"
                         >
                           <svg
                             className="w-4 h-4"

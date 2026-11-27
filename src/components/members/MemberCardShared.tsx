@@ -11,41 +11,6 @@ export const MEMBER_CARD_PALETTES = [
     metaBox: "bg-emerald-100/45 border-emerald-200/70",
     softBox: "bg-emerald-50/75 border-emerald-200/70",
   },
-  {
-    card: "bg-gradient-to-br from-amber-50/95 via-white to-[#fff9e6] border-amber-200/90",
-    bar: "from-[#f2b705] via-amber-500 to-orange-400",
-    ring: "ring-amber-300/80",
-    metaBox: "bg-amber-100/45 border-amber-200/70",
-    softBox: "bg-amber-50/75 border-amber-200/70",
-  },
-  {
-    card: "bg-gradient-to-br from-sky-50/95 via-white to-blue-50/80 border-sky-200/90",
-    bar: "from-sky-500 via-blue-500 to-indigo-400",
-    ring: "ring-sky-300/80",
-    metaBox: "bg-sky-100/45 border-sky-200/70",
-    softBox: "bg-sky-50/75 border-sky-200/70",
-  },
-  {
-    card: "bg-gradient-to-br from-violet-50/90 via-white to-purple-50/80 border-violet-200/90",
-    bar: "from-violet-500 via-purple-500 to-fuchsia-400",
-    ring: "ring-violet-300/80",
-    metaBox: "bg-violet-100/45 border-violet-200/70",
-    softBox: "bg-violet-50/75 border-violet-200/70",
-  },
-  {
-    card: "bg-gradient-to-br from-teal-50/95 via-white to-cyan-50/80 border-teal-200/90",
-    bar: "from-teal-500 via-cyan-500 to-emerald-400",
-    ring: "ring-teal-300/80",
-    metaBox: "bg-teal-100/45 border-teal-200/70",
-    softBox: "bg-teal-50/75 border-teal-200/70",
-  },
-  {
-    card: "bg-gradient-to-br from-rose-50/90 via-white to-pink-50/80 border-rose-200/90",
-    bar: "from-rose-500 via-pink-500 to-orange-400",
-    ring: "ring-rose-300/80",
-    metaBox: "bg-rose-100/45 border-rose-200/70",
-    softBox: "bg-rose-50/75 border-rose-200/70",
-  },
 ] as const;
 
 export function getMemberBloodLabel(bloodGroup?: string | null): string {
