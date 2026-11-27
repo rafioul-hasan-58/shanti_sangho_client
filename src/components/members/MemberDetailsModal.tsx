@@ -132,10 +132,6 @@ export default function MemberDetailsModal({
                   name={member.fullName}
                   className={`h-24 w-24 sm:h-28 sm:w-28 ring-4 ring-white shadow-lg bg-white`}
                 />
-                <span
-                  title={isBn ? "সক্রিয় সদস্য" : "Active Member"}
-                  className="absolute bottom-1.5 right-1.5 h-4 w-4 rounded-full bg-emerald-500 ring-2 ring-white"
-                />
               </div>
 
               <div className="min-w-0 sm:pb-1">

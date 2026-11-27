@@ -67,11 +67,6 @@ const CARD_PALETTES = [
   },
 ] as const;
 
-const STATUS_DOT_MAP: Record<UserStatus, { dot: string; labelEn: string; labelBn: string }> = {
-  ACTIVE: { dot: "bg-emerald-500", labelEn: "Active", labelBn: "সক্রিয়" },
-  SUSPENDED: { dot: "bg-rose-500", labelEn: "Suspended", labelBn: "স্থগিত" },
-};
-
 /** Compact player icon badge shown only when `membershipType === "PLAYER_QUOTA"`. */
 function PlayerQuotaBadgeIcon({ isBn }: { isBn: boolean }) {
   const label = isBn ? "খেলোয়াড় কোটা" : "Player Quota";
@@ -193,7 +188,6 @@ export default function UserManagementCards({
       {users.map((u, idx) => {
         const palette = CARD_PALETTES[idx % CARD_PALETTES.length];
         const isBlocked = u.status === "SUSPENDED";
-        const statusInfo = isBlocked ? STATUS_DOT_MAP.SUSPENDED : STATUS_DOT_MAP.ACTIVE;
         const isSelf = Boolean(currentUserId && currentUserId === u.id);
         const isBusy = busyUserId === u.id;
         const isMenuOpen = openMenuUserId === u.id;
@@ -332,11 +326,13 @@ export default function UserManagementCards({
                   name={u.fullName}
                   className={`h-12 w-12 sm:h-14 sm:w-14 ring-2 ${palette.ring}`}
                 />
-                <span
-                  title={isBn ? statusInfo.labelBn : statusInfo.labelEn}
-                  aria-label={isBn ? statusInfo.labelBn : statusInfo.labelEn}
-                  className={`absolute bottom-0 right-0 h-3 w-3 rounded-full ${statusInfo.dot} ring-2 ring-white`}
-                />
+                {isBlocked && (
+                  <span
+                    title={isBn ? "স্থগিত" : "Suspended"}
+                    aria-label={isBn ? "স্থগিত" : "Suspended"}
+                    className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-rose-500 ring-2 ring-white"
+                  />
+                )}
               </div>
 
               <div className="mt-2 flex items-center justify-center gap-1 min-w-0 max-w-full">

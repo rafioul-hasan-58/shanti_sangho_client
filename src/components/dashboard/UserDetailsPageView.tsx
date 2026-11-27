@@ -390,11 +390,12 @@ export default function UserDetailsPageView({
                         name={freshUser.fullName}
                         className="h-20 w-20 sm:h-24 sm:w-24 ring-4 ring-white shadow-md bg-white"
                       />
-                      <span
-                        title={isBn ? statusMeta.labelBn : statusMeta.labelEn}
-                        className={`absolute bottom-1 right-1 h-4 w-4 rounded-full ring-2 ring-white ${isBlocked ? "bg-rose-500" : "bg-emerald-500"
-                          }`}
-                      />
+                      {isBlocked && (
+                        <span
+                          title={isBn ? statusMeta.labelBn : statusMeta.labelEn}
+                          className="absolute bottom-1 right-1 h-4 w-4 rounded-full ring-2 ring-white bg-rose-500"
+                        />
+                      )}
                     </div>
 
                     <div className="min-w-0 pt-1 sm:pb-1">

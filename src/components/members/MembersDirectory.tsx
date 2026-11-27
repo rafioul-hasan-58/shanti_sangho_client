@@ -477,10 +477,6 @@ export default function MembersDirectory({
                         name={u.fullName}
                         className={`h-12 w-12 sm:h-14 sm:w-14 ring-2 ${palette.ring}`}
                       />
-                      <span
-                        title={isBn ? "সক্রিয়" : "Active"}
-                        className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-emerald-500 ring-2 ring-white"
-                      />
                     </div>
 
                     <div className="mt-2 flex items-center justify-center gap-1 min-w-0 max-w-full">
@@ -569,7 +565,6 @@ export default function MembersDirectory({
                           isBn={isBn}
                         />
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/85 border border-emerald-200/80 text-[10px] font-bold text-emerald-700">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                           <span>{isBn ? "সক্রিয়" : "Active"}</span>
                         </span>
                       </div>
@@ -582,10 +577,6 @@ export default function MembersDirectory({
                           src={u.profileImage || u.picture}
                           name={u.fullName}
                           className={`h-20 w-20 ring-4 ${palette.ring} shadow-md bg-white group-hover:scale-105 transition-transform duration-300`}
-                        />
-                        <span
-                          title={isBn ? "সক্রিয় সদস্য" : "Active"}
-                          className="absolute bottom-0.5 right-0.5 h-3.5 w-3.5 rounded-full bg-emerald-500 ring-2 ring-white"
                         />
                       </div>
 
