@@ -149,29 +149,9 @@ export default function AdminOverviewView({
       <section aria-label="Pending user requests">
         <div className="bg-white rounded-3xl p-5 sm:p-6 border border-[#006a4e]/15 shadow-xs space-y-5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
-            <div>
-              <div className="flex items-center gap-2 flex-wrap mb-1.5">
-                <span className="inline-flex items-center gap-1.5 text-[11px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#f2b705]/20 text-[#8a6100] border border-[#f2b705]/40">
-                  <span>⏳</span>
-                  <span>{isBn ? "পেন্ডিং ইউজার" : "Pending Users"}</span>
-                </span>
-                {!pendingLoading && (
-                  <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#f7f4ea] text-[#004d38] border border-[#006a4e]/15">
-                    {isBn
-                      ? `সর্বোচ্চ ৬ জন • মোট ${displayedPendingCount} জন`
-                      : `Showing ${pendingUsers.length} of ${displayedPendingCount} (Max 6)`}
-                  </span>
-                )}
-              </div>
-              <h3 className="text-lg font-black text-[#12231d] leading-snug">
-                {isBn ? "সাম্প্রতিক পেন্ডিং ইউজার" : "Recent Pending Users"}
-              </h3>
-              <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
-                {isBn
-                  ? "অনুমোদন বা যাচাইকরণের অপেক্ষায় থাকা সর্বোচ্চ ৬ জন ইউজার এখানে দেখানো হয়েছে"
-                  : "Up to 6 most recent users waiting for admin verification or activation"}
-              </p>
-            </div>
+            <h3 className="text-lg font-black text-[#12231d] leading-snug">
+              {isBn ? "সাম্প্রতিক পেন্ডিং ইউজার" : "Recent Pending Users"}
+            </h3>
 
             {onReviewPending && (
               <button
